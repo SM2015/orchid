@@ -1,0 +1,4 @@
+from forms_builder.forms.forms import FormForForm
+from django.template.context import Context
+c = Context()
+z = FormForForm(f, c)

@@ -1,0 +1,20 @@
+{% extends "bootstrap.html" %}
+
+{% block title %}orchid{% endblock %}
+
+{% block showcase %}
+
+<form id="my-dropzone" action="{{ upload_url }}" class="dropzone" method="post" enctype="multipart/form-data">{% csrf_token %}
+</form>
+<div>
+	<p>
+		Having trouble?  Try our <a href="{{ upload_url }}">simple uploader</a>.
+	</p>
+	<div class="text-center">
+		<nav class="cl-effect-9">
+			<h1><a href="{{ preview_url }}" data-hover="test">Preview Content</a></h1>
+		</nav>
+	</div>
+</div>
+
+{% endblock %}

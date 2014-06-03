@@ -1,0 +1,64 @@
+{% extends "bootstrap.html" %}
+{% load markdown_deux_tags %}
+
+{% block title %}orchid{% endblock %}
+{% block pre_extra %}
+<section id="testimoni" class="testimoni">
+	<div class="container">
+		<div class="wrapper">
+			<div class="row">
+				<div class="col-lg-12 animaze" style="opacity: 1; top: 0px;">
+					<div class="title text-center">
+						<h1 class="white">{{ noun.first_name }} {{ noun.last_name }}</h1>
+					</div>
+					<div id="quote-slider" style="overflow: hidden; position: relative; height: 250px;">
+						<ul style="display: block; position: relative; width: 9000040px; margin-left: -1000px; margin-top: 0px;"><li style="float: left; list-style: none; display: block; position: relative; width: 960px;">
+							<div class="hexaout">
+								<img src="http://graph.facebook.com/{{ noun.profile.get_facebook_id }}/picture?type=large"  class="hexapic" alt="">
+							</div>
+							<h2>It is important that we forgive ourselves for making mistakes. We need to learn from our errors and move on</h2>
+							<span>— Budi Sumadi, CEO Baju Buathik</span>
+						</li>
+
+						<li style="float: left; list-style: none; display: block; position: relative; width: 960px;">
+							<div class="hexaout">
+								<img src="http://graph.facebook.com/{{ noun.profile.get_facebook_id }}/picture?type=large" class="hexapic" alt="">
+							</div>
+							<h2><a href="{{ noun.profile.get_facebook_url }}">Facebook Profile</a></h2>
+							<h2>Total Pledged:$0.00</h2>
+						</li>
+					</ul>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+</section>
+<section class="action text-center">
+	<div class="action-wrapper">
+		<div class="container">
+			<div class="wrapper">
+				<div class="row">
+					<div class="col-lg-12 animaze fromTop" style="opacity: 1; top: 0px;">
+						<h1 class="white text-center">RECENTLY PUBLISHED</h4>
+							<br>
+							<div class="container">
+								{% for post in posts %}
+								{% include "post/representation.html"%}
+								{% endfor %}
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+	{% endblock %}
+	{% block showcase %}
+	<h1 class="text-center">HISTORY</h1>
+	<br>
+	{% include "history/list.html" %}
+	{% endblock %}
+
+	{% block audit %}
+	{% endblock %}

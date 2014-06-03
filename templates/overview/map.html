@@ -1,0 +1,6 @@
+{% extends "base/bootstrap.html" %}
+{% block scripts %}
+<script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false"></script>
+<script src="{{ STATIC_URL }}js/maps.js"></script>
+{% endblock %}
+{% block jumbotron %}<div id="map-canvas"></div>{% endblock %}

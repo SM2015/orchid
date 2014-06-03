@@ -1,0 +1,26 @@
+{
+  "name": "orchid",
+  "version": "0.0.0",
+  "description": "orchid ======== I guess readme stuff will go here when it becomes relevant.",
+  "main": "Gruntfile.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/neuman/orchid.git"
+  },
+  "author": "neuman",
+  "license": "BSD-2-Clause",
+  "bugs": {
+    "url": "https://github.com/neuman/orchid/issues"
+  },
+  "devDependencies": {
+    "grunt": "~0.4.5",
+    "bower": "~1.2.8",
+    "grunt-bower-requirejs": "~0.11.0"
+  },
+  "dependencies": {
+    "bower-requirejs": "~0.11.0"
+  }
+}

@@ -1,0 +1,27 @@
+Django==1.6.1
+South==0.8.4
+amqp==1.4.4
+anyjson==0.3.3
+argparse==1.2.1
+billiard==3.3.0.16
+boto==2.22.0
+-e git+git://github.com/neuman/python-carteblanche.git@development#egg=carteblanche
+celery==3.1.10
+django-activity-stream==0.4.5beta1
+django-bower==4.8.1
+django-celery==3.1.9
+django-json-field==0.5.5
+django-jsonfield==0.9.12
+django-object-log==0.7
+django-storages==1.1.8
+ipython==1.2.0
+jsonfield==0.9.20
+kombu==3.0.14
+logging==0.4.9.6
+markdown2==2.2.0
+pystache==0.3.1
+redis==2.9.1
+requests==2.2.1
+requests-oauthlib==0.4.0
+simplejson==3.3.1
+-e git://github.com/hugotox/django-remote-forms.git@0b2b2327ac3251dcb041643288b66bd421671786#egg=django_remote_forms-master
