@@ -9,6 +9,8 @@ from django.utils.decorators import available_attrs
 from django.contrib.messages.views import SuccessMessageMixin
 from django.contrib import messages
 
+MESSAGES_TEMPLATE = 'base/messages.html'
+
 class NounView(SuccessMessageMixin):
     success_message = "That worked!"
 
@@ -33,6 +35,7 @@ class NounView(SuccessMessageMixin):
 
     def get_context_data(self, **kwargs):
         # Call the base implementation first to get a context
+        print "get_context_data"
         context = super(NounView, self).get_context_data(**kwargs)
         available_verbs = self.noun.get_available_verbs(self.request.user)
         context['available_verbs'] = available_verbs
@@ -52,7 +55,7 @@ class NounView(SuccessMessageMixin):
         if len(denied_messages) > 0:
             for message in denied_messages:
                 messages.add_message(self.request, messages.ERROR, message)
-            return render_to_response('messages.html',{"available_verbs":self.noun.get_available_verbs(self.request.user)}, RequestContext(self.request))
+            return render_to_response(MESSAGES_TEMPLATE,{"available_verbs":self.noun.get_available_verbs(self.request.user)}, RequestContext(self.request))
         
         return super(NounView, self).dispatch(*args, **kwargs)
 
@@ -83,8 +86,10 @@ def availability_login_required(is_available_func):
     def decorator(self, user):
         print user
         if user.is_authenticated(): 
+            print "is_authenticated = True"
             return is_available_func(self, user)
         else:
+            print "is_authenticated = False"
             self.denied_message = "You must be logged in to "+self.display_name+"."
             return False
     return decorator
@@ -121,7 +126,7 @@ class HistoryListVerb(CoreVerb):
 class LocationCreateVerb(CoreVerb):
     display_name = "Create New Location"
     view_name='location_create'
-    condition_name = 'is_authenticated'
+    condition_name = 'public'
     required = True
 
 class IndicatorCreateVerb(CoreVerb):
@@ -130,8 +135,13 @@ class IndicatorCreateVerb(CoreVerb):
     condition_name = 'is_authenticated'
     required = True
 
+    @availability_login_required
+    def is_available(self, user):
+        print "IndicatorCreateVerb is_available"
+        return True
+
 class LocationListVerb(CoreVerb):
-    display_name = "Location Overview"
+    display_name = "View All Locations"
     view_name='location_list'
     condition_name = 'is_authenticated'
     required = True
@@ -148,24 +158,18 @@ class StaffVerb(CoreVerb):
     def is_available(self, user):
         return user.is_staff
 
-
-class SiteJoinVerb(UnauthenticatedOnlyVerb):
-    display_name = "Join orchid"
-    view_name='user_ceate'
-
 class SiteLoginVerb(UnauthenticatedOnlyVerb):
-    display_name = "Login with Facebook"
+    display_name = "Login"
     #no view name ok because this is always allowed, fb handles the authentication
 
     def get_url(self):
         return reverse('user_login')
 
-
 class SiteRoot(Noun):
     '''
     A hack that lets pages that have no actual noun have verbs and verb-based permissions. 
     '''
-    verb_classes = [LocationCreateVerb, IndicatorCreateVerb, LocationListVerb, SiteLoginVerb]
+    verb_classes = [SiteLoginVerb, LocationListVerb, LocationCreateVerb, IndicatorCreateVerb]
 
     class Meta:
         abstract = True

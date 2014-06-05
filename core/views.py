@@ -39,10 +39,11 @@ class SiteRootView(NounView):
         return siteroot
 
 class MessageView(SiteRootView, TemplateView):
-    template_name = 'message.html'
+    template_name = 'base/messages.html'
     message = 'Message goes here.'
 
     def get_context_data(self, **kwargs):
+
         # Call the base implementation first to get a context
         context = super(MessageView, self).get_context_data(**kwargs)
         # Add in a QuerySet of all the books
@@ -53,7 +54,8 @@ class MessageView(SiteRootView, TemplateView):
 class LandingView(SiteRootView, TemplateView):
     template_name = 'overview/map.html'
 
-
+    def get(self, request, **kwargs):
+        return HttpResponseRedirect(reverse(viewname='location_list', current_app='core'))
 
 class BootstrapView(TemplateView):
     template_name = 'grid.html'
@@ -165,6 +167,11 @@ class LocationListView(SiteRootView, TemplateView):
 class IndicatorCreateView(SiteRootView, CreateView):
     model = cm.Indicator
     template_name = 'base/form.html'
-    fields = '__all__'
     form_class = cf.IndicatorForm
-    success_url = '/'
+
+    def get_success_url(self):
+        new_form = fm.Form.objects.create(title=self.object.title)
+        self.object.form = new_form
+        self.object.save()
+        action.send(self.request.user, verb='created', action_object=self.object, target=self.object)
+        return cm.IndicatorCreateView(new_post).get_url()

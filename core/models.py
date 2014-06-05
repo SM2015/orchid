@@ -73,7 +73,7 @@ class Location(Auditable, Noun):
     verb_classes = []
 
 class Indicator(Auditable, Noun):
-    form = models.ForeignKey(fm.Form, unique=True)
+    form = models.ForeignKey(fm.Form, unique=True, null=True, blank=True)
     passing_percentage = models.FloatField(default=85)
 
 class Summary(Auditable, Noun):
