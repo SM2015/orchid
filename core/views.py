@@ -27,6 +27,12 @@ from django.shortcuts import get_object_or_404
 
 from django.conf import settings
 
+import decimal 
+def decimal_default(obj):
+    if isinstance(obj, decimal.Decimal):
+        return float(obj)
+    raise TypeError
+
 class SiteRootView(NounView):
     def get_noun(self, **kwargs):
         siteroot = cm.SiteRoot()
@@ -44,7 +50,7 @@ class MessageView(SiteRootView, TemplateView):
         return context
 
 
-class LandingView(TemplateView):
+class LandingView(SiteRootView, TemplateView):
     template_name = 'overview/map.html'
 
 
@@ -89,7 +95,7 @@ class AjaxableResponseMixin(object):
 
 class UserCreateView(SiteRootView, CreateView):
     model = User
-    template_name = 'form.html'
+    template_name = 'base/form.html'
     form_class = cf.RegistrationForm
 
     def form_valid(self, form):
@@ -107,7 +113,7 @@ class UserCreateView(SiteRootView, CreateView):
         return reverse(viewname='user_detail', args=(self.object.id,), current_app='core')
 
 class UserLoginView(SiteRootView, FormView):
-    template_name = 'form.html'
+    template_name = 'base/form.html'
     form_class = cf.LoginForm
     success_url = '/'
 
@@ -134,13 +140,13 @@ class LocationCreateView(SiteRootView, CreateView):
     success_url = '/'
 
 class LocationListView(SiteRootView, TemplateView):
-    model = cm.Location
-    template_name = 'base/bootstrap.html'
-
+    model = cm.Location    
+    template_name = 'overview/map.html'
     def get(self, request, *args, **kwargs):
         supes = super(LocationListView, self).get(request, *args, **kwargs)
         context = self.get_context_data(**kwargs)
         if self.request.is_ajax():
+            self.template_name = 'base/bootstrap.html'
             locations = []
             for l in cm.Location.objects.all():
                 blob = {
@@ -156,8 +162,9 @@ class LocationListView(SiteRootView, TemplateView):
 
         return supes
 
-import decimal 
-def decimal_default(obj):
-    if isinstance(obj, decimal.Decimal):
-        return float(obj)
-    raise TypeError
+class IndicatorCreateView(SiteRootView, CreateView):
+    model = cm.Indicator
+    template_name = 'base/form.html'
+    fields = '__all__'
+    form_class = cf.IndicatorForm
+    success_url = '/'

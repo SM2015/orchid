@@ -124,9 +124,11 @@ class LocationCreateVerb(CoreVerb):
     condition_name = 'is_authenticated'
     required = True
 
-    @availability_login_required
-    def is_available(self, user):
-        return True
+class IndicatorCreateVerb(CoreVerb):
+    display_name = "Create New Indicator"
+    view_name='indicator_create'
+    condition_name = 'is_authenticated'
+    required = True
 
 class LocationListVerb(CoreVerb):
     display_name = "Location Overview"
@@ -156,161 +158,17 @@ class SiteLoginVerb(UnauthenticatedOnlyVerb):
     #no view name ok because this is always allowed, fb handles the authentication
 
     def get_url(self):
-        return reverse('social:begin', args=[u'facebook'])
+        return reverse('user_login')
 
 
 class SiteRoot(Noun):
     '''
     A hack that lets pages that have no actual noun have verbs and verb-based permissions. 
     '''
-    verb_classes = [LocationCreateVerb, LocationListVerb, SiteLoginVerb]
+    verb_classes = [LocationCreateVerb, IndicatorCreateVerb, LocationListVerb, SiteLoginVerb]
 
     class Meta:
         abstract = True
 
     def __unicode__(self):
         return ''
-
-class PledgeVerb(CoreVerb):
-    denied_message = "Sorry, you already pledged!"
-    view_name='pledge_create'
-    condition_name = 'can_pledge'
-
-    @availability_login_required
-    def is_available(self, user):
-        return self.noun.can_pledge(user)
-
-    def get_url(self):
-        return reverse(viewname=self.view_name, args=[self.noun.id], current_app=self.app)
-
-class CreatePledgeVerb(PledgeVerb):
-    display_name = "Pledge"
-    view_name='pledge_create'
-
-class CreatePaymentMethodVerb(PledgeVerb):
-    display_name = "Add New Payment Method"
-    view_name='paymentmethod_create'
-    visible = False
-
-class ProjectVerb(DjangoVerb):
-    def get_url(self):
-        return reverse(viewname=self.view_name, args=[self.noun.id], current_app=self.app)
-
-class ProjectMemberVerb(ProjectVerb):
-    condition_name = "is_member"
-    required = True
-    denied_message = "Sorry, you must be a member of the project to do this."
-
-    @availability_login_required
-    def is_available(self, user):
-        return self.noun.members.filter(id=user.id).count() > 0
-
-class ProjectPostVerb(ProjectMemberVerb):
-    display_name = "Create New Post"
-    view_name='post_create'
-
-class ProjectDetailVerb(ProjectVerb):
-    display_name = "View Project"
-    view_name = 'project_detail'
-    condition_name = "can_view"
-    required = True
-    denied_message = "Sorry, that project isn't published yet."
-
-    def is_available(self, user):
-        return self.noun.is_visible_to(user)
-
-class MediaDetailVerb(DjangoVerb):
-    display_name = "View Media"
-    view_name = 'media_detail'
-    condition_name = 'can_view'
-    required = True
-    denied_message = "Sorry, that media isn't published yet."
-
-    def is_available(self, user):
-        post = self.noun.get_post()
-        if post.is_published():
-            return True
-        elif post.project.members.filter(id=user.id).count() > 0:
-                return True
-        else:
-            return False
-
-    def get_url(self):
-        return reverse(viewname=self.view_name, args=[self.noun.id], current_app=self.app)
-
-class MediaUpdateVerb(CoreVerb):
-    display_name = "Update Media Details"
-    view_name='media_update'
-    required = True
-
-    @availability_login_required
-    def is_available(self, user):
-        return self.noun.post_set.all()[0].project.members.filter(id=user.id).count() > 0
-
-    def get_url(self):
-        return reverse(viewname=self.view_name, args=[self.noun.id], current_app=self.app)
-
-
-class PostMemberVerb(CoreVerb):
-    denied_message = "You must be a project member to upload to this post."
-    condition_name = "is_member"
-
-    @availability_login_required
-    def is_available(self, user):
-        if self.noun.submitted == True:
-            return False
-        else:
-            return self.noun.project.members.filter(id=user.id).count() > 0
-
-    def get_url(self):
-        return reverse(viewname=self.view_name, args=[self.noun.id], current_app=self.app)
-
-class PostSubmitVerb(PostMemberVerb):
-    display_name = "Submit For Publishing"
-    view_name = 'post_submit'
-    success_message = "Your post has now been submitted!  An orchid staffer has been alerted and will check it for compliance with our guidelines before publishing.  You'll be notified when it's live."
-
-class PostCreateMediasVerb(PostMemberVerb):
-    display_name = "Upload Post Files"
-    view_name = 'post_media_uploads'
-
-class PostCreateMediaVerb(PostMemberVerb):
-    display_name = "Upload a File"
-    view_name = 'post_media_create'
-    visible = False
-
-class PostReorderMediasVerb(PostMemberVerb):
-    display_name = "Reorder Post Media"
-    view_name = 'post_media_reorder'
-
-class PostPublishVerb(PostMemberVerb):
-    display_name = "Publish"
-    view_name = "post_publish"
-
-class PostDetailVerb(CoreVerb):
-    display_name = "View Post"
-    view_name = 'post_detail'
-    condition_name = "can_view"
-    required = True
-    denied_message = "Sorry, that post isn't published yet."
-
-    def is_available(self, user):
-        if self.noun.is_published():
-            return True
-        elif self.noun.project.members.filter(id=user.id).count() > 0:
-                return True
-        else:
-            return False
-
-    def get_url(self):
-        return reverse(viewname=self.view_name, args=[self.noun.id], current_app=self.app)
-
-class PostProjectDetailVerb(ProjectDetailVerb):
-    def get_url(self):
-        return reverse(viewname=self.view_name, args=[self.noun.project.id], current_app=self.app)
-
-
-class MediaPostDetailVerb(PostDetailVerb):
-    def get_url(self):
-        return reverse(viewname=self.view_name, args=[self.noun.get_post().id], current_app=self.app)
-

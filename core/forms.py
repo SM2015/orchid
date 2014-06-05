@@ -125,3 +125,9 @@ class LocationForm(BootstrapForm):
     class Meta:
         model = cm.Location
         exclude = ['changed_by']
+
+class IndicatorForm(BootstrapForm):
+    title = forms.CharField(max_length=100)
+    class Meta:
+        model = cm.Indicator
+        exclude = ['changed_by', 'form']

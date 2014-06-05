@@ -14,6 +14,7 @@ import uuid
 import os
 from geoposition.fields import GeopositionField
 from core.verbs import *
+import forms_builder.forms.models as fm
 
 '''
 EXAMPLE_CHOICES = (
@@ -72,7 +73,7 @@ class Location(Auditable, Noun):
     verb_classes = []
 
 class Indicator(Auditable, Noun):
-    form = models.ForeignKey(User, unique=True)
+    form = models.ForeignKey(fm.Form, unique=True)
     passing_percentage = models.FloatField(default=85)
 
 class Summary(Auditable, Noun):
