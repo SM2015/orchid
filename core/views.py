@@ -7,27 +7,21 @@ from django.core.urlresolvers import reverse
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import User
 from uuid import uuid4
-
 from carteblanche.base import Noun
 #from carteblanche.django.mixins import NounView
 from core.verbs import NounView
-
 import core.models as cm
 import core.forms as cf
 import core.tasks as ct
-
 from django.db.models.signals import post_save
 from actstream import action
 from actstream.models import user_stream, action_object_stream, model_stream, actor_stream
-
 from django.contrib.auth import authenticate, login, logout
-
 from django.contrib.contenttypes.models import ContentType
 from django.shortcuts import get_object_or_404
-
 from django.conf import settings
-
-import decimal 
+import decimal
+import forms_builder.forms.models as fm
 def decimal_default(obj):
     if isinstance(obj, decimal.Decimal):
         return float(obj)
@@ -168,10 +162,12 @@ class IndicatorCreateView(SiteRootView, CreateView):
     model = cm.Indicator
     template_name = 'base/form.html'
     form_class = cf.IndicatorForm
+    success_url = '/admin/forms/form/'
+    
+    def form_valid(self, form):
 
-    def get_success_url(self):
-        new_form = fm.Form.objects.create(title=self.object.title)
-        self.object.form = new_form
-        self.object.save()
-        action.send(self.request.user, verb='created', action_object=self.object, target=self.object)
-        return cm.IndicatorCreateView(new_post).get_url()
+        new_form = fm.Form.objects.create(title=form.cleaned_data['title'])
+        form.instance.form = new_form
+        form.instance.save()
+        #action.send(self.request.user, verb='created', action_object=self.object, target=self.object)
+        return super(IndicatorCreateView, self).form_valid(form)
