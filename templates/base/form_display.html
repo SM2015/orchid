@@ -1,0 +1,36 @@
+{% extends "base/bootstrap.html" %}
+{% block title %}orchid{% endblock %}
+
+{% block showcase %}
+<div class="row">
+  {% if form %}
+
+  <div class="col-md-12">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Label</th>
+            <th>Required</th>
+            <th>Help Text</th>
+          </tr>
+        </thead>
+        <tbody>
+        {% for field in form %}
+          <tr>
+            <td>{{ field.label }}</td>
+            <td >{% if field.required %}True{% else %}False{% endif %}</td>
+            <td >{{ field.help_text }}</td>
+          </tr>
+        <div>
+       {% endfor %}
+        </tbody>
+      </table>
+</div>
+
+{% endif %}
+</div>
+
+
+
+
+{% endblock %}

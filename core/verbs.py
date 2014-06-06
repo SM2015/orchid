@@ -70,6 +70,7 @@ class NounView(SuccessMessageMixin):
     class Meta:
         abstract = True
 
+from django.core.urlresolvers import NoReverseMatch
 class DjangoVerb(cb.Verb):
     view_name = None
     app = None
@@ -79,7 +80,10 @@ class DjangoVerb(cb.Verb):
         '''
         Default django get_url for urls that require no args.
         '''
-        return reverse(viewname=self.view_name, current_app=self.app)
+        try:
+            return reverse(viewname=self.view_name, args=[self.noun.id], current_app=self.app)
+        except NoReverseMatch as e:
+            return reverse(viewname=self.view_name, current_app=self.app)
 
 def availability_login_required(is_available_func):
     @wraps(is_available_func, assigned=available_attrs(is_available_func))
@@ -132,10 +136,7 @@ class HistoryListVerb(CoreVerb):
     view_name='history_list'
     required = True
     denied_message = "Sorry, you can't view that history yet."
-
-    def get_url(self):
-        return reverse(viewname=self.view_name, kwargs={'instance_model':self.noun._meta.model_name, 'pk':self.noun.id}, current_app=self.app)
-
+    
     def is_available(self, user):
         return self.noun.is_visible_to(user)
 
@@ -147,12 +148,13 @@ class IndicatorCreateVerb(AuthenticatedOnlyVerb):
     display_name = "Create New Indicator"
     view_name='indicator_create'
 
+class IndicatorDetaileVerb(AuthenticatedOnlyVerb):
+    display_name = "View Indicator"
+    view_name='indicator_detail'
+
 class FieldCreateVerb(AuthenticatedOnlyVerb):
     display_name = "Create New Field"
     view_name='field_create'
-
-    def get_url(self):
-        return reverse(viewname=self.view_name, args=[self.noun.id], current_app=self.app)
 
 class LocationListVerb(CoreVerb):
     display_name = "View All Locations"

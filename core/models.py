@@ -67,11 +67,18 @@ class Location(Auditable, Noun):
     members = models.ManyToManyField(User)
     verb_classes = []
 
+from forms_builder.forms.forms import FormForForm
+from django.template.context import Context
+
 class Indicator(Auditable, Noun):
     title = models.CharField(max_length=300)
     form = models.ForeignKey(fm.Form, unique=True, null=True, blank=True)
     passing_percentage = models.FloatField(default=85)
-    verb_classes = [FieldCreateVerb]
+    verb_classes = [IndicatorDetaileVerb, FieldCreateVerb]
+
+    def get_form(self):
+        c = Context()
+        return FormForForm(self.form, c)
 
 class Summary(Auditable, Noun):
     user = models.ForeignKey(User, unique=True)

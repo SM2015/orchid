@@ -176,6 +176,13 @@ class IndicatorView(NounView):
     def get_noun(self, **kwargs):
         return cm.Indicator.objects.get(id=self.kwargs['pk'])
 
+class IndicatorDetailView(IndicatorView, FormView):
+    model = fm.Field
+    template_name = 'base/form_display.html'
+
+    def get_form(self, form_class):
+        return self.noun.get_form()
+
 class FieldCreateView(IndicatorView, FormView):
     model = fm.Field
     template_name = 'base/form.html'
