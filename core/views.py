@@ -22,10 +22,10 @@ from django.shortcuts import get_object_or_404
 from django.conf import settings
 import decimal
 import forms_builder.forms.models as fm
+
 def decimal_default(obj):
     if isinstance(obj, decimal.Decimal):
         return float(obj)
-    raise TypeError
 
 class SiteRootView(NounView):
     def get_noun(self, **kwargs):
@@ -138,21 +138,26 @@ class LocationCreateView(SiteRootView, CreateView):
 class LocationListView(SiteRootView, TemplateView):
     model = cm.Location    
     template_name = 'overview/map.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(LocationListView, self).get_context_data(**kwargs)
+        locations = []
+        for l in cm.Location.objects.all():
+            blob = {
+                'id':l.id,
+                'lattitude':l.position.latitude,
+                'longitude':l.position.longitude,
+                'title':l.title
+            }
+            locations.append(blob)
+        context['locations'] = locations
+        return context
+
     def get(self, request, *args, **kwargs):
         supes = super(LocationListView, self).get(request, *args, **kwargs)
         context = self.get_context_data(**kwargs)
         if self.request.is_ajax():
-            self.template_name = 'base/bootstrap.html'
-            locations = []
-            for l in cm.Location.objects.all():
-                blob = {
-                    'id':l.id,
-                    'lattitude':l.position.latitude,
-                    'longitude':l.position.longitude,
-                    'title':l.title
-                }
-                locations.append(blob)
-            data = json.dumps(locations, default=decimal_default)
+            data = json.dumps(context, default=decimal_default)
             out_kwargs = {'content_type':'application/json'}
             return HttpResponse(data, **out_kwargs)
 

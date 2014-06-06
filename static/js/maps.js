@@ -12,7 +12,8 @@ function initMarkers()
 {
     $.getJSON( "location/list", function( data ) {
       var items = [];
-      $.each( data, function( key, val ) {
+      $.each( data['locations'], function( key, val ) {
+        console.log("val");
         console.log(val);
 
         var marker = new google.maps.Marker({
