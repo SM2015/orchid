@@ -82,7 +82,7 @@ class DjangoVerb(cb.Verb):
         '''
         try:
             return reverse(viewname=self.view_name, args=[self.noun.id], current_app=self.app)
-        except NoReverseMatch as e:
+        except Exception as e:
             return reverse(viewname=self.view_name, current_app=self.app)
 
 def availability_login_required(is_available_func):
@@ -136,7 +136,7 @@ class HistoryListVerb(CoreVerb):
     view_name='history_list'
     required = True
     denied_message = "Sorry, you can't view that history yet."
-    
+
     def is_available(self, user):
         return self.noun.is_visible_to(user)
 
