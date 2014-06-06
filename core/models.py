@@ -16,11 +16,6 @@ from geoposition.fields import GeopositionField
 from core.verbs import *
 import forms_builder.forms.models as fm
 
-'''
-EXAMPLE_CHOICES = (
-    ('PRI', 'Private'),
-)
-'''
 
 def get_file_path(instance, filename):
     blocks = filename.split('.')
@@ -73,8 +68,10 @@ class Location(Auditable, Noun):
     verb_classes = []
 
 class Indicator(Auditable, Noun):
+    title = models.CharField(max_length=300)
     form = models.ForeignKey(fm.Form, unique=True, null=True, blank=True)
     passing_percentage = models.FloatField(default=85)
+    verb_classes = [FieldCreateVerb]
 
 class Summary(Auditable, Noun):
     user = models.ForeignKey(User, unique=True)

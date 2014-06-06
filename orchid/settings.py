@@ -112,36 +112,12 @@ STATICFILES_FINDERS = (
 PROJECT_ROOT = os.path.dirname(__file__)
 
 
-
-BOWER_COMPONENTS_ROOT = os.path.join(BASE_DIR, 'static/bower_components')
-BOWER_INSTALLED_APPS = (
-    'jquery',
-    'chartjs',
-    'bootstrap',
-    'bootstrap-switch',
-    'dropzone',
-    #'holder',
-    'imagesloaded',
-    'jquery.nicescroll',
-    'jquery.scrollTo',
-    'jquery.sparkline',
-    'jquery.tagsinput',
-    #'jquery.validate',
-    'masonry',
-    'oridomi',
-    'underscore',
-    'requirejs',
-    'forms_builder.forms',
-    'geoposition',
-)
-
-
 TEMPLATE_DIRS = (
   os.path.join(BASE_DIR, "templates"),
 )
 
 ACTSTREAM_SETTINGS = {
-    'MODELS': ('core.project', 'core.post', 'core.pledge', 'core.media', 'core.options', 'auth.user', 'auth.group', 'core.historicalproject','core.historicalpost','core.historicalmedia'),
+    'MODELS': ('core.indicator', 'forms_builder.forms.field', 'core.pledge', 'core.media', 'core.options', 'auth.user', 'auth.group', 'core.historicalproject','core.historicalpost','core.historicalmedia'),
     'USE_JSONFIELD':True,
 }
 

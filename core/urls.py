@@ -14,6 +14,8 @@ urlpatterns = patterns('',
     url(r'location/list/$', cv.LocationListView.as_view(), name='location_list'),
 
     url(r'indicator/create/$', cv.IndicatorCreateView.as_view(), name='indicator_create'),
+
+    url(r'indicator/(?P<pk>\d+)/field/create/$', cv.FieldCreateView.as_view(), name='field_create'),
 )
 
 

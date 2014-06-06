@@ -2,7 +2,13 @@ from django import forms
 import core.models as cm
 from django.contrib.auth.models import User
 import django.forms.extras.widgets as widgets
+import forms_builder.forms.models as fm
 
+FIELD_TYPE_CHOICES = (
+    (4, 'Yes / No'),
+    (1, 'Short Text'),
+    (2, 'Long Text'),
+)
 
 class BootstrapForm(forms.ModelForm):
     exclude = ['changed_by']
@@ -131,3 +137,10 @@ class IndicatorForm(BootstrapForm):
     class Meta:
         model = cm.Indicator
         exclude = ['changed_by', 'form']
+
+class FieldForm(BootstrapForm):
+    field_type = forms.ChoiceField(choices = FIELD_TYPE_CHOICES,widget = forms.Select())
+    
+    class Meta:
+        model = fm.Field
+        exclude = ['slug', 'visible', 'placeholder_text', 'form', 'default',]

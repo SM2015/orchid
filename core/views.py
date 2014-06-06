@@ -163,11 +163,36 @@ class IndicatorCreateView(SiteRootView, CreateView):
     template_name = 'base/form.html'
     form_class = cf.IndicatorForm
     success_url = '/admin/forms/form/'
-    
+
     def form_valid(self, form):
 
         new_form = fm.Form.objects.create(title=form.cleaned_data['title'])
         form.instance.form = new_form
-        form.instance.save()
+        self.instance = form.instance
         #action.send(self.request.user, verb='created', action_object=self.object, target=self.object)
         return super(IndicatorCreateView, self).form_valid(form)
+
+class IndicatorView(NounView):
+    def get_noun(self, **kwargs):
+        return cm.Indicator.objects.get(id=self.kwargs['pk'])
+
+class FieldCreateView(IndicatorView, FormView):
+    model = fm.Field
+    template_name = 'base/form.html'
+
+    def get_form(self, form_class):
+        return cf.FieldForm(self.request.POST or None, self.request.FILES or None, initial=self.get_initial())
+
+    def form_valid(self, form):
+        print " FieldCreateViewform_valid"
+        print self.noun.form
+        form.instance.form = self.noun.form
+        form.instance.save()
+        self.instance = form.instance
+        return super(FieldCreateView, self).form_valid(form)
+
+    def get_success_url(self):
+        return reverse(viewname='field_create', args=(self.noun.id,), current_app='core')
+
+    def get_success_message(self, cleaned_data):
+        return "Your field was created.  Make another new field or return to the indicator."

@@ -111,38 +111,7 @@ class UnauthenticatedOnlyVerb(CoreVerb):
             return False
         return True
 
-class HistoryListVerb(CoreVerb):
-    display_name = "View History"
-    view_name='history_list'
-    required = True
-    denied_message = "Sorry, you can't view that history yet."
-
-    def get_url(self):
-        return reverse(viewname=self.view_name, kwargs={'instance_model':self.noun._meta.model_name, 'pk':self.noun.id}, current_app=self.app)
-
-    def is_available(self, user):
-        return self.noun.is_visible_to(user)
-
-class LocationCreateVerb(CoreVerb):
-    display_name = "Create New Location"
-    view_name='location_create'
-    condition_name = 'public'
-    required = True
-
-class IndicatorCreateVerb(CoreVerb):
-    display_name = "Create New Indicator"
-    view_name='indicator_create'
-    condition_name = 'is_authenticated'
-    required = True
-
-    @availability_login_required
-    def is_available(self, user):
-        print "IndicatorCreateVerb is_available"
-        return True
-
-class LocationListVerb(CoreVerb):
-    display_name = "View All Locations"
-    view_name='location_list'
+class AuthenticatedOnlyVerb(CoreVerb):
     condition_name = 'is_authenticated'
     required = True
 
@@ -157,6 +126,37 @@ class StaffVerb(CoreVerb):
     @availability_login_required
     def is_available(self, user):
         return user.is_staff
+
+class HistoryListVerb(CoreVerb):
+    display_name = "View History"
+    view_name='history_list'
+    required = True
+    denied_message = "Sorry, you can't view that history yet."
+
+    def get_url(self):
+        return reverse(viewname=self.view_name, kwargs={'instance_model':self.noun._meta.model_name, 'pk':self.noun.id}, current_app=self.app)
+
+    def is_available(self, user):
+        return self.noun.is_visible_to(user)
+
+class LocationCreateVerb(AuthenticatedOnlyVerb):
+    display_name = "Create New Location"
+    view_name='location_create'
+
+class IndicatorCreateVerb(AuthenticatedOnlyVerb):
+    display_name = "Create New Indicator"
+    view_name='indicator_create'
+
+class FieldCreateVerb(AuthenticatedOnlyVerb):
+    display_name = "Create New Field"
+    view_name='field_create'
+
+    def get_url(self):
+        return reverse(viewname=self.view_name, args=[self.noun.id], current_app=self.app)
+
+class LocationListVerb(CoreVerb):
+    display_name = "View All Locations"
+    view_name='location_list'
 
 class SiteLoginVerb(UnauthenticatedOnlyVerb):
     display_name = "Login"
