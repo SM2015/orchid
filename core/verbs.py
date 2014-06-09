@@ -8,8 +8,15 @@ from functools import wraps
 from django.utils.decorators import available_attrs
 from django.contrib.messages.views import SuccessMessageMixin
 from django.contrib import messages
+import json
+import decimal
+from django.http import HttpResponse
 
 MESSAGES_TEMPLATE = 'base/messages.html'
+
+def decimal_default(obj):
+    if isinstance(obj, decimal.Decimal):
+        return float(obj)
 
 class NounView(SuccessMessageMixin):
     success_message = "That worked!"
@@ -131,6 +138,13 @@ class StaffVerb(CoreVerb):
     def is_available(self, user):
         return user.is_staff
 
+class SiteLoginVerb(UnauthenticatedOnlyVerb):
+    display_name = "Login"
+    #no view name ok because this is always allowed, fb handles the authentication
+
+    def get_url(self):
+        return reverse('user_login')
+
 class HistoryListVerb(CoreVerb):
     display_name = "View History"
     view_name='history_list'
@@ -152,6 +166,10 @@ class IndicatorDetaileVerb(AuthenticatedOnlyVerb):
     display_name = "View Indicator"
     view_name='indicator_detail'
 
+class IndicatorRecordCreateVerb(AuthenticatedOnlyVerb):
+    display_name = "Enter Data"
+    view_name='indicator_record_create'
+
 class FieldCreateVerb(AuthenticatedOnlyVerb):
     display_name = "Create New Field"
     view_name='field_create'
@@ -159,13 +177,6 @@ class FieldCreateVerb(AuthenticatedOnlyVerb):
 class LocationListVerb(CoreVerb):
     display_name = "View All Locations"
     view_name='location_list'
-
-class SiteLoginVerb(UnauthenticatedOnlyVerb):
-    display_name = "Login"
-    #no view name ok because this is always allowed, fb handles the authentication
-
-    def get_url(self):
-        return reverse('user_login')
 
 class SiteRoot(Noun):
     '''
