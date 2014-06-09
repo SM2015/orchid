@@ -89,6 +89,18 @@ class Indicator(Auditable, Noun):
         c = Context()
         return FormForForm(self.get_builder_form_object(), c)
 
+    def get_bool_field_ids(self):
+        return self.get_builder_form_object().fields.filter(field_type=4).values_list('id', flat=True)
+
+    def score_entry(self, entry):
+        bool_field_ids = self.get_bool_field_ids()
+        passing = []
+        for f in entry.fields.all():
+            if f.field_id in bool_field_ids:
+                if f.value == u'True':
+                    passing.append(f)
+        return float(len(passing))/float(len(bool_field_ids))*100
+
 class Summary(Auditable, Noun):
     user = models.ForeignKey(User, unique=True)
 

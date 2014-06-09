@@ -262,6 +262,9 @@ from forms_builder.forms.models import Form
 from forms_builder.forms.signals import form_invalid, form_valid
 from forms_builder.forms.utils import split_choices
 
+from django.contrib import messages
+
+
 class IndicatorRecordCreateView(IndicatorView, TemplateView):
 
     template_name = "base/form.html"
@@ -306,6 +309,8 @@ class IndicatorRecordCreateView(IndicatorView, TemplateView):
             entry = form.save()
             form_valid.send(sender=request, form=form, entry=entry)
             form = self.prep_form(form)
+            score = indicator.score_entry(entry)
+            messages.add_message(request, messages.INFO, 'Score is '+str(score))
         context = {"builder_form_object": builder_form_object, "form": form}
         return self.render_to_response(context)
 
