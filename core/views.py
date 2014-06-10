@@ -310,7 +310,11 @@ class IndicatorRecordCreateView(IndicatorView, TemplateView):
             form_valid.send(sender=request, form=form, entry=entry)
             form = self.prep_form(form)
             score = indicator.score_entry(entry)
-            messages.add_message(request, messages.INFO, 'Score is '+str(score))
+            if score >= indicator.passing_percentage:
+                messages.success(request,'Passing score of '+str(score))
+            else:
+                messages.error(request,'Not passing score of '+str(score))
+
         context = {"builder_form_object": builder_form_object, "form": form}
         return self.render_to_response(context)
 
