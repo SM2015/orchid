@@ -121,7 +121,7 @@ ACTSTREAM_SETTINGS = {
     'USE_JSONFIELD':True,
 }
 
-DEFAULT_FILE_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
+#DEFAULT_FILE_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
 #from local_settings import *
 
 TEMPLATE_CONTEXT_PROCESSORS = (

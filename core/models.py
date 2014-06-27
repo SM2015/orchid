@@ -61,17 +61,29 @@ class UserProfile(models.Model):
 
 User.profile = property(lambda u: UserProfile.objects.get_or_create(user=u)[0])
 
+class Image(Auditable, Noun):
+    original_file = models.ImageField(upload_to=get_file_path, null=True, blank=True)
+    internal_file = models.ImageField(upload_to='/', null=True, blank=True)
+
 class Location(Auditable, Noun):
     title = models.CharField(max_length=300)
     position = GeopositionField()
     members = models.ManyToManyField(User)
-    verb_classes = [IndicatorRecordCreateVerb]
+    images = models.ManyToManyField(Image, null=True, blank=True)
+    verb_classes = [LocationImageCreateVerb]
 
     def __str__(self):
         return self.title
 
+    def get_most_recent_image(self):
+        try:
+            return self.images.all().order_by('-created_at')[:1]
+        except Exception as e:
+            return None
+
 from forms_builder.forms.forms import FormForForm
 from django.template.context import Context
+from django_remote_forms.forms import RemoteForm
 
 class Indicator(Auditable, Noun):
     title = models.CharField(max_length=300)
@@ -101,8 +113,10 @@ class Indicator(Auditable, Noun):
                     passing.append(f)
         return float(len(passing))/float(len(bool_field_ids))*100
 
-class Summary(Auditable, Noun):
-    user = models.ForeignKey(User, unique=True)
+    def get_serialized_builder_form(self):
+        remote_form = RemoteForm(self.get_form())
+        remote_form_dict = remote_form.as_dict()
+        return remote_form_dict
 
 
 

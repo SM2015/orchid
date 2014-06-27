@@ -1,27 +1,40 @@
-Django==1.6.1
+Django==1.6.5
+Pillow==2.4.0
 South==0.8.4
+Unidecode==0.04.16
 amqp==1.4.4
 anyjson==0.3.3
 argparse==1.2.1
 billiard==3.3.0.16
 boto==2.22.0
--e git+git://github.com/neuman/python-carteblanche.git@development#egg=carteblanche
+-e git://github.com/neuman/python-carteblanche.git@ea3d5d86a81bb13c53b2633e28e862b3f041bd70#egg=carteblanche-origin/development
 celery==3.1.10
 django-activity-stream==0.4.5beta1
+django-appconf==0.6
 django-bower==4.8.1
 django-celery==3.1.9
+django-email-extras==0.2
+django-forms-builder==0.10
+django-geoposition==0.2.0
 django-json-field==0.5.5
 django-jsonfield==0.9.12
 django-object-log==0.7
+-e git://github.com/hugotox/django-remote-forms.git@0b2b2327ac3251dcb041643288b66bd421671786#egg=django_remote_forms-master
 django-storages==1.1.8
 ipython==1.2.0
 jsonfield==0.9.20
 kombu==3.0.14
 logging==0.4.9.6
 markdown2==2.2.0
+oauthlib==0.6.1
 pystache==0.3.1
+python-dateutil==2.2
+python-gnupg==0.3.6
+pytz==2014.3
 redis==2.9.1
 requests==2.2.1
 requests-oauthlib==0.4.0
 simplejson==3.3.1
--e git://github.com/hugotox/django-remote-forms.git@0b2b2327ac3251dcb041643288b66bd421671786#egg=django_remote_forms-master
+six==1.6.1
+sphinx-me==0.2.1
+wsgiref==0.1.2

@@ -158,6 +158,10 @@ class LocationCreateVerb(AuthenticatedOnlyVerb):
     display_name = "Create New Location"
     view_name='location_create'
 
+class LocationImageCreateVerb(AuthenticatedOnlyVerb):
+    display_name = "Add Image To This Location"
+    view_name='location_image_create'
+
 class IndicatorCreateVerb(AuthenticatedOnlyVerb):
     display_name = "Create New Indicator"
     view_name='indicator_create'

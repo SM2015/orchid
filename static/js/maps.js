@@ -23,7 +23,7 @@ function initMarkers()
       });
         google.maps.event.addListener(marker, 'click', function() {
         map.setCenter(marker.getPosition());
-        window.location = val.id;
+        window.location = 'location/'+val.id+'/detail';
         });
 
         markers.push(marker);

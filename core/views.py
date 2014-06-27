@@ -173,6 +173,29 @@ class LocationListView(SiteRootView, TemplateView):
 
         return supes
 
+class LocationView(NounView):
+
+    def get_noun(self, **kwargs):
+        return cm.Location.objects.get(id=self.kwargs['pk'])
+
+class LocationDetailView(LocationView, TemplateView):
+    model = cm.Location    
+    template_name = 'location/detail.html'
+
+class LocationImageCreateView(LocationView, CreateView):
+    model = cm.Image
+    template_name = 'base/form.html'
+    fields = ['original_file']
+
+    def form_valid(self, form):
+        self.noun.images.add(form.instance)
+        #action.send(self.request.user, verb='created', action_object=self.object, target=self.object)
+        return super(LocationImageCreateView, self).form_valid(form)
+
+    def get_success_url(self):
+        self.noun.images.add(self.object)
+        return reverse(viewname='location_detail', args=(self.noun.id,), current_app='core')
+
 class IndicatorCreateView(SiteRootView, CreateView):
     model = cm.Indicator
     template_name = 'base/form.html'
@@ -200,6 +223,34 @@ class IndicatorDetailView(IndicatorView, FormView):
 
     def get_form(self, form_class):
         return self.noun.get_form()
+
+class IndicatorListView(SiteRootView, TemplateView):
+    model = cm.Location    
+    template_name = 'overview/map.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(IndicatorListView, self).get_context_data(**kwargs)
+        indicators = []
+        for l in cm.Indicator.objects.all():
+            blob = {
+                'id':l.id,
+                'title':l.title,
+                'passing_percentage':l.passing_percentage,
+                'form':l.get_serialized_builder_form()
+            }
+            indicators.append(blob)
+        context['indicators'] = indicators
+        return context
+
+    def get(self, request, *args, **kwargs):
+        supes = super(IndicatorListView, self).get(request, *args, **kwargs)
+        context = self.get_context_data(**kwargs)
+        if self.request.is_ajax():
+            data = json.dumps(context, default=decimal_default)
+            out_kwargs = {'content_type':'application/json'}
+            return HttpResponse(data, **out_kwargs)
+
+        return supes
 
 class FieldCreateView(IndicatorView, FormView):
     model = fm.Field

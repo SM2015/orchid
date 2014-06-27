@@ -11,11 +11,14 @@ urlpatterns = patterns('',
     url(r'user/logout/$', cv.UserLogoutView.as_view(), name='user_logout'),
 
     url(r'location/create/$', cv.LocationCreateView.as_view(), name='location_create'),
+    url(r'location/(?P<pk>\d+)/detail/$', cv.LocationDetailView.as_view(), name='location_detail'),
     url(r'location/list/$', cv.LocationListView.as_view(), name='location_list'),
     url(r'location/(?P<location_pk>\d+)/indicator/(?P<pk>\d+)/record/create/$', cv.IndicatorRecordCreateView.as_view(), name='indicator_record_create'),
+    url(r'location/(?P<pk>\d+)/image/create/$', cv.LocationImageCreateView.as_view(), name='location_image_create'),
 
     url(r'indicator/(?P<pk>\d+)/detail/$', cv.IndicatorDetailView.as_view(), name='indicator_detail'),
     url(r'indicator/create/$', cv.IndicatorCreateView.as_view(), name='indicator_create'),
+    url(r'indicator/list/$', cv.IndicatorListView.as_view(), name='indicator_list'),
 
     url(r'indicator/(?P<pk>\d+)/field/create/$', cv.FieldCreateView.as_view(), name='field_create'),
 
