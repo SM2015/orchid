@@ -133,7 +133,6 @@ class LocationCreateView(SiteRootView, CreateView):
     template_name = 'base/form.html'
     fields = '__all__'
     form_class = cf.LocationForm
-    success_url = '/'
 
     def get(self, request, *args, **kwargs):
         supes = super(LocationCreateView, self).get(request, *args, **kwargs)
@@ -144,6 +143,10 @@ class LocationCreateView(SiteRootView, CreateView):
             return HttpResponse(data, **out_kwargs)
 
         return supes
+
+    def get_success_url(self):
+        action.send(self.request.user, verb='created location', action_object=self.object)
+        return reverse(viewname='location_detail', args=(self.object.id,), current_app='core')
 
 class LocationListView(SiteRootView, TemplateView):
     model = cm.Location    
@@ -190,11 +193,11 @@ class LocationImageCreateView(LocationView, CreateView):
 
     def form_valid(self, form):
         self.noun.images.add(form.instance)
-        #action.send(self.request.user, verb='created', action_object=self.object, target=self.object)
         return super(LocationImageCreateView, self).form_valid(form)
 
     def get_success_url(self):
         self.noun.images.add(self.object)
+        action.send(self.request.user, verb='uploaded image', action_object=self.object, target=self.noun)
         return reverse(viewname='location_detail', args=(self.noun.id,), current_app='core')
 
 class IndicatorCreateView(SiteRootView, CreateView):
@@ -212,6 +215,7 @@ class IndicatorCreateView(SiteRootView, CreateView):
         return super(IndicatorCreateView, self).form_valid(form)
 
     def get_success_url(self):
+        action.send(self.request.user, verb='created indicator', action_object=self.instance)
         return reverse(viewname='field_create', args=(self.instance.id,), current_app='core')
 
 class IndicatorView(NounView):
@@ -279,28 +283,6 @@ class FieldCreateView(IndicatorView, FormView):
 
     def get_success_message(self, cleaned_data):
         return "Your field was created.  Make another new field or return to the indicator."
-
-class IndicatorRecordCreateView_legacy(IndicatorView, FormView):
-    model = fm.Form
-    template_name = 'base/form.html'
-    success_url = '/'
-
-    def get_form(self, form_class):
-        form = self.noun.get_form()
-        return form
-
-    def form_valid(self, form):
-        raise Exception('raised')
-        form.instance.form
-        form.instance.save()
-        self.instance = form.instance
-        return super(FieldCreateView, self).form_valid(form)
-
-    def get_success_message(self, cleaned_data):
-        return "Your record was created."
-
-
-
 
 import json
 

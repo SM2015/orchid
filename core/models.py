@@ -72,8 +72,11 @@ class Location(Auditable, Noun):
     images = models.ManyToManyField(Image, null=True, blank=True)
     verb_classes = [LocationImageCreateVerb]
 
-    def __str__(self):
+    def __unicode__(self):
         return self.title
+
+    def get_absolute_url(self):
+        return reverse(viewname='location_detail', args=[self.id], current_app=APPNAME)
 
     def get_most_recent_image(self):
         try:
