@@ -143,4 +143,4 @@ class FieldForm(BootstrapForm):
     
     class Meta:
         model = fm.Field
-        exclude = ['slug', 'visible', 'placeholder_text', 'form', 'default',]
+        exclude = ['slug', 'visible', 'placeholder_text', 'form', 'default','required','choices']

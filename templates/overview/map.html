@@ -4,3 +4,8 @@
 <script src="{{ STATIC_URL }}js/maps.js"></script>
 {% endblock %}
 {% block jumbotron %}<div id="map-canvas"></div>{% endblock %}
+{% block showcase %}
+    {% for activity in stream %}
+      {% include "base/activity.html" %}
+    {% endfor %}
+{% endblock %}

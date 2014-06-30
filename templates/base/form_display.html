@@ -1,5 +1,6 @@
 {% extends "base/bootstrap.html" %}
 {% block title %}orchid{% endblock %}
+{% block jumbotron %}{{ noun.title }}{% endblock %}
 
 {% block showcase %}
 <div class="row">
@@ -12,6 +13,7 @@
             <th>Label</th>
             <th>Required</th>
             <th>Help Text</th>
+            <th>Field Type</th>
           </tr>
         </thead>
         <tbody>
@@ -20,6 +22,7 @@
             <td>{{ field.label }}</td>
             <td >{% if field.required %}True{% else %}False{% endif %}</td>
             <td >{{ field.help_text }}</td>
+            <td >{{ field.field_type }}</td>
           </tr>
         <div>
        {% endfor %}
@@ -29,6 +32,9 @@
 
 {% endif %}
 </div>
+{% for activity in stream %}
+  {% include "base/activity.html" %}
+{% endfor %}
 
 
 

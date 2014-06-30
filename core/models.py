@@ -89,9 +89,9 @@ class Indicator(Auditable, Noun):
     title = models.CharField(max_length=300)
     form = models.ForeignKey(fm.Form, unique=True, null=True, blank=True)
     passing_percentage = models.FloatField(default=85)
-    verb_classes = [IndicatorDetaileVerb, FieldCreateVerb]
+    verb_classes = [IndicatorDetailVerb, FieldCreateVerb]
 
-    def __str__(self):
+    def __unicode__(self):
         return self.title
 
     def get_absolute_url(self):

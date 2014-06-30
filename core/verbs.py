@@ -166,9 +166,13 @@ class IndicatorCreateVerb(AuthenticatedOnlyVerb):
     display_name = "Create New Indicator"
     view_name='indicator_create'
 
-class IndicatorDetaileVerb(AuthenticatedOnlyVerb):
+class IndicatorDetailVerb(AuthenticatedOnlyVerb):
     display_name = "View Indicator"
     view_name='indicator_detail'
+
+class IndicatorListVerb(AuthenticatedOnlyVerb):
+    display_name = "View All Indicators"
+    view_name='indicator_list'
 
 class IndicatorRecordCreateVerb(AuthenticatedOnlyVerb):
     display_name = "Enter Data"
@@ -186,7 +190,7 @@ class SiteRoot(Noun):
     '''
     A hack that lets pages that have no actual noun have verbs and verb-based permissions. 
     '''
-    verb_classes = [SiteLoginVerb, LocationListVerb, LocationCreateVerb, IndicatorCreateVerb]
+    verb_classes = [SiteLoginVerb, LocationListVerb, LocationCreateVerb, IndicatorCreateVerb, IndicatorListVerb]
 
     class Meta:
         abstract = True

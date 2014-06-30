@@ -16,7 +16,7 @@ import core.forms as cf
 import core.tasks as ct
 from django.db.models.signals import post_save
 from actstream import action
-from actstream.models import user_stream, action_object_stream, model_stream, actor_stream
+import actstream.models as am
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.contenttypes.models import ContentType
 from django.shortcuts import get_object_or_404
@@ -161,6 +161,7 @@ class LocationListView(SiteRootView, TemplateView):
             }
             locations.append(blob)
         context['locations'] = locations
+        context['stream'] = am.Action.objects.all()
         return context
 
     def get(self, request, *args, **kwargs):
@@ -224,6 +225,11 @@ class IndicatorDetailView(IndicatorView, FormView):
     def get_form(self, form_class):
         return self.noun.get_form()
 
+    def get_context_data(self, **kwargs):
+        context = super(IndicatorDetailView, self).get_context_data(**kwargs)
+        context['stream'] = self.noun.get_action_stream()
+        return context
+
 class IndicatorListView(SiteRootView, TemplateView):
     model = cm.Location    
     template_name = 'indicator/list.html'
@@ -262,11 +268,13 @@ class FieldCreateView(IndicatorView, FormView):
 
     def form_valid(self, form):
         form.instance.form = self.noun.form
-        form.instance.save()
+        form.instance.required = False
+        self.object = form.instance.save()
         self.instance = form.instance
         return super(FieldCreateView, self).form_valid(form)
 
     def get_success_url(self):
+        action.send(self.request.user, verb='created field', action_object=self.instance, target=self.noun)
         return reverse(viewname='field_create', args=(self.noun.id,), current_app='core')
 
     def get_success_message(self, cleaned_data):
