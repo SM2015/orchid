@@ -226,7 +226,7 @@ class IndicatorDetailView(IndicatorView, FormView):
 
 class IndicatorListView(SiteRootView, TemplateView):
     model = cm.Location    
-    template_name = 'overview/map.html'
+    template_name = 'indicator/list.html'
 
     def get_context_data(self, **kwargs):
         context = super(IndicatorListView, self).get_context_data(**kwargs)
@@ -236,6 +236,7 @@ class IndicatorListView(SiteRootView, TemplateView):
                 'id':l.id,
                 'title':l.title,
                 'passing_percentage':l.passing_percentage,
+                'url':l.get_absolute_url(),
                 'form':l.get_serialized_builder_form()
             }
             indicators.append(blob)

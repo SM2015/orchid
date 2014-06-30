@@ -94,6 +94,9 @@ class Indicator(Auditable, Noun):
     def __str__(self):
         return self.title
 
+    def get_absolute_url(self):
+        return reverse(viewname='indicator_detail', args=[self.id], current_app=APPNAME)
+
     def get_builder_form_object(self):
         return self.form
 
