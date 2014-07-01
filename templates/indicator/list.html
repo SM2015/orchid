@@ -1,0 +1,37 @@
+{% extends "base/bootstrap.html" %}
+{% block title %}orchid{% endblock %}
+{% block jumbotron %}<h1>All Indicators</h1>{% endblock %}
+{% block showcase %}
+{% for i in indicators %}
+    <div class="row">
+      {% if i.form %}
+      <h2><a href="{{ i.url }}">{{ i.title }}</a></h2>
+      <div class="col-md-12">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Label</th>
+                <th>Required</th>
+                <th>Help Text</th>
+                <th>Field Type</th>
+              </tr>
+            </thead>
+            <tbody>
+            {% for key, field in i.form.fields.items %}
+              <tr>
+                <td>{{ field.label }}</td>
+                <td >{% if field.required %}True{% elif field.required != true %}False{% endif %}</td>
+                <td >{{ field.help_text }}</td>
+                <td >{{ field.widget.title }}</td>
+              </tr>
+            <div>
+           {% endfor %}
+            </tbody>
+          </table>
+    </div>
+
+    {% endif %}
+    </div>
+{% endfor %}
+
+{% endblock %}

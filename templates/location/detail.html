@@ -1,0 +1,11 @@
+{% extends "base/bootstrap.html" %}
+{% block scripts %}
+{% endblock %}
+{% block jumbotron %}{{ noun.title }}{% endblock %}
+{% block showcase %}
+    {% with most_recent_image=noun.get_most_recent_image %}
+        {% if most_recent_image %}
+            {{ most_recent_image }}
+        {% endif %}
+    {% endwith %}
+{% endblock %}
