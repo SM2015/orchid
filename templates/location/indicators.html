@@ -1,0 +1,12 @@
+{% extends "base/bootstrap.html" %}
+{% block scripts %}
+{% endblock %}
+{% block jumbotron %}{{ noun.title }}{% endblock %}
+{% block showcase %}
+<div class="list-group">
+    {% for i in indicators %}
+        <a href="/location/{{ noun.id }}/indicator/{{ i.id }}/record/create" class="list-group-item">{{ i.title }}</a>
+    {% endfor %}
+</div>
+
+{% endblock %}
