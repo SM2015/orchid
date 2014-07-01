@@ -93,7 +93,7 @@ class Indicator(Auditable, Noun):
     title = models.CharField(max_length=300)
     form = models.ForeignKey(fm.Form, unique=True, null=True, blank=True)
     passing_percentage = models.FloatField(default=85)
-    verb_classes = [IndicatorDetailVerb, FieldCreateVerb]
+    verb_classes = [IndicatorListVerb, IndicatorDetailVerb, FieldCreateVerb]
 
     def __unicode__(self):
         return self.title
@@ -124,6 +124,17 @@ class Indicator(Auditable, Noun):
         remote_form = RemoteForm(self.get_form())
         remote_form_dict = remote_form.as_dict()
         return remote_form_dict
+
+    def get_serialized(self):
+        blob = {
+            'id':self.id,
+            'title':self.title,
+            'passing_percentage':self.passing_percentage,
+            'url':self.get_absolute_url(),
+            'form':self.get_serialized_builder_form()
+        }
+
+        return blob
 
 
 

@@ -222,20 +222,34 @@ class IndicatorView(NounView):
     def get_noun(self, **kwargs):
         return cm.Indicator.objects.get(id=self.kwargs['pk'])
 
-class IndicatorDetailView(IndicatorView, FormView):
-    model = fm.Field
-    template_name = 'base/form_display.html'
-
-    def get_form(self, form_class):
-        return self.noun.get_form()
+class IndicatorDetailView(IndicatorView, TemplateView):
+    model = cm.Indicator
+    template_name = 'indicator/list.html'
 
     def get_context_data(self, **kwargs):
         context = super(IndicatorDetailView, self).get_context_data(**kwargs)
         context['stream'] = self.noun.get_action_stream()
         return context
 
+    def get_context_data(self, **kwargs):
+        context = super(IndicatorDetailView, self).get_context_data(**kwargs)
+        indicators = []
+        indicators.append(self.noun.get_serialized())
+        context['indicators'] = indicators
+        return context
+
+    def get(self, request, *args, **kwargs):
+        supes = super(IndicatorDetailView, self).get(request, *args, **kwargs)
+        context = self.get_context_data(**kwargs)
+        if self.request.is_ajax():
+            data = json.dumps(context, default=decimal_default)
+            out_kwargs = {'content_type':'application/json'}
+            return HttpResponse(data, **out_kwargs)
+
+        return supes
+
 class IndicatorListView(SiteRootView, TemplateView):
-    model = cm.Location    
+    model = cm.Indicator    
     template_name = 'indicator/list.html'
 
     def get_context_data(self, **kwargs):
