@@ -69,7 +69,8 @@ class Location(Auditable, Noun):
     title = models.CharField(max_length=300)
     position = GeopositionField()
     members = models.ManyToManyField(User)
-    images = models.ManyToManyField(Image, null=True, blank=True)
+    members = models.ManyToManyField(User)
+    indicators = models.ManyToManyField('Indicator', null=True, blank=True)
     verb_classes = [LocationImageCreateVerb]
 
     def __unicode__(self):

@@ -130,7 +130,7 @@ class LoginForm(BootstrapForm):
 class LocationForm(BootstrapForm):
     class Meta:
         model = cm.Location
-        exclude = ['changed_by']
+        exclude = ['changed_by','images']
 
 class IndicatorForm(BootstrapForm):
     title = forms.CharField(max_length=100)
@@ -143,4 +143,4 @@ class FieldForm(BootstrapForm):
     
     class Meta:
         model = fm.Field
-        exclude = ['slug', 'visible', 'placeholder_text', 'form', 'default','required','choices']
+        exclude = ['slug', 'visible', 'placeholder_text', 'form', 'default','choices']
