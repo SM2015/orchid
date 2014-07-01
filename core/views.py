@@ -284,6 +284,27 @@ class FieldCreateView(IndicatorView, FormView):
     def get_success_message(self, cleaned_data):
         return "Your field was created.  Make another new field or return to the indicator."
 
+class FieldUpdateView(IndicatorView, UpdateView):
+    model = fm.Field
+    template_name = 'base/form.html'
+    success_url = '/'
+
+    def get_noun(self, **kwargs):
+        form = self.get_object().form
+        return cm.Indicator.objects.get(form=form)
+
+    def get_object(self):
+        output = get_object_or_404(fm.Field, slug=self.kwargs["slug"])
+        return output
+
+    def get_form(self, form_class):
+        return cf.FieldForm(self.request.POST or None, self.request.FILES or None, initial=self.get_initial(), instance=self.get_object())
+
+    def get_success_url(self):
+        action.send(self.request.user, verb='updated field', action_object=self.get_object(), target=self.noun)
+        return reverse(viewname='indicator_detail', args=(self.noun.id,), current_app='core')
+
+
 import json
 
 from django.conf import settings

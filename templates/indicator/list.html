@@ -19,7 +19,7 @@
             <tbody>
             {% for key, field in i.form.fields.items %}
               <tr>
-                <td>{{ field.label }}</td>
+                <td><a href="/indicator/{{ i.id }}/field/{{ key }}/update/">{{ field.label }}</a></td>
                 <td >{% if field.required %}True{% elif field.required != true %}False{% endif %}</td>
                 <td >{{ field.help_text }}</td>
                 <td >{{ field.widget.title }}</td>

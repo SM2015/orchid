@@ -21,6 +21,7 @@ urlpatterns = patterns('',
     url(r'indicator/list/$', cv.IndicatorListView.as_view(), name='indicator_list'),
 
     url(r'indicator/(?P<pk>\d+)/field/create/$', cv.FieldCreateView.as_view(), name='field_create'),
+    url(r'indicator/(?P<indicator_pk>\d+)/field/(?P<slug>[\w-]+)/update/$', cv.FieldUpdateView.as_view(), name='field_update'),
 
 )
 

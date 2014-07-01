@@ -19,7 +19,7 @@
         <tbody>
         {% for field in form %}
           <tr>
-            <td>{{ field.label }}</td>
+            <td>{{ field.label }} {{ field.id }}</td>
             <td >{% if field.required %}True{% else %}False{% endif %}</td>
             <td >{{ field.help_text }}</td>
             <td >{{ field.field_type }}</td>

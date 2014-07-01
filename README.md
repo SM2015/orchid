@@ -25,7 +25,7 @@ exit
 bash --login
 #setup virtualenv
 mkvirtualenv orchid
-git clone f4c89463a2b7744be2da647275818ab8be385fe9:@github.com:neuman/orchid.git
+git clone https://github.com/neuman/orchid.git
 pip install -r orchid/requirements.txt
 bower install orchid
 #start the server
