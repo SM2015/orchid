@@ -365,6 +365,9 @@ class IndicatorRecordCreateView(LocationView, TemplateView):
 
     template_name = "base/form.html"
 
+        def get_noun(self, **kwargs):
+        return cm.Location.objects.get(id=self.kwargs['location_pk'])
+
     def prep_form(self, form):
         #form.fields.__delitem__('location')
         #form.fields.__delitem__('user')
