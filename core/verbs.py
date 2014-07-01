@@ -186,6 +186,10 @@ class LocationListVerb(CoreVerb):
     display_name = "View All Locations"
     view_name='location_list'
 
+class LocationIndicatorListVerb(CoreVerb):
+    display_name = "View This Location's Indicators"
+    view_name='location_indicator_list'
+
 class SiteRoot(Noun):
     '''
     A hack that lets pages that have no actual noun have verbs and verb-based permissions. 

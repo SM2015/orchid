@@ -186,6 +186,25 @@ class LocationDetailView(LocationView, TemplateView):
     model = cm.Location    
     template_name = 'location/detail.html'
 
+class LocationIndicatorListlView(LocationView, TemplateView):
+    model = cm.Location    
+    template_name = 'location/indicators.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(LocationIndicatorListlView, self).get_context_data(**kwargs)
+        context['stream'] = self.noun.get_action_stream()
+        context['indicators'] = self.noun.indicators.all()
+        return context
+
+    def get(self, request, *args, **kwargs):
+        supes = super(LocationIndicatorListlView, self).get(request, *args, **kwargs)
+        context = self.get_context_data(**kwargs)
+        if self.request.is_ajax():
+            data = json.dumps(context, default=decimal_default)
+            out_kwargs = {'content_type':'application/json'}
+            return HttpResponse(data, **out_kwargs)
+        return supes
+
 class LocationImageCreateView(LocationView, CreateView):
     model = cm.Image
     template_name = 'base/form.html'
@@ -342,13 +361,13 @@ from forms_builder.forms.utils import split_choices
 from django.contrib import messages
 
 
-class IndicatorRecordCreateView(IndicatorView, TemplateView):
+class IndicatorRecordCreateView(LocationView, TemplateView):
 
     template_name = "base/form.html"
 
     def prep_form(self, form):
-        form.fields.__delitem__('location')
-        form.fields.__delitem__('user')
+        #form.fields.__delitem__('location')
+        #form.fields.__delitem__('user')
         return form
 
     def get_context_data(self, **kwargs):
@@ -391,6 +410,7 @@ class IndicatorRecordCreateView(IndicatorView, TemplateView):
                 messages.success(request,'Passing score of '+str(score))
             else:
                 messages.error(request,'Not passing score of '+str(score))
+            return HttpResponseRedirect(reverse(viewname='indicator_record_create', args=(kwargs['location_pk'], kwargs['pk'],), current_app='core'))
 
         context = {"builder_form_object": builder_form_object, "form": form}
         return self.render_to_response(context)

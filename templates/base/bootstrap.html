@@ -62,7 +62,7 @@
                       {% for message in messages %}
             <div class="alert alert-{{ message.tags }}">{{ message }}</div>
           {% endfor %}
-              {% block jumbotron %}{% endblock %}
+              {% block jumbotron %}{% if noun %}{{ noun }}{% endif %}{% endblock %}
             </div>
             <div class="row">
               {% block showcase %}{% endblock %}
