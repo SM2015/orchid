@@ -186,6 +186,11 @@ class LocationDetailView(LocationView, TemplateView):
     model = cm.Location    
     template_name = 'location/detail.html'
 
+    def get_context_data(self, **kwargs):
+        context = super(LocationDetailView, self).get_context_data(**kwargs)
+        context["most_recent_image_url"] = self.noun.get_most_recent_image().get_file_url()
+        return context
+
 class LocationIndicatorListlView(LocationView, TemplateView):
     model = cm.Location    
     template_name = 'location/indicators.html'
@@ -209,6 +214,9 @@ class LocationImageCreateView(LocationView, CreateView):
     model = cm.Image
     template_name = 'base/form.html'
     fields = ['original_file']
+
+    def get_form(self, form_class):
+        return cf.ImageForm(self.request.POST or None, self.request.FILES or None, initial=self.get_initial())
 
     def form_valid(self, form):
         self.noun.images.add(form.instance)
@@ -380,6 +388,7 @@ class IndicatorRecordCreateView(LocationView, TemplateView):
         form = indicator.get_form()
         form = self.prep_form(form)
         context["form"] = form
+        context["indicator"] = indicator
         return context
 
     def get(self, request, *args, **kwargs):
@@ -409,10 +418,13 @@ class IndicatorRecordCreateView(LocationView, TemplateView):
             form_valid.send(sender=request, form=form, entry=entry)
             form = self.prep_form(form)
             score = indicator.score_entry(entry)
+            context = self.get_context_data(**kwargs)
             if score >= indicator.passing_percentage:
                 messages.success(request,'Passing score of '+str(score))
+                action.send(self.request.user, verb='entered passing record', action_object=context.get("indicator"), target=self.noun)
             else:
                 messages.error(request,'Not passing score of '+str(score))
+                action.send(self.request.user, verb='entered failing record', action_object=context.get("indicator"), target=self.noun)
             return HttpResponseRedirect(reverse(viewname='indicator_record_create', args=(kwargs['location_pk'], kwargs['pk'],), current_app='core'))
 
         context = {"builder_form_object": builder_form_object, "form": form}

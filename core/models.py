@@ -65,13 +65,30 @@ class Image(Auditable, Noun):
     original_file = models.ImageField(upload_to=get_file_path, null=True, blank=True)
     internal_file = models.ImageField(upload_to='/', null=True, blank=True)
 
+    def __unicode__(self):
+        return "Image"
+        url = self.get_file_url()
+        if url == None:
+            return "No File"
+        else:
+            return url
+
+    def get_file_url(self):
+        if self.original_file != None:
+            return self.original_file.url
+        else:
+            return "pandas"
+
+    def get_pandas(self):
+        return "NOT PANDAS"
+
 class Location(Auditable, Noun):
     title = models.CharField(max_length=300)
     position = GeopositionField()
     members = models.ManyToManyField(User)
-    members = models.ManyToManyField(User)
+    images = models.ManyToManyField(Image)
     indicators = models.ManyToManyField('Indicator', null=True, blank=True)
-    verb_classes = [LocationIndicatorListVerb, LocationImageCreateVerb]
+    verb_classes = [LocationDetailVerb, LocationIndicatorListVerb, LocationImageCreateVerb]
 
     def __unicode__(self):
         return self.title
@@ -81,7 +98,7 @@ class Location(Auditable, Noun):
 
     def get_most_recent_image(self):
         try:
-            return self.images.all().order_by('-created_at')[:1]
+            return self.images.all().order_by('-created_at')[:1][0]
         except Exception as e:
             return None
 

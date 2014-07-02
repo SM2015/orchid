@@ -144,3 +144,8 @@ class FieldForm(BootstrapForm):
     class Meta:
         model = fm.Field
         exclude = ['slug', 'visible', 'placeholder_text', 'form', 'default','choices']
+
+class ImageForm(BootstrapForm):
+    class Meta:
+        model = cm.Image
+        fields = ['original_file']

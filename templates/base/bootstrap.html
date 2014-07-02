@@ -66,6 +66,11 @@
             </div>
             <div class="row">
               {% block showcase %}{% endblock %}
+              {% block stream %}
+                {% for activity in stream %}
+                  {% include "base/activity.html" %}
+                {% endfor %}
+              {% endblock %}
             </div><!--/row-->
             <div class="row">
 <div id="api-accordion" class="panel-group" >

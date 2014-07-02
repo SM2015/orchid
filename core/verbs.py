@@ -182,6 +182,10 @@ class FieldCreateVerb(AuthenticatedOnlyVerb):
     display_name = "Create New Field"
     view_name='field_create'
 
+class LocationDetailVerb(CoreVerb):
+    display_name = "View Location"
+    view_name='location_detail'
+
 class LocationListVerb(CoreVerb):
     display_name = "View All Locations"
     view_name='location_list'

@@ -1,1 +1,9 @@
-<div class="alert alert-warning"><a href="/users/{{ activity.actor.id}}/">{{ activity.actor.first_name }} {{ activity.actor.last_name }}</a> {{ activity.verb }} <a href="{{ activity.action_object.get_absolute_url }}">{{ activity.action_object }}</a>{% if activity.target %} to <a href="{{ activity.target.get_absolute_url }}">{{ activity.target }}</a>{% endif %} {{ activity.timesince }} ago.</div>
+{% if 'passing' in activity.verb %}
+<div class="alert alert-success">
+{% elif 'failing' in activity.verb %}
+<div class="alert alert-danger">
+{% else %}
+<div class="alert alert-warning">
+{% endif %}
+    <a href="/users/{{ activity.actor.id}}/">{{ activity.actor.first_name }} {{ activity.actor.last_name }}</a> {{ activity.verb }} <a href="{{ activity.action_object.get_absolute_url }}">{{ activity.action_object }}</a>{% if activity.target %} to <a href="{{ activity.target.get_absolute_url }}">{{ activity.target }}</a>{% endif %} {{ activity.timesince }} ago.
+</div>

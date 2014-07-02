@@ -121,8 +121,8 @@ ACTSTREAM_SETTINGS = {
     'USE_JSONFIELD':True,
 }
 
-#DEFAULT_FILE_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
-#from local_settings import *
+DEFAULT_FILE_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
+from local_settings import *
 
 TEMPLATE_CONTEXT_PROCESSORS = (
     "django.contrib.auth.context_processors.auth",
