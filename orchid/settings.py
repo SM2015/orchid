@@ -117,7 +117,7 @@ TEMPLATE_DIRS = (
 )
 
 ACTSTREAM_SETTINGS = {
-    'MODELS': ('core.indicator', 'forms.field', 'core.location', 'auth.user', 'auth.group', 'core.historicalproject','core.historicalpost','core.historicalmedia'),
+    'MODELS': ('core.indicator', 'forms.field', 'core.location', 'core.image', 'auth.user', 'auth.group', 'core.historicalproject','core.historicalpost','core.historicalmedia'),
     'USE_JSONFIELD':True,
 }
 

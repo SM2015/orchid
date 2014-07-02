@@ -67,6 +67,7 @@
             <div class="row">
               {% block showcase %}{% endblock %}
               {% block stream %}
+              <h2>Activity Stream</h2>
                 {% for activity in stream %}
                   {% include "base/activity.html" %}
                 {% endfor %}

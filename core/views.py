@@ -188,7 +188,9 @@ class LocationDetailView(LocationView, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(LocationDetailView, self).get_context_data(**kwargs)
-        context["most_recent_image_url"] = self.noun.get_most_recent_image().get_file_url()
+        most_recent_image =self.noun.get_most_recent_image()
+        if most_recent_image != None:
+            context["most_recent_image_url"] = most_recent_image.get_file_url()
         return context
 
 class LocationIndicatorListlView(LocationView, TemplateView):
@@ -219,7 +221,6 @@ class LocationImageCreateView(LocationView, CreateView):
         return cf.ImageForm(self.request.POST or None, self.request.FILES or None, initial=self.get_initial())
 
     def form_valid(self, form):
-        self.noun.images.add(form.instance)
         return super(LocationImageCreateView, self).form_valid(form)
 
     def get_success_url(self):
