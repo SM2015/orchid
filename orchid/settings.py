@@ -43,6 +43,7 @@ INSTALLED_APPS = (
     'south',
     'djangobower',
     'core',
+    'carteblanche',
     'json_field',
     'actstream',
     'forms_builder.forms',
@@ -52,7 +53,7 @@ INSTALLED_APPS = (
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
+    #'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -115,6 +116,8 @@ PROJECT_ROOT = os.path.dirname(__file__)
 TEMPLATE_DIRS = (
   os.path.join(BASE_DIR, "templates"),
 )
+
+MESSAGES_TEMPLATE = 'base/messages.html'
 
 ACTSTREAM_SETTINGS = {
     'MODELS': ('core.indicator', 'forms.field', 'core.location', 'core.image', 'auth.user', 'auth.group', 'core.historicalproject','core.historicalpost','core.historicalmedia'),

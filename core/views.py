@@ -9,8 +9,8 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import User
 from uuid import uuid4
 from carteblanche.base import Noun
-#from carteblanche.django.mixins import NounView
-from core.verbs import NounView
+from carteblanche.mixins import NounView
+#from core.verbs import NounView
 import core.models as cm
 import core.forms as cf
 import core.tasks as ct
@@ -117,7 +117,27 @@ class UserLoginView(SiteRootView, FormView):
         user = form.user_cache
         login(self.request, user)
         form.instance = user
-        return super(UserLoginView, self).form_valid(form)
+        if self.request.is_ajax():
+            context = {
+                'userid' : user.id,
+                'sessionid': self.request.session.session_key
+                }
+            data = json.dumps(context, default=decimal_default)
+            out_kwargs = {'content_type':'application/json'}
+            return HttpResponse(data, **out_kwargs)
+        else:
+            return super(UserLoginView, self).form_valid(form)
+
+
+    def get(self, request, *args, **kwargs):
+        supes = super(UserLoginView, self).get(request, *args, **kwargs)
+        context = self.get_context_data(**kwargs)
+        if self.request.is_ajax():
+            data = json.dumps(context, default=decimal_default)
+            out_kwargs = {'content_type':'application/json'}
+            return HttpResponse(data, **out_kwargs)
+        return supes
+
 
 class UserLogoutView(SiteRootView, TemplateView):
     template_name = 'bootstrap.html'
