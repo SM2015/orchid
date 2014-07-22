@@ -15,6 +15,10 @@ import os
 from geoposition.fields import GeopositionField
 from core.verbs import *
 import forms_builder.forms.models as fm
+import forms_builder.forms.fields as ff
+
+ALLOWED_FIELD_TYPES = [ff.TEXT, ff.TEXTAREA, ff.CHECKBOX]
+FIELD_TYPE_NAMES = ["TEXT", "TEXTAREA", "CHECKBOX"]
 
 
 def get_file_path(instance, filename):
@@ -110,6 +114,7 @@ class Indicator(Auditable, Noun):
     title = models.CharField(max_length=300)
     form = models.ForeignKey(fm.Form, unique=True, null=True, blank=True)
     passing_percentage = models.FloatField(default=85)
+    maximum_monthly_records = models.IntegerField(default=20)
     verb_classes = [IndicatorListVerb, IndicatorDetailVerb, FieldCreateVerb]
 
     def __unicode__(self):
@@ -142,13 +147,28 @@ class Indicator(Auditable, Noun):
         remote_form_dict = remote_form.as_dict()
         return remote_form_dict
 
+    def get_serialized_fields(self):
+        fields = []
+        for f in self.form.fields.all().order_by("order"):
+            if f.field_type in ALLOWED_FIELD_TYPES:
+                blob = {
+                    "id":f.id,
+                    "field_type":FIELD_TYPE_NAMES[ALLOWED_FIELD_TYPES.index(f.field_type)],
+                    "help_text":f.help_text,
+                    "label":f.label,
+                    "order":f.order,
+                    "visible":f.visible
+                }
+                fields.append(blob)
+        return fields
+
     def get_serialized(self):
         blob = {
             'id':self.id,
             'title':self.title,
             'passing_percentage':self.passing_percentage,
             'url':self.get_absolute_url(),
-            'form':self.get_serialized_builder_form()
+            'fields':self.get_serialized_fields()
         }
 
         return blob

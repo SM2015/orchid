@@ -309,7 +309,7 @@ class IndicatorListView(SiteRootView, TemplateView):
                 'title':l.title,
                 'passing_percentage':l.passing_percentage,
                 'url':l.get_absolute_url(),
-                'form':l.get_serialized_builder_form()
+                'fields':l.get_serialized_fields()
             }
             indicators.append(blob)
         context['indicators'] = indicators
@@ -356,7 +356,7 @@ class FieldUpdateView(IndicatorView, UpdateView):
         return cm.Indicator.objects.get(form=form)
 
     def get_object(self):
-        output = get_object_or_404(fm.Field, slug=self.kwargs["slug"])
+        output = get_object_or_404(fm.Field, id=self.kwargs["pk"])
         return output
 
     def get_form(self, form_class):
