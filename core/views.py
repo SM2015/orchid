@@ -462,3 +462,82 @@ class IndicatorRecordCreateView(LocationView, TemplateView):
         return super(IndicatorRecordCreateView, self).render_to_response(context, **kwargs)
 
 form_detail = IndicatorRecordCreateView.as_view()
+
+from forms_builder.forms.utils import now, split_choices
+
+class IndicatorRecordUploadView(LocationView, FormView):
+    template_name = 'base/form.html'
+    form_class = cf.RecordUploadForm
+    success_url = '/'
+
+    def get_noun(self, **kwargs):
+        return cm.Location.objects.get(id=self.kwargs['location_pk'])
+
+    def form_valid(self, form):
+        try:
+            json_string = form.cleaned_data['json']
+            data = json.loads(json_string, parse_float=decimal.Decimal)
+            
+            #create field entries for incoming data.  Don't save them until we're done
+            fieldEntries = []
+            for f in data.get("values"):
+                field_id = f.get("field_id")
+                new_value = f.get("value")
+                if new_value == True:
+                    new_value = u"True"
+                elif new_value == False:
+                    new_value = u"False"
+                new_fieldEntry = fm.FieldEntry(value=new_value, field_id=field_id)
+                fieldEntries.append(new_fieldEntry)
+            if fieldEntries.__len__() > 0:
+                #if there are entries, create a new record
+                form_id = fm.Field.objects.get(id=field_id).form_id
+                new_record = fm.FormEntry(entry_time=now(), form_id=form_id)
+                new_record.save()
+                for f in fieldEntries:
+                    #connect the entries to the record
+                    f.entry_id = new_record.id
+                    f.save()
+                #create entries for location and user data
+                builder_form = fm.Form.objects.get(id=form_id)
+                new_locationEntry = fm.FieldEntry(value=self.get_noun().__str__(), field_id=builder_form.fields.get(label="Location").id, entry_id=new_record.id)
+                new_locationEntry.save()
+                new_userEntry = fm.FieldEntry(value=self.request.user.get_full_name(), field_id=builder_form.fields.get(label="User").id, entry_id=new_record.id)
+                new_userEntry.save()
+
+                #take the score from the json and create an action
+                indicator = cm.Indicator.objects.get(form__id=form_id)
+                score = float(data.get("score"))
+                if score >= indicator.passing_percentage:
+                    messages.success(self.request,'Passing score of '+str(score))
+                    action.send(self.request.user, verb='entered passing record', action_object=indicator, target=self.noun)
+                else:
+                    messages.error(self.request,'Not passing score of '+str(score))
+                    action.send(self.request.user, verb='entered failing record', action_object=indicator, target=self.noun)
+            context = {
+                "status":"success",
+                "record_id":new_record.id
+            }
+        except Exception as e:
+            context = {
+                "status":"failure",
+                "error":e
+            }
+        if self.request.is_ajax():
+
+            data = json.dumps(context, default=decimal_default)
+            out_kwargs = {'content_type':'application/json'}
+            return HttpResponse(data, **out_kwargs)
+        else:
+            return super(IndicatorRecordUploadView, self).form_valid(form)
+
+
+    def get(self, request, *args, **kwargs):
+        supes = super(IndicatorRecordUploadView, self).get(request, *args, **kwargs)
+        context = self.get_context_data(**kwargs)
+        if self.request.is_ajax():
+            data = json.dumps(context, default=decimal_default)
+            out_kwargs = {'content_type':'application/json'}
+            return HttpResponse(data, **out_kwargs)
+
+        return supes

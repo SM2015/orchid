@@ -14,6 +14,7 @@ urlpatterns = patterns('',
     url(r'location/(?P<pk>\d+)/detail/$', cv.LocationDetailView.as_view(), name='location_detail'),
     url(r'location/list/$', cv.LocationListView.as_view(), name='location_list'),
     url(r'location/(?P<location_pk>\d+)/indicator/(?P<pk>\d+)/record/create/$', cv.IndicatorRecordCreateView.as_view(), name='indicator_record_create'),
+    url(r'location/(?P<location_pk>\d+)/indicator/(?P<pk>\d+)/record/upload/$', cv.IndicatorRecordUploadView.as_view(), name='indicator_record_upload'),
     url(r'location/(?P<pk>\d+)/image/create/$', cv.LocationImageCreateView.as_view(), name='location_image_create'),
     url(r'location/(?P<pk>\d+)/indicator/list/$', cv.LocationIndicatorListlView.as_view(), name='location_indicator_list'),
 
@@ -23,6 +24,7 @@ urlpatterns = patterns('',
 
     url(r'indicator/(?P<pk>\d+)/field/create/$', cv.FieldCreateView.as_view(), name='field_create'),
     url(r'indicator/(?P<indicator_pk>\d+)/field/(?P<pk>\d+)/update/$', cv.FieldUpdateView.as_view(), name='field_update'),
+
 
 )
 

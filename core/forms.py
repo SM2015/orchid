@@ -149,3 +149,14 @@ class ImageForm(BootstrapForm):
     class Meta:
         model = cm.Image
         fields = ['original_file']
+
+class RecordUploadForm(forms.Form):
+    def __init__(self, *args, **kwargs):
+        super(RecordUploadForm, self).__init__(*args, **kwargs)
+        for name, field in self.fields.items():
+            if field.widget.attrs.has_key('class'):
+                field.widget.attrs['class'] += ' form-control'
+            else:
+                field.widget.attrs.update({'class':'form-control'})
+
+    json = forms.CharField(widget=forms.Textarea)
