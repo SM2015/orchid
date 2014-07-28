@@ -50,10 +50,8 @@ class MessageView(SiteRootView, TemplateView):
 
 
 class LandingView(SiteRootView, TemplateView):
-    template_name = 'overview/map.html'
+    template_name = 'base/bootstrap.html'
 
-    def get(self, request, **kwargs):
-        return HttpResponseRedirect(reverse(viewname='location_list', current_app='core'))
 
 class BootstrapView(TemplateView):
     template_name = 'grid.html'
@@ -174,16 +172,21 @@ class LocationListView(SiteRootView, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(LocationListView, self).get_context_data(**kwargs)
-        locations = []
-        for l in cm.Location.objects.all():
+        output = []
+        if self.request.user.is_staff:
+            locations = cm.Location.objects.all()
+        else:
+            locations = self.request.user.location_set.all()
+        for l in locations:
             blob = {
                 'id':l.id,
                 'lattitude':l.position.latitude,
                 'longitude':l.position.longitude,
-                'title':l.title
+                'title':l.title,
+                'indicator_ids':l.get_indicator_ids()
             }
-            locations.append(blob)
-        context['locations'] = locations
+            output.append(blob)
+        context['locations'] = output
         context['stream'] = am.Action.objects.all()
         return context
 
@@ -257,6 +260,7 @@ class IndicatorCreateView(SiteRootView, CreateView):
         new_form = fm.Form.objects.create(title=form.cleaned_data['title'])
         location_field = fm.Field.objects.create(form=new_form, field_type=1, label="Location", visible=False)
         location_field = fm.Field.objects.create(form=new_form, field_type=1, label="User", visible=False)
+        location_field = fm.Field.objects.create(form=new_form, field_type=13, label="Score", visible=False)
         form.instance.form = new_form
         self.instance = form.instance
         #action.send(self.request.user, verb='created', action_object=self.object, target=self.object)
@@ -499,21 +503,23 @@ class IndicatorRecordUploadView(LocationView, FormView):
                     f.entry_id = new_record.id
                     f.save()
                 #create entries for location and user data
+                score = float(data.get("score"))
                 builder_form = fm.Form.objects.get(id=form_id)
                 new_locationEntry = fm.FieldEntry(value=self.get_noun().__str__(), field_id=builder_form.fields.get(label="Location").id, entry_id=new_record.id)
                 new_locationEntry.save()
                 new_userEntry = fm.FieldEntry(value=self.request.user.get_full_name(), field_id=builder_form.fields.get(label="User").id, entry_id=new_record.id)
                 new_userEntry.save()
+                new_scoreEntry = fm.FieldEntry(value=score, field_id=builder_form.fields.get(label="Score").id, entry_id=new_record.id)
+                new_scoreEntry.save()
 
                 #take the score from the json and create an action
                 indicator = cm.Indicator.objects.get(form__id=form_id)
-                score = float(data.get("score"))
                 if score >= indicator.passing_percentage:
                     messages.success(self.request,'Passing score of '+str(score))
-                    action.send(self.request.user, verb='entered passing record', action_object=indicator, target=self.noun)
+                    action.send(self.request.user, verb='PASS '+str(score), action_object=indicator, target=self.noun)
                 else:
                     messages.error(self.request,'Not passing score of '+str(score))
-                    action.send(self.request.user, verb='entered failing record', action_object=indicator, target=self.noun)
+                    action.send(self.request.user, verb='FAIL '+str(score), action_object=indicator, target=self.noun)
             context = {
                 "status":"success",
                 "record_id":new_record.id

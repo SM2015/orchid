@@ -82,7 +82,7 @@ class LocationDetailVerb(CoreVerb):
     display_name = "View Location"
     view_name='location_detail'
 
-class LocationListVerb(CoreVerb):
+class LocationListVerb(AuthenticatedOnlyVerb):
     display_name = "View All Locations"
     view_name='location_list'
 

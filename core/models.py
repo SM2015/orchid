@@ -89,8 +89,8 @@ class Image(Auditable, Noun):
 class Location(Auditable, Noun):
     title = models.CharField(max_length=300)
     position = GeopositionField()
-    members = models.ManyToManyField(User)
-    images = models.ManyToManyField(Image)
+    members = models.ManyToManyField(User, null=True, blank=True)
+    images = models.ManyToManyField(Image, null=True, blank=True)
     indicators = models.ManyToManyField('Indicator', null=True, blank=True)
     verb_classes = [LocationDetailVerb, LocationIndicatorListVerb, LocationImageCreateVerb]
 
@@ -99,6 +99,9 @@ class Location(Auditable, Noun):
 
     def get_absolute_url(self):
         return reverse(viewname='location_detail', args=[self.id], current_app=APPNAME)
+
+    def get_indicator_ids(self):
+        return list(self.indicators.all().values_list('id', flat=True))
 
     def get_most_recent_image(self):
         try:

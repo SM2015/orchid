@@ -1,6 +1,6 @@
-{% if 'passing' in activity.verb %}
+{% if 'PASS' in activity.verb %}
 <div class="alert alert-success">
-{% elif 'failing' in activity.verb %}
+{% elif 'FAIL' in activity.verb %}
 <div class="alert alert-danger">
 {% else %}
 <div class="alert alert-warning">
