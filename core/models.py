@@ -170,6 +170,7 @@ class Indicator(Auditable, Noun):
         blob = {
             'id':self.id,
             'title':self.title,
+            'form_number':self.form_number,
             'passing_percentage':self.passing_percentage,
             'url':self.get_absolute_url(),
             'fields':self.get_serialized_fields()
