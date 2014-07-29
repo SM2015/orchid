@@ -1,22 +1,10 @@
-DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.mysql',
-            'NAME': 'moh_belize',
-            'USER': 'moh_belize',
-            'PASSWORD': 'moh_belize',
-            'HOST': 'mohbelizetestdb.cqvqhvonzmwu.us-west-2.rds.amazonaws.com',
-            'PORT': '3306',
-        }
-    }
-
-
 To deploy Project Orchid
 
 Installation
 ------------
 
 #!/bin/bash -ex
-cd /home/ubuntu
+#cd /home/ubuntu
 echo spinning up...
 #install system programs
 echo installing system programs...
@@ -29,17 +17,16 @@ ln -s /usr/bin/nodejs /usr/bin/node
 npm install -g --config.interactive=false bower
 npm install --save --config.interactive=false bower-requirejs
 #add variables to environment
-echo adding environment variables...
-sh -c "echo 'export WORKON_HOME=$HOME/.virtualenvs' >> ~/.bashrc"
-sh -c "echo 'export PROJECT_HOME=$HOME/directory-you-do-development-in' >> ~/.bashrc"
-sh -c "echo 'source /usr/local/bin/virtualenvwrapper.sh' >> ~/.bashrc"
-sh -c "echo 'source /usr/local/bin/virtualenvwrapper.sh' >> ~/.bashrc"
-sh -c "echo 'export NODE_PATH=$HOME/local/lib/node_modules' >> ~/.bashrc"
-#exit
+#echo adding environment variables...
+#sh -c "echo 'export WORKON_HOME=$HOME/.virtualenvs' >> ~/.bashrc"
+#sh -c "echo 'export PROJECT_HOME=$HOME/directory-you-do-development-in' >> ~/.bashrc"
+#sh -c "echo 'source /usr/local/bin/virtualenvwrapper.sh' >> ~/.bashrc"
+#sh -c "echo 'export NODE_PATH=$HOME/local/lib/node_modules' >> ~/.bashrc"
+exit
 #reload
 #bash --login 
 #setup virtualenv
-mkvirtualenv orchid
+#mkvirtualenv orchid
 git clone https://github.com/neuman/orchid.git
 echo installing pip requirements...
 pip install -r orchid/requirements.txt
@@ -48,8 +35,8 @@ cd orchid
 bower install --allow-root --config.interactive=false
 #add the local_settings.py file
 echo building local_settings file...
-echo AWS_SECRET_ACCESS_KEY = '"NHKwKFn9zfs/8YifcN05CaGSS1jZZNlfQ7oKAbsg"' >> orchid/local_settings.py
-echo AWS_ACCESS_KEY_ID = '"AKIAJH44DUQH6JZYVKLQ"' >> orchid/local_settings.py
+echo AWS_SECRET_ACCESS_KEY = '"INSERT KEY HERE"' >> orchid/local_settings.py
+echo AWS_ACCESS_KEY_ID = '"INSERT KEY HERE"' >> orchid/local_settings.py
 echo AWS_STORAGE_BUCKET_NAME = '"moh.tablet.test"' >> orchid/local_settings.py
 #start the server
 echo starting the server...

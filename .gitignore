@@ -8,12 +8,16 @@ __pycache__/
 # C extensions
 *.so
 
+bower_components/
+
+db.sqlite3
+
 # Distribution / packaging
 .Python
 env/
 build/
 develop-eggs/
-#dist/
+dist/
 eggs/
 lib/
 lib64/
