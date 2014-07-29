@@ -116,6 +116,7 @@ from django_remote_forms.forms import RemoteForm
 class Indicator(Auditable, Noun):
     title = models.TextField()
     form = models.ForeignKey(fm.Form, unique=True, null=True, blank=True)
+    form_number = models.IntegerField(default=0)
     passing_percentage = models.FloatField(default=85)
     maximum_monthly_records = models.IntegerField(default=20)
     verb_classes = [IndicatorListVerb, IndicatorDetailVerb, FieldCreateVerb]
