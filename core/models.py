@@ -116,7 +116,7 @@ from django_remote_forms.forms import RemoteForm
 class Indicator(Auditable, Noun):
     title = models.TextField()
     form = models.ForeignKey(fm.Form, unique=True, null=True, blank=True)
-    form_number = models.IntegerField(default=0)
+    form_number = models.IntegerField(null=True, blank=True)
     passing_percentage = models.FloatField(default=85)
     maximum_monthly_records = models.IntegerField(default=20)
     verb_classes = [IndicatorListVerb, IndicatorDetailVerb, IndicatorUpdateVerb, FieldCreateVerb]
@@ -166,11 +166,16 @@ class Indicator(Auditable, Noun):
                 fields.append(blob)
         return fields
 
+    def get_title(self):
+        if self.form_number != None:
+            return "#"+str(self.form_number)+" "+self.title
+        else:
+            return self.title
+
     def get_serialized(self):
         blob = {
             'id':self.id,
-            'title':self.title,
-            'form_number':self.form_number,
+            'title':self.get_title(),
             'passing_percentage':self.passing_percentage,
             'url':self.get_absolute_url(),
             'fields':self.get_serialized_fields()

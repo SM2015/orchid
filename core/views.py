@@ -319,13 +319,7 @@ class IndicatorListView(SiteRootView, TemplateView):
         context = super(IndicatorListView, self).get_context_data(**kwargs)
         indicators = []
         for l in cm.Indicator.objects.all():
-            blob = {
-                'id':l.id,
-                'title':l.title,
-                'passing_percentage':l.passing_percentage,
-                'url':l.get_absolute_url(),
-                'fields':l.get_serialized_fields()
-            }
+            blob = l.get_serialized()
             indicators.append(blob)
         context['indicators'] = indicators
         return context
