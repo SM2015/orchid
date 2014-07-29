@@ -87,7 +87,7 @@ class Image(Auditable, Noun):
         return "NOT PANDAS"
 
 class Location(Auditable, Noun):
-    title = models.CharField(max_length=2000)
+    title = models.TextField()
     position = GeopositionField()
     members = models.ManyToManyField(User, null=True, blank=True)
     images = models.ManyToManyField(Image, null=True, blank=True)
@@ -114,7 +114,7 @@ from django.template.context import Context
 from django_remote_forms.forms import RemoteForm
 
 class Indicator(Auditable, Noun):
-    title = models.CharField(max_length=2000)
+    title = models.TextField()
     form = models.ForeignKey(fm.Form, unique=True, null=True, blank=True)
     passing_percentage = models.FloatField(default=85)
     maximum_monthly_records = models.IntegerField(default=20)
