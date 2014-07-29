@@ -257,7 +257,7 @@ class IndicatorCreateView(SiteRootView, CreateView):
     form_class = cf.IndicatorForm
 
     def form_valid(self, form):
-        new_form = fm.Form.objects.create(title=form.cleaned_data['title'])
+        new_form = fm.Form.objects.create(title=form.cleaned_data['title'][0:50])
         location_field = fm.Field.objects.create(form=new_form, field_type=1, label="Location", visible=False)
         location_field = fm.Field.objects.create(form=new_form, field_type=1, label="User", visible=False)
         location_field = fm.Field.objects.create(form=new_form, field_type=13, label="Score", visible=False)
