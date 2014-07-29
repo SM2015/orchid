@@ -19,6 +19,7 @@ urlpatterns = patterns('',
     url(r'location/(?P<pk>\d+)/indicator/list/$', cv.LocationIndicatorListlView.as_view(), name='location_indicator_list'),
 
     url(r'indicator/(?P<pk>\d+)/detail/$', cv.IndicatorDetailView.as_view(), name='indicator_detail'),
+    url(r'indicator/(?P<pk>\d+)/update/$', cv.IndicatorUpdateView.as_view(), name='indicator_update'),
     url(r'indicator/create/$', cv.IndicatorCreateView.as_view(), name='indicator_create'),
     url(r'indicator/list/$', cv.IndicatorListView.as_view(), name='indicator_list'),
 

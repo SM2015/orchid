@@ -270,9 +270,20 @@ class IndicatorCreateView(SiteRootView, CreateView):
         action.send(self.request.user, verb='created indicator', action_object=self.instance)
         return reverse(viewname='field_create', args=(self.instance.id,), current_app='core')
 
+
 class IndicatorView(NounView):
     def get_noun(self, **kwargs):
         return cm.Indicator.objects.get(id=self.kwargs['pk'])
+
+class IndicatorUpdateView(IndicatorView, UpdateView):
+    model = cm.Indicator
+    template_name = 'base/form.html'
+    success_url = '/'
+    form_class = cf.IndicatorForm
+
+    def get_success_url(self):
+        action.send(self.request.user, verb='updated indicator', action_object=self.get_noun())
+        return reverse(viewname='indicator_detail', args=(self.noun.id,), current_app='core')
 
 class IndicatorDetailView(IndicatorView, TemplateView):
     model = cm.Indicator

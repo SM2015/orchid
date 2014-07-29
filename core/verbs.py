@@ -66,6 +66,10 @@ class IndicatorDetailVerb(AuthenticatedOnlyVerb):
     display_name = "View Indicator"
     view_name='indicator_detail'
 
+class IndicatorUpdateVerb(AuthenticatedOnlyVerb):
+    display_name = "Update Indicator"
+    view_name='indicator_update'
+
 class IndicatorListVerb(AuthenticatedOnlyVerb):
     display_name = "View All Indicators"
     view_name='indicator_list'
