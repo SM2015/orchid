@@ -10,7 +10,8 @@
 {{ form.media }}
     {% for row in entries %}
     {% if forloop.first %}
-    <table id="entries-table" class="table table-bordered">
+    <div class="overscroller">
+    <table id="entries-table" class="table table-bordered overscroller">
         <tr>
             {% if can_delete_entries %}
             <th class="include-all"><input type="checkbox"></th>
@@ -34,6 +35,7 @@
         </tr>
     {% if forloop.last %}
     </table>
+    </div>
     {% endif %}
 {% endfor %}
 {% endblock %}

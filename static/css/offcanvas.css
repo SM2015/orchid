@@ -63,3 +63,9 @@ footer {
         margin: 0px;
         padding: 0px
       }
+
+   .overscroller{
+    min-width:250px; /* force table to be oversize */
+    overflow-x: scroll;
+
+}
