@@ -189,7 +189,7 @@ class LocationListView(SiteRootView, TemplateView):
             }
             output.append(blob)
         context['locations'] = output
-        context['stream'] = am.Action.objects.all()
+        context['stream'] = am.Action.objects.all()[:40]
         return context
 
     def get(self, request, *args, **kwargs):
@@ -216,7 +216,7 @@ class LocationDetailView(LocationView, TemplateView):
         most_recent_image =self.noun.get_most_recent_image()
         if most_recent_image != None:
             context["most_recent_image_url"] = most_recent_image.get_file_url()
-        context["stream"] = self.noun.get_action_stream()
+        context["stream"] = self.noun.get_action_stream()[:40]
         return context
 
 class LocationIndicatorListlView(LocationView, TemplateView):
@@ -225,7 +225,7 @@ class LocationIndicatorListlView(LocationView, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(LocationIndicatorListlView, self).get_context_data(**kwargs)
-        context['stream'] = self.noun.get_action_stream()
+        context['stream'] = self.noun.get_action_stream()[:40]
         context['indicators'] = self.noun.indicators.all()
         return context
 
@@ -244,9 +244,8 @@ class LocationEntriesFilterView(LocationView, FormView):
     form_class = cf.SavedFilterForm
 
     def form_valid(self, form):
-        self.object = form.save(commit=False)
         indicator = form.cleaned_data['indicator']
-        entries = indicator.get_filtered_entries(self.object)
+        entries = indicator.get_filtered_entries(form.cleaned_data)
         context = {
             "columns":indicator.get_column_headers(),
             "entries":entries,
@@ -313,7 +312,7 @@ class IndicatorDetailView(IndicatorView, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(IndicatorDetailView, self).get_context_data(**kwargs)
-        context['stream'] = self.noun.get_action_stream()
+        context['stream'] = self.noun.get_action_stream()[:40]
         return context
 
     def get_context_data(self, **kwargs):

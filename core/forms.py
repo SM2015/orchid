@@ -10,10 +10,20 @@ FIELD_TYPE_CHOICES = (
     (2, 'Long Text'),
 )
 
-class BootstrapForm(forms.ModelForm):
+class BootstrapForm(forms.Form):
     exclude = ['changed_by']
     def __init__(self, *args, **kwargs):
         super(BootstrapForm, self).__init__(*args, **kwargs)
+        for name, field in self.fields.items():
+            if field.widget.attrs.has_key('class'):
+                field.widget.attrs['class'] += ' form-control'
+            else:
+                field.widget.attrs.update({'class':'form-control'})
+
+class ModelBootstrapForm(forms.ModelForm):
+    exclude = ['changed_by']
+    def __init__(self, *args, **kwargs):
+        super(ModelBootstrapForm, self).__init__(*args, **kwargs)
         for name, field in self.fields.items():
             if field.widget.attrs.has_key('class'):
                 field.widget.attrs['class'] += ' form-control'
@@ -37,7 +47,7 @@ class BooleanForm(forms.Form):
         # not.
         return cleaned_data
 
-class DropzoneForm(BootstrapForm):
+class DropzoneForm(ModelBootstrapForm):
     def __init__(self, *args, **kwargs):
         super(DropzoneForm, self).__init__(*args, **kwargs)
         for name, field in self.fields.items():
@@ -47,7 +57,7 @@ class DropzoneForm(BootstrapForm):
                 field.widget.attrs.update({'class':'form-control dropzone'})
 
 
-class RegistrationForm(BootstrapForm):
+class RegistrationForm(ModelBootstrapForm):
     email = forms.EmailField()
     first_name = forms.CharField(max_length=100)
     last_name = forms.CharField(max_length=100)
@@ -74,7 +84,7 @@ class RegistrationForm(BootstrapForm):
 from django.contrib.auth import authenticate, get_user_model
 from django.utils.translation import ugettext as _
 
-class LoginForm(BootstrapForm):
+class LoginForm(ModelBootstrapForm):
     password = forms.CharField(label=_("Password"), widget=forms.PasswordInput)
 
     error_messages = {
@@ -127,25 +137,25 @@ class LoginForm(BootstrapForm):
      model = User
      fields = ['email','password']
 
-class LocationForm(BootstrapForm):
+class LocationForm(ModelBootstrapForm):
     class Meta:
         model = cm.Location
         exclude = ['changed_by','images']
 
-class IndicatorForm(BootstrapForm):
+class IndicatorForm(ModelBootstrapForm):
     title = forms.CharField(max_length=100)
     class Meta:
         model = cm.Indicator
         exclude = ['changed_by', 'form']
 
-class FieldForm(BootstrapForm):
+class FieldForm(ModelBootstrapForm):
     field_type = forms.ChoiceField(choices = FIELD_TYPE_CHOICES,widget = forms.Select())
     
     class Meta:
         model = fm.Field
         exclude = ['slug', 'required', 'placeholder_text', 'form', 'default','choices']
 
-class ImageForm(BootstrapForm):
+class ImageForm(ModelBootstrapForm):
     class Meta:
         model = cm.Image
         fields = ['original_file']
@@ -162,7 +172,8 @@ class RecordUploadForm(forms.Form):
     json = forms.CharField(widget=forms.Textarea)
 
 class SavedFilterForm(BootstrapForm):
+    indicator = forms.ModelChoiceField(queryset=cm.Indicator.objects.all(), required=True)
+    locations = forms.ModelMultipleChoiceField(queryset=cm.Location.objects.all(), required=False)
     start_date = forms.DateField(required=False, widget=forms.DateInput(attrs={'class':'datepicker'}))
     end_date = forms.DateField(required=False, widget=forms.DateInput(attrs={'class':'datepicker'}))
-    class Meta:
-        model = cm.SavedFilter
+    input_user = forms.ModelMultipleChoiceField(queryset=cm.User.objects.all(), required=False)

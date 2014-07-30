@@ -188,11 +188,22 @@ class Indicator(Auditable, Noun):
 
 
     def get_filtered_entries(self, savedFilter, csv=False):
-             # Store the index of each field against its ID for building each
+        # Store the index of each field against its ID for building each
         # entry row with columns in the correct order. Also store the IDs of
         # fields with a type of FileField or Date-like for special handling of
         # their values.
         user_field_id = self.form.fields.get(label="User").id
+        print "user_field_id: "+str(user_field_id)
+        input_user_values = []
+        for u in savedFilter['input_user']:
+            input_user_values.append(u.get_full_name())
+        print "input_user_values: "+str(input_user_values)
+
+        location_field_id = self.form.fields.get(label="Location").id
+        print "location_field_id: "+str(location_field_id)
+        location_values = list(savedFilter['locations'].values_list('title', flat=True))
+        print "location_values: "+str(location_values)
+
         field_indexes = {}
         for field in self.form.fields.all().order_by("order"):
             field_indexes[field.id] = len(field_indexes)
@@ -221,9 +232,10 @@ class Indicator(Auditable, Noun):
         '''
 
         for field_entry in field_entries:
-            print field_entry.id
+            #print field_entry.id
+            #print "field_entry.field_id: "+str(field_entry.field_id)
             field_value = field_entry.value or ""
-            print field_value
+            #print field_value
             if field_entry.entry_id != current_entry:
                 # New entry, write out the current row and start a new one.
                 if valid_row and current_row is not None:
@@ -234,16 +246,24 @@ class Indicator(Auditable, Noun):
                 current_row = [""] * num_columns
                 valid_row = True
                 current_row = [field_entry.entry.entry_time]+current_row
-                '''
-                if savedFilter.input_user and (field_entry.field_id == user_field_id):
-                    if not field_entry.value in savedFilter.input_user:
+            #print "field_entry.field_id: "+str(field_entry.field_id)
+            if len(input_user_values) >0:
+                if field_entry.field_id == user_field_id:
+                    print field_entry.value
+                    if not field_entry.value in input_user_values:
                         valid_row = False
-                '''
+
+            if field_entry.field_id == location_field_id:
+                print "if not "+field_entry.value+" in "+location_values.__str__()
+                if not unicode(field_entry.value) in location_values:
+                    valid_row = False
+
+                
             # Only use values for fields that were selected.
             try:
                 #shift over 1 to make room for the date column
                 current_row[field_indexes[field_entry.field_id]+1] = field_value
-                print current_row
+                #print current_row
             except KeyError:
                 print "KeyError current_row["+str(field_indexes)+"["+str(field_entry.id)+"]]"+fm.Field.objects.get(id=field_entry.field_id).label
                 pass
@@ -258,9 +278,11 @@ class Indicator(Auditable, Noun):
 
 class SavedFilter(models.Model):
     indicator = models.ForeignKey(Indicator)
+    locations = models.ManyToManyField(Location, null=True, blank=True)
     start_date = models.DateField(null=True, blank=True)
     end_date = models.DateField(null=True, blank=True)
     input_user = models.ManyToManyField(User, null=True, blank=True)
+
 
 
 
