@@ -1,0 +1,39 @@
+{% extends "base/bootstrap.html" %}
+{% block title %}orchid{% endblock %}
+{% block jumbotron %}
+    <h1>Filtering Summary</h1>
+    {% if filter.indicator %}<p>Indicator: {{ filter.indicator }}</p>{% endif %}
+    {% if filter.input_user %}<p>Input Users: {% for u in filter.input_user %}{{ u.get_full_name }}{% if not forloop.last %}, {% endif %}{% endfor %}</p>{% endif %}
+    {% if filter.start_date and filter.end_date %}<p>{{ filter.start_date }} - {{ filter.end_date }}</p>{% endif %}
+{% endblock %}
+{% block showcase %}
+{{ form.media }}
+    {% for row in entries %}
+    {% if forloop.first %}
+    <table id="entries-table" class="table table-bordered">
+        <tr>
+            {% if can_delete_entries %}
+            <th class="include-all"><input type="checkbox"></th>
+            {% endif %}
+            {% for column in columns %}
+            <th{% if forloop.last %} class="last"{% endif %}>{{ column }}</th>
+            {% endfor %}
+        </tr>
+    {% endif %}
+        <tr class="{% cycle on,off %}">
+            {% if can_delete_entries %}
+            <td class="include">
+                <input type="checkbox" name="selected" value="{{ row.0 }}">
+            </td>
+            {% endif %}
+            {% for field in row %}
+            {% if not forloop.first %}
+            <td class="{% if forloop.last %}last{% endif %} {% if 'False' in field %} danger {% elif 'True' in field%} success {% elif field == "" %} warning {% else %} active {% endif %}">{{ field }}</td>
+            {% endif %}
+            {% endfor %}
+        </tr>
+    {% if forloop.last %}
+    </table>
+    {% endif %}
+{% endfor %}
+{% endblock %}

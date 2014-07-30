@@ -1,12 +1,14 @@
 {% extends "base/bootstrap.html" %}
 {% block scripts %}
 {% endblock %}
-{% block jumbotron %}{{ noun.title }}{% endblock %}
-{% block showcase %}
-
+{% block jumbotron %}
+{{ noun.title }}
     {% if most_recent_image_url %}
             <a href="#" class="thumbnail">
           <img src="{{ most_recent_image_url }}" style="height: 180px; width: 100%; display: block;">
         </a>
     {% endif %}
+{% endblock %}
+{% block showcase %}
+
 {% endblock %}

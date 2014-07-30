@@ -86,6 +86,10 @@ class LocationDetailVerb(CoreVerb):
     display_name = "View Location"
     view_name='location_detail'
 
+class LocationFilterVerb(CoreVerb):
+    display_name = "Filter Data"
+    view_name='location_entries_filter'
+
 class LocationListVerb(AuthenticatedOnlyVerb):
     display_name = "View All Locations"
     view_name='location_list'

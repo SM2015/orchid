@@ -1,12 +1,21 @@
 {% extends "base/bootstrap.html" %}
 {% block scripts %}
 {% endblock %}
-{% block jumbotron %}{{ noun.title }}{% endblock %}
+{% block jumbotron %}
+{{ noun.title }}
+    {% if most_recent_image_url %}
+            <a href="#" class="thumbnail">
+          <img src="{{ most_recent_image_url }}" style="height: 180px; width: 100%; display: block;">
+        </a>
+    {% endif %}
+{% endblock %}
 {% block showcase %}
-<div class="list-group">
-    {% for i in indicators %}
-        <a href="/location/{{ noun.id }}/indicator/{{ i.id }}/record/create" class="list-group-item">{{ i.title }}</a>
-    {% endfor %}
+<div class="row">
+    <h2>Indicators</h2>
+    <div class="list-group">
+        {% for i in indicators %}
+            <a href="/location/{{ noun.id }}/indicator/{{ i.id }}/detail" class="list-group-item">{{ i.title }}</a>
+        {% endfor %}
+    </div>
 </div>
-
 {% endblock %}

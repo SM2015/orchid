@@ -160,3 +160,9 @@ class RecordUploadForm(forms.Form):
                 field.widget.attrs.update({'class':'form-control'})
 
     json = forms.CharField(widget=forms.Textarea)
+
+class SavedFilterForm(BootstrapForm):
+    start_date = forms.DateField(required=False, widget=forms.DateInput(attrs={'class':'datepicker'}))
+    end_date = forms.DateField(required=False, widget=forms.DateInput(attrs={'class':'datepicker'}))
+    class Meta:
+        model = cm.SavedFilter

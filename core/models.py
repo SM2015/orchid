@@ -92,7 +92,7 @@ class Location(Auditable, Noun):
     members = models.ManyToManyField(User, null=True, blank=True)
     images = models.ManyToManyField(Image, null=True, blank=True)
     indicators = models.ManyToManyField('Indicator', null=True, blank=True)
-    verb_classes = [LocationDetailVerb, LocationIndicatorListVerb, LocationImageCreateVerb]
+    verb_classes = [LocationDetailVerb, LocationIndicatorListVerb, LocationFilterVerb, LocationImageCreateVerb]
 
     def __unicode__(self):
         return self.title
@@ -122,7 +122,7 @@ class Indicator(Auditable, Noun):
     verb_classes = [IndicatorListVerb, IndicatorDetailVerb, IndicatorUpdateVerb, FieldCreateVerb]
 
     def __unicode__(self):
-        return self.title
+        return self.get_title()
 
     def get_absolute_url(self):
         return reverse(viewname='indicator_detail', args=[self.id], current_app=APPNAME)
@@ -183,6 +183,84 @@ class Indicator(Auditable, Noun):
 
         return blob
 
+    def get_column_headers(self):
+        return ["Date"]+list(self.form.fields.all().order_by("order").values_list('label', flat=True))
+
+
+    def get_filtered_entries(self, savedFilter, csv=False):
+             # Store the index of each field against its ID for building each
+        # entry row with columns in the correct order. Also store the IDs of
+        # fields with a type of FileField or Date-like for special handling of
+        # their values.
+        user_field_id = self.form.fields.get(label="User").id
+        field_indexes = {}
+        for field in self.form.fields.all().order_by("order"):
+            field_indexes[field.id] = len(field_indexes)
+        #get all field entries from the given form
+        field_entries = fm.FieldEntry.objects.filter(entry__form=self.form
+            ).order_by("-entry__id").select_related("entry")
+        try:
+            #if a date range is specified filter out any entries outside of the range
+            if savedFilter.start_date and savedFilter.end_date:
+                field_entries = field_entries.filter(
+                    entry__entry_time__range=(savedFilter.start_date, savedFilter.end_date))
+        except AttributeError as e:
+            pass
+        # Loop through each field value ordered by entry, building up each
+        # entry as a row. Use the ``valid_row`` flag for marking a row as
+        # invalid if it fails one of the filtering criteria specified.
+        current_entry = None
+        current_row = None
+        valid_row = True
+        num_columns = len(field_indexes)
+        '''
+        output = {}
+        for field_entry in field_entries:
+            #if output doesn't contain a blob for the formentry, create one with enough columns 
+            #find the appropriate blob and 
+        '''
+
+        for field_entry in field_entries:
+            print field_entry.id
+            field_value = field_entry.value or ""
+            print field_value
+            if field_entry.entry_id != current_entry:
+                # New entry, write out the current row and start a new one.
+                if valid_row and current_row is not None:
+                    if not csv:
+                        current_row.insert(0, current_entry)
+                    yield current_row
+                current_entry = field_entry.entry_id
+                current_row = [""] * num_columns
+                valid_row = True
+                current_row = [field_entry.entry.entry_time]+current_row
+                '''
+                if savedFilter.input_user and (field_entry.field_id == user_field_id):
+                    if not field_entry.value in savedFilter.input_user:
+                        valid_row = False
+                '''
+            # Only use values for fields that were selected.
+            try:
+                #shift over 1 to make room for the date column
+                current_row[field_indexes[field_entry.field_id]+1] = field_value
+                print current_row
+            except KeyError:
+                print "KeyError current_row["+str(field_indexes)+"["+str(field_entry.id)+"]]"+fm.Field.objects.get(id=field_entry.field_id).label
+                pass
+
+        # Output the final row.
+        if valid_row and current_row is not None:
+            if not csv:
+                current_row.insert(0, current_entry)
+            yield current_row
+
+
+
+class SavedFilter(models.Model):
+    indicator = models.ForeignKey(Indicator)
+    start_date = models.DateField(null=True, blank=True)
+    end_date = models.DateField(null=True, blank=True)
+    input_user = models.ManyToManyField(User, null=True, blank=True)
 
 
 

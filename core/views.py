@@ -1,4 +1,5 @@
 from __future__ import unicode_literals
+from future.builtins import bytes, open
 from django.views.generic.base import TemplateView
 from django.views.generic.edit import CreateView, UpdateView, FormView
 from django.http import Http404, HttpResponseRedirect
@@ -23,6 +24,7 @@ from django.shortcuts import get_object_or_404
 from django.conf import settings
 import decimal
 import forms_builder.forms.models as fm
+from forms_builder.forms.admin import FormAdmin
 import json
 from django.http import HttpResponse
 from django.views.generic.edit import CreateView
@@ -214,6 +216,7 @@ class LocationDetailView(LocationView, TemplateView):
         most_recent_image =self.noun.get_most_recent_image()
         if most_recent_image != None:
             context["most_recent_image_url"] = most_recent_image.get_file_url()
+        context["stream"] = self.noun.get_action_stream()
         return context
 
 class LocationIndicatorListlView(LocationView, TemplateView):
@@ -234,6 +237,25 @@ class LocationIndicatorListlView(LocationView, TemplateView):
             out_kwargs = {'content_type':'application/json'}
             return HttpResponse(data, **out_kwargs)
         return supes
+
+class LocationEntriesFilterView(LocationView, FormView):
+    model = cm.Location    
+    template_name = 'base/form.html'
+    form_class = cf.SavedFilterForm
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        indicator = form.cleaned_data['indicator']
+        entries = indicator.get_filtered_entries(self.object)
+        context = {
+            "columns":indicator.get_column_headers(),
+            "entries":entries,
+            "available_verbs": self.noun.get_available_verbs(self.request.user),
+            "filter":form.cleaned_data
+            }
+        return render_to_response('indicator/entries.html',
+                          context,
+                          context_instance=RequestContext(self.request))
 
 class LocationImageCreateView(LocationView, CreateView):
     model = cm.Image
@@ -552,3 +574,128 @@ class IndicatorRecordUploadView(LocationView, FormView):
             return HttpResponse(data, **out_kwargs)
 
         return supes
+
+
+
+
+from csv import writer
+from mimetypes import guess_type
+from os.path import join
+from datetime import datetime
+from io import BytesIO, StringIO
+
+from django.conf.urls import patterns, url
+from django.contrib import admin
+from django.core.files.storage import FileSystemStorage
+from django.core.urlresolvers import reverse
+from django.db.models import Count
+from django.http import HttpResponse, HttpResponseRedirect
+from django.shortcuts import render_to_response, get_object_or_404
+from django.template import RequestContext
+from django.utils.translation import ungettext, ugettext_lazy as _
+
+from forms_builder.forms.forms import EntriesForm
+from forms_builder.forms.models import Form, Field, FormEntry, FieldEntry
+from forms_builder.forms.settings import CSV_DELIMITER, UPLOAD_ROOT
+from forms_builder.forms.settings import USE_SITES, EDITABLE_SLUGS
+from forms_builder.forms.utils import now, slugify
+
+try:
+    import xlwt
+    XLWT_INSTALLED = True
+    XLWT_DATETIME_STYLE = xlwt.easyxf(num_format_str='MM/DD/YYYY HH:MM:SS')
+except ImportError:
+    XLWT_INSTALLED = False
+
+def entries_view(request, form_id):
+    entries_admin = FormAdmin(fm.Form, None)
+    #return entries_admin.entries_view(request, form_id)
+    return entries_view_actual(request, form_id, show=False, export=False, export_xls=False)
+
+def entries_view_actual(request, form_id, show=False, export=False, export_xls=False):
+        """
+        Displays the form entries in a HTML table with option to
+        export as CSV file.
+        """
+        thisModel = fm.Form
+        formentry_model = fm.FormEntry
+        fieldentry_model = fm.FieldEntry
+        if request.POST.get("back"):
+            bits = (thisModel._meta.app_label, thisModel.__name__.lower())
+            change_url = reverse("admin:%s_%s_change" % bits, args=(form_id,))
+            return HttpResponseRedirect(change_url)
+        print "get_object_or_404(fm.Form, id=form_id)"
+        form = get_object_or_404(fm.Form, id=form_id)
+        post = request.POST or None
+        args = form, request, formentry_model, fieldentry_model, post
+        entries_form = EntriesForm(*args)
+        delete = "%s.delete_formentry" % formentry_model._meta.app_label
+        can_delete_entries = request.user.has_perm(delete)
+        submitted = entries_form.is_valid() or show or export or export_xls
+        export = export or request.POST.get("export")
+        export_xls = export_xls or request.POST.get("export_xls")
+        if submitted:
+            if export:
+                response = HttpResponse(mimetype="text/csv")
+                fname = "%s-%s.csv" % (form.slug, slugify(now().ctime()))
+                attachment = "attachment; filename=%s" % fname
+                response["Content-Disposition"] = attachment
+                queue = StringIO()
+                try:
+                    csv = writer(queue, delimiter=CSV_DELIMITER)
+                    writerow = csv.writerow
+                except TypeError:
+                    queue = BytesIO()
+                    delimiter = bytes(CSV_DELIMITER, encoding="utf-8")
+                    csv = writer(queue, delimiter=delimiter)
+                    writerow = lambda row: csv.writerow([c.encode("utf-8")
+                        if hasattr(c, "encode") else c for c in row])
+                writerow(entries_form.columns())
+                for row in entries_form.rows(csv=True):
+                    writerow(row)
+                data = queue.getvalue()
+                response.write(data)
+                return response
+            elif XLWT_INSTALLED and export_xls:
+                response = HttpResponse(mimetype="application/vnd.ms-excel")
+                fname = "%s-%s.xls" % (form.slug, slugify(now().ctime()))
+                attachment = "attachment; filename=%s" % fname
+                response["Content-Disposition"] = attachment
+                queue = BytesIO()
+                workbook = xlwt.Workbook(encoding='utf8')
+                sheet = workbook.add_sheet(form.title[:31])
+                for c, col in enumerate(entries_form.columns()):
+                    sheet.write(0, c, col)
+                for r, row in enumerate(entries_form.rows(csv=True)):
+                    for c, item in enumerate(row):
+                        if isinstance(item, datetime):
+                            item = item.replace(tzinfo=None)
+                            sheet.write(r + 2, c, item, XLWT_DATETIME_STYLE)
+                        else:
+                            sheet.write(r + 2, c, item)
+                workbook.save(queue)
+                data = queue.getvalue()
+                response.write(data)
+                return response
+            elif request.POST.get("delete") and can_delete_entries:
+                selected = request.POST.getlist("selected")
+                if selected:
+                    try:
+                        from django.contrib.messages import info
+                    except ImportError:
+                        def info(request, message, fail_silently=True):
+                            request.user.message_set.create(message=message)
+                    entries = formentry_model.objects.filter(id__in=selected)
+                    count = entries.count()
+                    if count > 0:
+                        entries.delete()
+                        message = ungettext("1 entry deleted",
+                                            "%(count)s entries deleted", count)
+                        info(request, message % {"count": count})
+        template = "indicator/entries.html"
+        context = {"title": _("View Entries"), "entries_form": entries_form,
+                   "opts": thisModel._meta, "original": form,
+                   "can_delete_entries": can_delete_entries,
+                   "submitted": submitted,
+                   "xlwt_installed": XLWT_INSTALLED}
+        return render_to_response(template, context, RequestContext(request))
