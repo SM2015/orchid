@@ -497,7 +497,7 @@ from forms_builder.forms.utils import now, split_choices
 
 class IndicatorRecordUploadView(LocationView, FormView):
     template_name = 'base/form.html'
-    form_class = cf.RecordUploadForm
+    form_class = cf.JSONUploadForm
     success_url = '/'
 
     def get_noun(self, **kwargs):
@@ -574,127 +574,74 @@ class IndicatorRecordUploadView(LocationView, FormView):
 
         return supes
 
+'''
+incoming json looks like:
+{
+    "title":"blah blah blah",
+    "scores":[
+        {
+            "percentage":100.00,
+            "indicator_id":0,
+            "location_id":0,
+            "passing":true,
+            "total_record_count":0,
+            "passing_record_count":0
+        }
+    ]
+}
+'''
+
+class LocationScoreUploadView(LocationView, FormView):
+    template_name = 'base/form.html'
+    form_class = cf.JSONUploadForm
+    success_url = '/'
+
+    def get_noun(self, **kwargs):
+        return cm.Location.objects.get(id=self.kwargs['location_pk'])
+
+    def form_valid(self, form):
+        json_string = form.cleaned_data['json']
+        try:
+            data = json.loads(json_string, parse_float=decimal.Decimal)
+            print data
+            new_scores = []
+            for s in data.get("scores"):
+                print type(s)
+                #check to make sure the location matches
+                if int(s.get("location_id")) != self.noun.id:
+                    raise Exception("wrong score for this location")
+                indicator_id = s.get("indicator_id")
+                indicator = cm.Indicator.objects.get(id=indicator_id)
+                #create but don't save untill all are created
+                new_score = cm.Score(indicator=indicator, passing=s.get("passing"), entry_count=s.get("total_record_count"), month=s.get("month"), year=s.get("year"),score=s.get("percentage"),location=self.noun, user=self.request.user)
+                new_scores.append(new_score)
+            #if nothing blew up, lets save these
+            for s in new_scores:
+                s.save()
+            context = {
+                "status":"success",
+                "score_id":0
+            }
+        except Exception as e:
+            context = {
+                "status":"failure",
+                "error":e
+            }
+        if self.request.is_ajax():
+
+            data = json.dumps(context, default=decimal_default)
+            out_kwargs = {'content_type':'application/json'}
+            return HttpResponse(data, **out_kwargs)
+        else:
+            return super(LocationScoreUploadView, self).form_valid(form)
 
 
+    def get(self, request, *args, **kwargs):
+        supes = super(LocationScoreUploadView, self).get(request, *args, **kwargs)
+        context = self.get_context_data(**kwargs)
+        if self.request.is_ajax():
+            data = json.dumps(context, default=decimal_default)
+            out_kwargs = {'content_type':'application/json'}
+            return HttpResponse(data, **out_kwargs)
 
-from csv import writer
-from mimetypes import guess_type
-from os.path import join
-from datetime import datetime
-from io import BytesIO, StringIO
-
-from django.conf.urls import patterns, url
-from django.contrib import admin
-from django.core.files.storage import FileSystemStorage
-from django.core.urlresolvers import reverse
-from django.db.models import Count
-from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import render_to_response, get_object_or_404
-from django.template import RequestContext
-from django.utils.translation import ungettext, ugettext_lazy as _
-
-from forms_builder.forms.forms import EntriesForm
-from forms_builder.forms.models import Form, Field, FormEntry, FieldEntry
-from forms_builder.forms.settings import CSV_DELIMITER, UPLOAD_ROOT
-from forms_builder.forms.settings import USE_SITES, EDITABLE_SLUGS
-from forms_builder.forms.utils import now, slugify
-
-try:
-    import xlwt
-    XLWT_INSTALLED = True
-    XLWT_DATETIME_STYLE = xlwt.easyxf(num_format_str='MM/DD/YYYY HH:MM:SS')
-except ImportError:
-    XLWT_INSTALLED = False
-
-def entries_view(request, form_id):
-    entries_admin = FormAdmin(fm.Form, None)
-    #return entries_admin.entries_view(request, form_id)
-    return entries_view_actual(request, form_id, show=False, export=False, export_xls=False)
-
-def entries_view_actual(request, form_id, show=False, export=False, export_xls=False):
-        """
-        Displays the form entries in a HTML table with option to
-        export as CSV file.
-        """
-        thisModel = fm.Form
-        formentry_model = fm.FormEntry
-        fieldentry_model = fm.FieldEntry
-        if request.POST.get("back"):
-            bits = (thisModel._meta.app_label, thisModel.__name__.lower())
-            change_url = reverse("admin:%s_%s_change" % bits, args=(form_id,))
-            return HttpResponseRedirect(change_url)
-        print "get_object_or_404(fm.Form, id=form_id)"
-        form = get_object_or_404(fm.Form, id=form_id)
-        post = request.POST or None
-        args = form, request, formentry_model, fieldentry_model, post
-        entries_form = EntriesForm(*args)
-        delete = "%s.delete_formentry" % formentry_model._meta.app_label
-        can_delete_entries = request.user.has_perm(delete)
-        submitted = entries_form.is_valid() or show or export or export_xls
-        export = export or request.POST.get("export")
-        export_xls = export_xls or request.POST.get("export_xls")
-        if submitted:
-            if export:
-                response = HttpResponse(mimetype="text/csv")
-                fname = "%s-%s.csv" % (form.slug, slugify(now().ctime()))
-                attachment = "attachment; filename=%s" % fname
-                response["Content-Disposition"] = attachment
-                queue = StringIO()
-                try:
-                    csv = writer(queue, delimiter=CSV_DELIMITER)
-                    writerow = csv.writerow
-                except TypeError:
-                    queue = BytesIO()
-                    delimiter = bytes(CSV_DELIMITER, encoding="utf-8")
-                    csv = writer(queue, delimiter=delimiter)
-                    writerow = lambda row: csv.writerow([c.encode("utf-8")
-                        if hasattr(c, "encode") else c for c in row])
-                writerow(entries_form.columns())
-                for row in entries_form.rows(csv=True):
-                    writerow(row)
-                data = queue.getvalue()
-                response.write(data)
-                return response
-            elif XLWT_INSTALLED and export_xls:
-                response = HttpResponse(mimetype="application/vnd.ms-excel")
-                fname = "%s-%s.xls" % (form.slug, slugify(now().ctime()))
-                attachment = "attachment; filename=%s" % fname
-                response["Content-Disposition"] = attachment
-                queue = BytesIO()
-                workbook = xlwt.Workbook(encoding='utf8')
-                sheet = workbook.add_sheet(form.title[:31])
-                for c, col in enumerate(entries_form.columns()):
-                    sheet.write(0, c, col)
-                for r, row in enumerate(entries_form.rows(csv=True)):
-                    for c, item in enumerate(row):
-                        if isinstance(item, datetime):
-                            item = item.replace(tzinfo=None)
-                            sheet.write(r + 2, c, item, XLWT_DATETIME_STYLE)
-                        else:
-                            sheet.write(r + 2, c, item)
-                workbook.save(queue)
-                data = queue.getvalue()
-                response.write(data)
-                return response
-            elif request.POST.get("delete") and can_delete_entries:
-                selected = request.POST.getlist("selected")
-                if selected:
-                    try:
-                        from django.contrib.messages import info
-                    except ImportError:
-                        def info(request, message, fail_silently=True):
-                            request.user.message_set.create(message=message)
-                    entries = formentry_model.objects.filter(id__in=selected)
-                    count = entries.count()
-                    if count > 0:
-                        entries.delete()
-                        message = ungettext("1 entry deleted",
-                                            "%(count)s entries deleted", count)
-                        info(request, message % {"count": count})
-        template = "indicator/entries.html"
-        context = {"title": _("View Entries"), "entries_form": entries_form,
-                   "opts": thisModel._meta, "original": form,
-                   "can_delete_entries": can_delete_entries,
-                   "submitted": submitted,
-                   "xlwt_installed": XLWT_INSTALLED}
-        return render_to_response(template, context, RequestContext(request))
+        return supes

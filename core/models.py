@@ -20,6 +20,21 @@ import forms_builder.forms.fields as ff
 ALLOWED_FIELD_TYPES = [ff.TEXT, ff.TEXTAREA, ff.CHECKBOX]
 FIELD_TYPE_NAMES = ["TEXT", "TEXTAREA", "CHECKBOX"]
 
+MONTH_CHOICES = (
+    ('01', 'Jan'),
+    ('02', 'Feb'),
+    ('03', 'Mar'),
+    ('04', 'Apr'),
+    ('05', 'May'),
+    ('06', 'Jun'),
+    ('07', 'Jul'),
+    ('08', 'Aug'),
+    ('09', 'Sep'),
+    ('10', 'Oct'),
+    ('11', 'Nov'),
+    ('12', 'Dec'),
+)
+
 
 def get_file_path(instance, filename):
     blocks = filename.split('.')
@@ -275,13 +290,17 @@ class Indicator(Auditable, Noun):
             yield current_row
 
 
-
-class SavedFilter(models.Model):
+class Score(models.Model):
+    user = models.ForeignKey(User)
     indicator = models.ForeignKey(Indicator)
-    locations = models.ManyToManyField(Location, null=True, blank=True)
-    start_date = models.DateField(null=True, blank=True)
-    end_date = models.DateField(null=True, blank=True)
-    input_user = models.ManyToManyField(User, null=True, blank=True)
+    location = models.ForeignKey(Location)
+    score = models.FloatField(default=85)
+    passing = models.BooleanField()
+    entry_count = models.IntegerField()
+    month = models.CharField(max_length=2, choices=MONTH_CHOICES)
+    year = models.IntegerField()
+    
+
 
 
 
