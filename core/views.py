@@ -257,6 +257,8 @@ class LocationEntriesFilterView(LocationView, FormView):
                           context,
                           context_instance=RequestContext(self.request))
 
+from dateutil.relativedelta import relativedelta
+
 class ScoresDetailView(SiteRootView, TemplateView):   
     template_name = 'overview/scores.html'
 
@@ -279,7 +281,7 @@ class ScoresDetailView(SiteRootView, TemplateView):
             rows[l.id] = [l.title]+([NO_DATA_STRING]*len(columns))
             print rows[l.id]
         #add space to the begininbg of columns for the location names
-        columns = [""]+columns
+        columns = ["Location"]+columns
         for s in cm.Score.objects.filter(month=str(month), year=year):               
             #add the score object to the table if it exists
             indicator_index = indicator_ids.index(s.indicator.id)+1
@@ -288,12 +290,12 @@ class ScoresDetailView(SiteRootView, TemplateView):
             else:
                 rows[s.location.id][indicator_index].merge(s)
 
-        last_month = {"month": (month-1)%12, "year":(year-1)}
-        next_month = {"month": (month+1)%12, "year":(year+1)}
+        this_month = datetime.date(year, month, 1)
 
         #raise Exception(rows)
-        context['last_month'] = last_month
-        context['next_month'] = next_month
+        context['this_month'] = this_month
+        context['last_month'] = this_month-relativedelta(months=1)
+        context['next_month'] = this_month+relativedelta(months=1)
         context['columns'] = columns
         context['entries'] = rows.values()
         return context
@@ -655,7 +657,7 @@ class LocationScoreUploadView(LocationView, FormView):
                 indicator_id = s.get("indicator_id")
                 indicator = cm.Indicator.objects.get(id=indicator_id)
                 #create but don't save untill all are created
-                new_score = cm.Score(indicator=indicator, passing=s.get("passing"), entry_count=s.get("total_record_count"), passing_entry_count=s.get("passing_entry_count"), month=str(s.get("month")), year=s.get("year"),score=s.get("percentage"),location=self.noun, user=self.request.user)
+                new_score = cm.Score(indicator=indicator, passing=s.get("passing"), entry_count=s.get("total_record_count"), passing_entry_count=s.get("passing_record_count"), month=str(s.get("month")), year=s.get("year"),score=s.get("percentage"),location=self.noun, user=self.request.user)
                 new_scores.append(new_score)
             #if nothing blew up, lets save these
             for s in new_scores:
