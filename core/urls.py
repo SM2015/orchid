@@ -10,6 +10,9 @@ urlpatterns = patterns('',
     url(r'user/login/$', cv.UserLoginView.as_view(), name='user_login'),
     url(r'user/logout/$', cv.UserLogoutView.as_view(), name='user_logout'),
 
+    url(r'scores/list/$', cv.ScoresDetailView.as_view(), name='scores_list'),
+    url(r'scores/month/(?P<month>\d+)/year/(?P<year>\d+)/list/$', cv.ScoresDetailView.as_view(), name='scores_date_list'),
+
     url(r'location/create/$', cv.LocationCreateView.as_view(), name='location_create'),
     url(r'location/(?P<pk>\d+)/detail/$', cv.LocationDetailView.as_view(), name='location_detail'),
     url(r'location/list/$', cv.LocationListView.as_view(), name='location_list'),

@@ -1,0 +1,39 @@
+{% extends "base/bootstrap.html" %}
+{% block title %}orchid{% endblock %}
+{% block jumbotron %}
+    <h1>All Location Goals</h1>
+{% endblock %}
+
+{% block showcase %}
+{{ form.media }}
+<div class="row">
+<div><a class="pull-left" href="/scores/month/{{ last_month.month }}/year/{{ last_month.year}}/list">Previous Month </a></div><div class="pull-right"><a href="/scores/month/{{ next_month.month }}/year/{{ next_month.year}}/list">Next Month </a></div></div>
+    {% for row in entries %}
+    {% if forloop.first %}
+    <div class="overscroller">
+    <table id="entries-table" class="table table-bordered overscroller">
+        <tr>
+            {% for column in columns %}
+            <th>{{ column }}</th>
+            {% endfor %}
+        </tr>
+    {% endif %}
+        <tr>
+            {% for field in row %}
+
+                <td class="{% if field.month %}
+                    {% if field.passing %} success {% else %} danger {% endif%}
+                {% elif "N/D" in field  %} warning {% else %} active {% endif %}">
+                {% if field.month %}
+                    {{ field.score }}%
+                {% else %}
+                    {{ field }}
+                {% endif %}</td>
+            {% endfor %}
+        </tr>
+    {% if forloop.last %}
+    </table>
+    </div>
+    {% endif %}
+{% endfor %}
+{% endblock %}

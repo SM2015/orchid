@@ -33,7 +33,7 @@
 
     <body>
       <div class="navbar navbar-fixed-top navbar-inverse" role="navigation">
-        <div class="container">
+        <div class="container container-full">
           <div class="navbar-header">
             <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
               <span class="sr-only">Toggle navigation</span>
@@ -54,7 +54,7 @@
 
         <div class="row row-offcanvas row-offcanvas-right">
 
-          <div class="col-xs-12 col-sm-9">
+          <div >
             <p class="pull-right visible-xs">
               <button type="button" class="btn btn-primary btn-xs" data-toggle="offcanvas">Toggle nav</button>
             </p>
@@ -62,22 +62,25 @@
             <div class="alert alert-{{ message.tags }}">{{ message }}</div>
             {% endfor %}
             <div class="jumbotron">
-
               <div class="row">
+                <div class="col-xs-12 col-md-8">{% block jumbotron %}{% if noun %}<h2>{{ noun.title }}</h2>{% endif %}{% endblock %}</div>
+                <div class="col-xs-12 col-md-4">          {% block menu %}
+                  {% include "base/menu.html" %}
+                  {% endblock %}</div>
+                </div>
 
-                {% block jumbotron %}{% if noun %}<h2>{{ noun.title }}</h2>{% endif %}{% endblock %}
-              </div><!--/row-->
-            </div>
-            <div class="row">
-              {% block showcase %}{% endblock %}
-              {% block stream %}
-              {% if stream %}
+              </div>
+              <div class="row">
+                {% block showcase %}{% endblock %}
+                {% block stream %}
+                {% if stream %}
                 <h2>Activity Stream</h2>
                 {% for activity in stream %}
                 {% include "base/activity.html" %}
                 {% endfor %}
-              {% endif %}
-              {% endblock %}
+                {% endif %}
+                {% endblock %}
+              </div>
             </div><!--/row-->
             <div class="row">
               <div id="api-accordion" class="panel-group" >
@@ -98,29 +101,16 @@
               </div>
             </div>
           </div><!--/span-->
+        </div><!--/span-->
+      </div><!--/row-->
 
-          <div class="col-xs-6 col-sm-3 sidebar-offcanvas" id="sidebar" role="navigation">
-            <div class="list-group">
-              {% block menu %}
-              {% if available_verbs %}
-              {% for verb in available_verbs %}
-              {% if verb.visible %}
-              <a href="{{ verb.url }}" class="list-group-item">{{ verb.display_name }}</a>
-              {% endif %}
-              {% endfor %}
-              {% endif %}
-              {% endblock %}
-            </div>
-          </div><!--/span-->
-        </div><!--/row-->
+      <hr>
 
-        <hr>
+      <footer>
+        <p>&copy; Company 2014</p>
+      </footer>
 
-        <footer>
-          <p>&copy; Company 2014</p>
-        </footer>
-
-      </div><!--/.container-->
+    </div><!--/.container-->
 
 
 

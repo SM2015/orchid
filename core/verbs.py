@@ -58,6 +58,10 @@ class LocationImageCreateVerb(AuthenticatedOnlyVerb):
     display_name = "Add Image To This Location"
     view_name='location_image_create'
 
+class ScoreListVerb(AuthenticatedOnlyVerb):
+    display_name = "View All Location Goals"
+    view_name='scores_list'
+
 class IndicatorCreateVerb(AuthenticatedOnlyVerb):
     display_name = "Create New Indicator"
     view_name='indicator_create'
@@ -102,7 +106,7 @@ class SiteRoot(Noun):
     '''
     A hack that lets pages that have no actual noun have verbs and verb-based permissions. 
     '''
-    verb_classes = [SiteLoginVerb, LocationListVerb, LocationCreateVerb, IndicatorCreateVerb, IndicatorListVerb]
+    verb_classes = [SiteLoginVerb, LocationListVerb, ScoreListVerb, LocationCreateVerb, IndicatorCreateVerb, IndicatorListVerb]
 
     class Meta:
         abstract = True

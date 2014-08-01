@@ -21,15 +21,15 @@ ALLOWED_FIELD_TYPES = [ff.TEXT, ff.TEXTAREA, ff.CHECKBOX]
 FIELD_TYPE_NAMES = ["TEXT", "TEXTAREA", "CHECKBOX"]
 
 MONTH_CHOICES = (
-    ('01', 'Jan'),
-    ('02', 'Feb'),
-    ('03', 'Mar'),
-    ('04', 'Apr'),
-    ('05', 'May'),
-    ('06', 'Jun'),
-    ('07', 'Jul'),
-    ('08', 'Aug'),
-    ('09', 'Sep'),
+    ('1', 'Jan'),
+    ('2', 'Feb'),
+    ('3', 'Mar'),
+    ('4', 'Apr'),
+    ('5', 'May'),
+    ('6', 'Jun'),
+    ('7', 'Jul'),
+    ('8', 'Aug'),
+    ('9', 'Sep'),
     ('10', 'Oct'),
     ('11', 'Nov'),
     ('12', 'Dec'),
@@ -297,8 +297,30 @@ class Score(models.Model):
     score = models.FloatField(default=85)
     passing = models.BooleanField()
     entry_count = models.IntegerField()
+    passing_entry_count = models.IntegerField()
     month = models.CharField(max_length=2, choices=MONTH_CHOICES)
     year = models.IntegerField()
+
+    def get_status(self):
+        raise Exception("hello")
+        if passing == True:
+            raise Exception("hello")
+            return "passing"
+        else:
+            return "failing"
+
+    def calculate_score(self):
+        self.score = float(self.passing_entry_count)/self.entry_count*100
+
+    def merge(self, incoming_score):
+        if incoming_score.indicator != self.indicator:
+            raise Exception("Can't Merge Scores From Different Indicators")
+        if incoming_score.indicator != self.indicator:
+            raise Exception("Can't Merge Scores From Different Locations")
+        self.entry_count += incoming_score.entry_count
+        self.passing_entry_count += incoming_score.passing_entry_count
+        self.calculate_score()
+
     
 
 

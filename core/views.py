@@ -28,6 +28,7 @@ from forms_builder.forms.admin import FormAdmin
 import json
 from django.http import HttpResponse
 from django.views.generic.edit import CreateView
+import datetime
 
 def decimal_default(obj):
     if isinstance(obj, decimal.Decimal):
@@ -255,6 +256,47 @@ class LocationEntriesFilterView(LocationView, FormView):
         return render_to_response('indicator/entries.html',
                           context,
                           context_instance=RequestContext(self.request))
+
+class ScoresDetailView(SiteRootView, TemplateView):   
+    template_name = 'overview/scores.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(ScoresDetailView, self).get_context_data(**kwargs)
+        NO_DATA_STRING = "N/A"
+        try:
+            month = int(self.kwargs['month'])
+            year = int(self.kwargs['year'])
+        except Exception as e:
+            d = datetime.datetime.now()
+            month = d.month
+            year = d.year
+        queryset = cm.Indicator.objects.all().order_by("form_number")
+        columns = list(queryset.values_list('title', flat=True))
+        indicator_ids = list(queryset.values_list('id', flat=True))
+        #get all scores for this month
+        rows = {}
+        for l in cm.Location.objects.all():
+            rows[l.id] = [l.title]+([NO_DATA_STRING]*len(columns))
+            print rows[l.id]
+        #add space to the begininbg of columns for the location names
+        columns = [""]+columns
+        for s in cm.Score.objects.filter(month=str(month), year=year):               
+            #add the score object to the table if it exists
+            indicator_index = indicator_ids.index(s.indicator.id)+1
+            if rows[s.location.id][indicator_index] == NO_DATA_STRING:
+                rows[s.location.id][indicator_index] = s
+            else:
+                rows[s.location.id][indicator_index].merge(s)
+
+        last_month = {"month": (month-1)%12, "year":(year-1)}
+        next_month = {"month": (month+1)%12, "year":(year+1)}
+
+        #raise Exception(rows)
+        context['last_month'] = last_month
+        context['next_month'] = next_month
+        context['columns'] = columns
+        context['entries'] = rows.values()
+        return context
 
 class LocationImageCreateView(LocationView, CreateView):
     model = cm.Image
@@ -613,7 +655,7 @@ class LocationScoreUploadView(LocationView, FormView):
                 indicator_id = s.get("indicator_id")
                 indicator = cm.Indicator.objects.get(id=indicator_id)
                 #create but don't save untill all are created
-                new_score = cm.Score(indicator=indicator, passing=s.get("passing"), entry_count=s.get("total_record_count"), month=s.get("month"), year=s.get("year"),score=s.get("percentage"),location=self.noun, user=self.request.user)
+                new_score = cm.Score(indicator=indicator, passing=s.get("passing"), entry_count=s.get("total_record_count"), passing_entry_count=s.get("passing_entry_count"), month=str(s.get("month")), year=s.get("year"),score=s.get("percentage"),location=self.noun, user=self.request.user)
                 new_scores.append(new_score)
             #if nothing blew up, lets save these
             for s in new_scores:
