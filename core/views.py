@@ -90,7 +90,7 @@ class AjaxableResponseMixin(object):
         else:
             return response
 
-class UserCreateView(SiteRootView, CreateView):
+class UserCreateView(SiteRootView, FormView):
     model = User
     template_name = 'base/form.html'
     form_class = cf.RegistrationForm
@@ -100,14 +100,15 @@ class UserCreateView(SiteRootView, CreateView):
         user.first_name = form.cleaned_data['first_name']
         user.last_name = form.cleaned_data['first_name']
         user.save()
-        user = authenticate(username=user.username, password=form.cleaned_data['password1'])
-        login(self.request, user)
-        form.instance = user
+        self.object = user
         return super(UserCreateView, self).form_valid(form)
 
     def get_success_url(self):
-        action.send(self.request.user, verb='joined', action_object=self.object)
-        return reverse(viewname='user_detail', args=(self.object.id,), current_app='core')
+        action.send(self.request.user, verb='created user', action_object=self.object, target=self.request.user)
+        return reverse(viewname='make_new_user', current_app='core')
+
+    def get_success_message(self, cleaned_data):
+        return "Your new user was created.  Make another new user or return to the indicator."
 
 class UserLoginView(SiteRootView, FormView):
     template_name = 'base/form.html'
@@ -257,6 +258,19 @@ class LocationEntriesFilterView(LocationView, FormView):
                           context,
                           context_instance=RequestContext(self.request))
 
+    def form_valid(self, form):
+        indicator = form.cleaned_data['indicator']
+        entries = indicator.get_filtered_entries(form.cleaned_data)
+        context = {
+            "columns":indicator.get_column_headers(),
+            "entries":entries,
+            "available_verbs": self.noun.get_available_verbs(self.request.user),
+            "filter":form.cleaned_data
+            }
+        return render_to_response('indicator/entries.html',
+                          context,
+                          context_instance=RequestContext(self.request))
+
 from dateutil.relativedelta import relativedelta
 
 class ScoresDetailView(SiteRootView, TemplateView):   
@@ -279,7 +293,6 @@ class ScoresDetailView(SiteRootView, TemplateView):
         rows = {}
         for l in cm.Location.objects.all():
             rows[l.id] = [l.title]+([NO_DATA_STRING]*len(columns))
-            print rows[l.id]
         #add space to the begininbg of columns for the location names
         columns = ["Location"]+columns
         for s in cm.Score.objects.filter(month=str(month), year=year):               
@@ -647,7 +660,6 @@ class LocationScoreUploadView(LocationView, FormView):
         json_string = form.cleaned_data['json']
         try:
             data = json.loads(json_string, parse_float=decimal.Decimal)
-            print data
             new_scores = []
             for s in data.get("scores"):
                 print type(s)

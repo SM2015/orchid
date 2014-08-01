@@ -6,7 +6,7 @@ urlpatterns = patterns('',
     url(r'^$', cv.LandingView.as_view(), name="landing"),
     ('^activity/', include('actstream.urls')),
 
-    url(r'user/create/$', cv.UserCreateView.as_view(), name='user_ceate'),
+    url(r'user/create/$', cv.UserCreateView.as_view(), name='make_new_user'),
     url(r'user/login/$', cv.UserLoginView.as_view(), name='user_login'),
     url(r'user/logout/$', cv.UserLogoutView.as_view(), name='user_logout'),
 

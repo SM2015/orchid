@@ -67,11 +67,15 @@ class RegistrationForm(ModelBootstrapForm):
 
     def clean(self):
         cleaned_data = super(RegistrationForm, self).clean()
+        email = cleaned_data.get("email")
+        if User.objects.filter(email=email).count()>0:
+            raise forms.ValidationError(u"There's already a user with that email address.")
+
         password1 = cleaned_data.get("password1")
         password2 = cleaned_data.get("password2")
 
         if password1 != password2:
-            self.add_error('password2', u"Didn't match first password..")
+            self.add_error('password2', u"Didn't match first password.")
         return cleaned_data
 
     def save(self):

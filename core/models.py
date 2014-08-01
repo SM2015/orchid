@@ -310,7 +310,10 @@ class Score(models.Model):
             return "failing"
 
     def calculate_score(self):
-        self.score = float(self.passing_entry_count)/self.entry_count*100
+        try:
+            self.score = float(self.passing_entry_count)/self.entry_count*100
+        except ZeroDivisionError as e:
+            pass
 
     def merge(self, incoming_score):
         if incoming_score.indicator != self.indicator:

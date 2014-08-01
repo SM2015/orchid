@@ -34,6 +34,10 @@ class StaffVerb(CoreVerb):
     def is_available(self, user):
         return user.is_staff
 
+class SiteUserCreateVerb(AuthenticatedOnlyVerb):
+    display_name = "Create User"
+    view_name ='make_new_user'
+
 class SiteLoginVerb(UnauthenticatedOnlyVerb):
     display_name = "Login"
     #no view name ok because this is always allowed, fb handles the authentication
@@ -106,7 +110,7 @@ class SiteRoot(Noun):
     '''
     A hack that lets pages that have no actual noun have verbs and verb-based permissions. 
     '''
-    verb_classes = [SiteLoginVerb, LocationListVerb, ScoreListVerb, LocationCreateVerb, IndicatorCreateVerb, IndicatorListVerb]
+    verb_classes = [SiteLoginVerb, LocationListVerb, ScoreListVerb, IndicatorListVerb, LocationCreateVerb, IndicatorCreateVerb, SiteUserCreateVerb]
 
     class Meta:
         abstract = True
