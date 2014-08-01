@@ -289,7 +289,6 @@ class Indicator(Auditable, Noun):
                 current_row.insert(0, current_entry)
             yield current_row
 
-'''
 class Score(models.Model):
     user = models.ForeignKey(User)
     indicator = models.ForeignKey(Indicator)
@@ -320,7 +319,6 @@ class Score(models.Model):
         self.entry_count += incoming_score.entry_count
         self.passing_entry_count += incoming_score.passing_entry_count
         self.calculate_score()
-'''
     
 
 
