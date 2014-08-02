@@ -192,6 +192,7 @@ class Indicator(Auditable, Noun):
             'id':self.id,
             'title':self.get_title(),
             'passing_percentage':self.passing_percentage,
+            'maximum_monthly_records':self.maximum_monthly_records,
             'url':self.get_absolute_url(),
             'fields':self.get_serialized_fields()
         }
