@@ -181,3 +181,4 @@ class SavedFilterForm(BootstrapForm):
     start_date = forms.DateField(required=False, widget=forms.DateInput(attrs={'class':'datepicker'}))
     end_date = forms.DateField(required=False, widget=forms.DateInput(attrs={'class':'datepicker'}))
     input_user = forms.ModelMultipleChoiceField(queryset=cm.User.objects.all(), required=False)
+    export = forms.BooleanField(required=False, help_text="Export this data as an excel spreadsheet.")

@@ -58,6 +58,10 @@ class LocationCreateVerb(AuthenticatedOnlyVerb):
     display_name = "Create New Location"
     view_name='location_create'
 
+class LocationUpdateVerb(AuthenticatedOnlyVerb):
+    display_name = "Update Location"
+    view_name='location_update'
+
 class LocationImageCreateVerb(AuthenticatedOnlyVerb):
     display_name = "Add Image To This Location"
     view_name='location_image_create'

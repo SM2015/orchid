@@ -205,9 +205,18 @@ class LocationListView(SiteRootView, TemplateView):
         return supes
 
 class LocationView(NounView):
-
     def get_noun(self, **kwargs):
         return cm.Location.objects.get(id=self.kwargs['pk'])
+
+class LocationUpdateView(LocationView, UpdateView):
+    model = cm.Location
+    template_name = 'base/form.html'
+    success_url = '/'
+    form_class = cf.LocationForm
+
+    def get_success_url(self):
+        action.send(self.request.user, verb='updated location', action_object=self.get_noun())
+        return reverse(viewname='location_detail', args=(self.noun.id,), current_app='core')
 
 class LocationDetailView(LocationView, TemplateView):
     model = cm.Location    
@@ -240,6 +249,14 @@ class LocationIndicatorListlView(LocationView, TemplateView):
             return HttpResponse(data, **out_kwargs)
         return supes
 
+try:
+    import xlwt
+    XLWT_INSTALLED = True
+    XLWT_DATETIME_STYLE = xlwt.easyxf(num_format_str='MM/DD/YYYY HH:MM:SS')
+except ImportError:
+    XLWT_INSTALLED = False
+from io import BytesIO, StringIO
+from forms_builder.forms.utils import now, slugify
 class LocationEntriesFilterView(LocationView, FormView):
     model = cm.Location    
     template_name = 'base/form.html'
@@ -260,16 +277,39 @@ class LocationEntriesFilterView(LocationView, FormView):
 
     def form_valid(self, form):
         indicator = form.cleaned_data['indicator']
-        entries = indicator.get_filtered_entries(form.cleaned_data)
-        context = {
-            "columns":indicator.get_column_headers(),
-            "entries":entries,
+        columns = indicator.get_column_headers()
+        if form.cleaned_data['export']==True:
+            response = HttpResponse(mimetype="application/vnd.ms-excel")
+            fname = "%s-%s.xls" % ("QI Data Export", slugify(now().ctime()))
+            attachment = "attachment; filename=%s" % fname
+            response["Content-Disposition"] = attachment
+            queue = BytesIO()
+            workbook = xlwt.Workbook(encoding='utf8')
+            sheet = workbook.add_sheet(indicator.title[:31])
+            for c, col in enumerate(columns):
+                sheet.write(0, c, col)
+            for r, row in enumerate(indicator.get_filtered_entries(form.cleaned_data,csv=True)):
+                for c, item in enumerate(row):
+                    if isinstance(item, datetime.datetime):
+                        item = item.replace(tzinfo=None)
+                        sheet.write(r + 2, c, item, XLWT_DATETIME_STYLE)
+                    else:
+                        sheet.write(r + 2, c, item)
+            workbook.save(queue)
+            data = queue.getvalue()
+            response.write(data)
+            return response
+        else:
+            context = {
+            "columns":columns,
+            "entries":indicator.get_filtered_entries(form.cleaned_data,csv=False),
             "available_verbs": self.noun.get_available_verbs(self.request.user),
             "filter":form.cleaned_data
             }
-        return render_to_response('indicator/entries.html',
-                          context,
-                          context_instance=RequestContext(self.request))
+            return render_to_response('indicator/entries.html',
+                              context,
+                              context_instance=RequestContext(self.request))
+
 
 from dateutil.relativedelta import relativedelta
 

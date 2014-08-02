@@ -107,7 +107,7 @@ class Location(Auditable, Noun):
     members = models.ManyToManyField(User, null=True, blank=True)
     images = models.ManyToManyField(Image, null=True, blank=True)
     indicators = models.ManyToManyField('Indicator', null=True, blank=True)
-    verb_classes = [LocationDetailVerb, LocationIndicatorListVerb, LocationFilterVerb, LocationImageCreateVerb]
+    verb_classes = [LocationDetailVerb, LocationUpdateVerb, LocationIndicatorListVerb, LocationFilterVerb, LocationImageCreateVerb]
 
     def __unicode__(self):
         return self.title
@@ -201,7 +201,6 @@ class Indicator(Auditable, Noun):
 
     def get_column_headers(self):
         return ["Date"]+list(self.form.fields.all().order_by("order").values_list('label', flat=True))
-
 
     def get_filtered_entries(self, savedFilter, csv=False):
         # Store the index of each field against its ID for building each
