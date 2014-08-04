@@ -96,7 +96,7 @@ class UserCreateView(SiteRootView, FormView):
     form_class = cf.RegistrationForm
 
     def form_valid(self, form):
-        user = User.objects.create_user(uuid4().hex, form.cleaned_data['email'], form.cleaned_data['password1'])
+        user = User.objects.create_user(uuid4().hex[:30], form.cleaned_data['email'], form.cleaned_data['password1'])
         user.first_name = form.cleaned_data['first_name']
         user.last_name = form.cleaned_data['first_name']
         user.save()
