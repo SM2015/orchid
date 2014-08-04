@@ -17,6 +17,8 @@ from core.verbs import *
 import forms_builder.forms.models as fm
 import forms_builder.forms.fields as ff
 
+ILLEGAL_FIELD_LABELS = ['User','Location','Score']
+
 ALLOWED_FIELD_TYPES = [ff.TEXT, ff.TEXTAREA, ff.CHECKBOX]
 FIELD_TYPE_NAMES = ["TEXT", "TEXTAREA", "CHECKBOX"]
 

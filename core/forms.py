@@ -152,9 +152,26 @@ class IndicatorForm(ModelBootstrapForm):
         model = cm.Indicator
         exclude = ['changed_by', 'form']
 
+
 class FieldForm(ModelBootstrapForm):
     field_type = forms.ChoiceField(choices = FIELD_TYPE_CHOICES,widget = forms.Select())
-    
+
+    def clean(self):
+        cleaned_data = super(FieldForm, self).clean()
+        label = cleaned_data.get("label")
+        order = cleaned_data.get("order")
+
+        if label in cm.ILLEGAL_FIELD_LABELS:
+            self._errors["label"] = self.error_class(["You aren't allowed to name a field "+label+"."])
+
+        if order !=None:
+            if order < 1:
+                self._errors["order"] = self.error_class(["You aren't allowed to have an order less than 0."])
+
+
+        # Always return the cleaned data, whether you have changed it or
+        # not.
+        return cleaned_data
     class Meta:
         model = fm.Field
         exclude = ['slug', 'required', 'placeholder_text', 'form', 'default','choices']
