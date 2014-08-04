@@ -30,6 +30,13 @@ from django.http import HttpResponse
 from django.views.generic.edit import CreateView
 import datetime
 
+#do weird stuff to mAake user names nou usernames show up
+def user_new_unicode(self):
+    return self.get_full_name()
+# Replace the __unicode__ method in the User class with out new implementation
+User.__unicode__ = user_new_unicode 
+
+
 def decimal_default(obj):
     if isinstance(obj, decimal.Decimal):
         return float(obj)
@@ -98,7 +105,7 @@ class UserCreateView(SiteRootView, FormView):
     def form_valid(self, form):
         user = User.objects.create_user(uuid4().hex[:30], form.cleaned_data['email'], form.cleaned_data['password1'])
         user.first_name = form.cleaned_data['first_name']
-        user.last_name = form.cleaned_data['first_name']
+        user.last_name = form.cleaned_data['last_name']
         user.save()
         self.object = user
         return super(UserCreateView, self).form_valid(form)

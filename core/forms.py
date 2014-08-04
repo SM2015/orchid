@@ -4,6 +4,11 @@ from django.contrib.auth.models import User
 import django.forms.extras.widgets as widgets
 import forms_builder.forms.models as fm
 
+#do weird stuff to mAake user names nou usernames show up
+def user_new_unicode(self):
+    return self.get_full_name()
+# Replace the __unicode__ method in the User class with out new implementation
+User.__unicode__ = user_new_unicode 
 FIELD_TYPE_CHOICES = (
     (4, 'Yes / No'),
     (1, 'Short Text'),
