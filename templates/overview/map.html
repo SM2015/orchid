@@ -5,4 +5,7 @@
 {% endblock %}
 {% block jumbotron %}<div id="map-canvas"></div>{% endblock %}
 {% block showcase %}
+{% for l in locations %}
+<p><a href="/location/{{ l.id }}/detail">{{ l.title }}</a></p>
+{% endfor %}
 {% endblock %}
