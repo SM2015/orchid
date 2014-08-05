@@ -18,7 +18,7 @@
             </thead>
             <tbody>
             {% for field in i.fields %}
-              {% if field.order > 1 %}
+              {% if field.label not in ILLEGAL_FIELD_LABELS  %}
                 <tr>
                   <td><a href="/indicator/{{ i.id }}/field/{{ field.id }}/update/">{{ field.label }}</a></td>
                   <td >{% if field.visible %}True{% elif field.visible != true %}False{% endif %}</td>

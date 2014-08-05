@@ -245,6 +245,7 @@ class LocationIndicatorListlView(LocationView, TemplateView):
         context = super(LocationIndicatorListlView, self).get_context_data(**kwargs)
         context['stream'] = self.noun.get_action_stream()[:40]
         context['indicators'] = self.noun.indicators.all()
+        context['ILLEGAL_FIELD_LABELS'] = cm.ILLEGAL_FIELD_LABELS
         return context
 
     def get(self, request, *args, **kwargs):
@@ -416,6 +417,7 @@ class IndicatorDetailView(IndicatorView, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(IndicatorDetailView, self).get_context_data(**kwargs)
+        context['ILLEGAL_FIELD_LABELS'] = cm.ILLEGAL_FIELD_LABELS
         context['stream'] = self.noun.get_action_stream()[:40]
         return context
 
@@ -447,6 +449,7 @@ class IndicatorListView(SiteRootView, TemplateView):
             blob = l.get_serialized()
             indicators.append(blob)
         context['indicators'] = indicators
+        context['ILLEGAL_FIELD_LABELS'] = cm.ILLEGAL_FIELD_LABELS
         return context
 
     def get(self, request, *args, **kwargs):

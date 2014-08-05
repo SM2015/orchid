@@ -16,8 +16,9 @@ $( "#api-accordion" ).click(function() {
     }
 });
 });
-console.log("hello!");
 $('.datepicker').datepicker();
+
+$(".chosen-select").chosen()
 
 
 });
