@@ -66,21 +66,24 @@ class RegistrationForm(ModelBootstrapForm):
     email = forms.EmailField()
     first_name = forms.CharField(max_length=100)
     last_name = forms.CharField(max_length=100)
-    password1 = forms.CharField(widget=forms.PasswordInput())
-    password2 = forms.CharField(widget=forms.PasswordInput())
+    password1 = forms.CharField()
+    password2 = forms.CharField()
     # rest of the fields
 
     def clean(self):
         cleaned_data = super(RegistrationForm, self).clean()
         email = cleaned_data.get("email")
         if User.objects.filter(email=email).count()>0:
-            raise forms.ValidationError(u"There's already a user with that email address.")
+            self._errors['email'] = self.error_class(["There's already a user with that email address."])
+            del cleaned_data['email']
 
-        password1 = cleaned_data.get("password1")
-        password2 = cleaned_data.get("password2")
+        password1 = cleaned_data.get("password1").lower()
+        password2 = cleaned_data.get("password2").lower()
 
         if password1 != password2:
-            self.add_error('password2', u"Didn't match first password.")
+            self._errors['password2'] = self.error_class(["Didn't match first password."])
+            del cleaned_data['password2']
+
         return cleaned_data
 
     def save(self):
@@ -92,6 +95,7 @@ class RegistrationForm(ModelBootstrapForm):
 
 from django.contrib.auth import authenticate, get_user_model
 from django.utils.translation import ugettext as _
+from django.core.exceptions import ObjectDoesNotExist
 
 class LoginForm(ModelBootstrapForm):
     password = forms.CharField(label=_("Password"), widget=forms.PasswordInput)
@@ -102,16 +106,27 @@ class LoginForm(ModelBootstrapForm):
         'inactive': _("This account is inactive."),
     }
 
+
     def clean(self):
+        cleaned_data = super(LoginForm, self).clean()
         email = self.cleaned_data.get('email')
-        password = self.cleaned_data.get('password')
+        password = self.cleaned_data.get('password').lower()
+        print "email: "+email
+        print "password: "+password
 
         if email and password:
-            temp_user = User.objects.get(email=email)
+            try:
+                temp_user = User.objects.get(email=email)
+            except ObjectDoesNotExist as e:
+                self._errors['email'] = self.error_class(['No user exists with that email.'])
+                del cleaned_data['email']
+                return self.cleaned_data
+
             self.user_cache = authenticate(username=temp_user.username,
                                            password=password)
             if self.user_cache is None:
-                raise forms.ValidationError('WARNING')
+                self._errors['password'] = self.error_class(['Incorrect password.'])
+                del cleaned_data['password']
             else:
                 self.confirm_login_allowed(self.user_cache)
 

@@ -128,6 +128,7 @@ class UserLoginView(SiteRootView, FormView):
         form.instance = user
         if self.request.is_ajax():
             context = {
+                'status':'success',
                 'userid' : user.id,
                 'sessionid': self.request.session.session_key
                 }
@@ -137,15 +138,19 @@ class UserLoginView(SiteRootView, FormView):
         else:
             return super(UserLoginView, self).form_valid(form)
 
-
-    def get(self, request, *args, **kwargs):
-        supes = super(UserLoginView, self).get(request, *args, **kwargs)
-        context = self.get_context_data(**kwargs)
+    def form_invalid(self, form):
+        response = super(UserLoginView, self).form_invalid(form)
         if self.request.is_ajax():
-            data = json.dumps(context, default=decimal_default)
-            out_kwargs = {'content_type':'application/json'}
-            return HttpResponse(data, **out_kwargs)
-        return supes
+            return self.render_to_json_response({"errors":form.errors, "status":"failure",})
+        else:
+            return response
+
+    def render_to_json_response(self, context, **response_kwargs):
+        data = json.dumps(context)
+        response_kwargs['content_type'] = 'application/json'
+        return HttpResponse(data, **response_kwargs)
+
+
 
 
 class UserLogoutView(SiteRootView, TemplateView):
@@ -154,7 +159,7 @@ class UserLogoutView(SiteRootView, TemplateView):
     def get(self, request, **kwargs):
         #if the user has no payment methods, redirect to the view where one can be created
         logout(self.request)
-        return HttpResponseRedirect(reverse(viewname='post_list', current_app='core'))
+        return HttpResponseRedirect(reverse(viewname='location_list', current_app='core'))
 
 
 class LocationCreateView(SiteRootView, CreateView):
@@ -244,7 +249,7 @@ class LocationIndicatorListlView(LocationView, TemplateView):
     def get_context_data(self, **kwargs):
         context = super(LocationIndicatorListlView, self).get_context_data(**kwargs)
         context['stream'] = self.noun.get_action_stream()[:40]
-        context['indicators'] = self.noun.indicators.all()
+        context['indicators'] = self.noun.indicators.all().order_by('form_number')
         context['ILLEGAL_FIELD_LABELS'] = cm.ILLEGAL_FIELD_LABELS
         return context
 
@@ -448,7 +453,7 @@ class IndicatorListView(SiteRootView, TemplateView):
     def get_context_data(self, **kwargs):
         context = super(IndicatorListView, self).get_context_data(**kwargs)
         indicators = []
-        for l in cm.Indicator.objects.all():
+        for l in cm.Indicator.objects.all().order_by('form_number'):
             blob = l.get_serialized()
             indicators.append(blob)
         context['indicators'] = indicators
