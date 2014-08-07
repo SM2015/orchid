@@ -66,8 +66,9 @@ class RegistrationForm(ModelBootstrapForm):
     email = forms.EmailField()
     first_name = forms.CharField(max_length=100)
     last_name = forms.CharField(max_length=100)
-    password1 = forms.CharField()
-    password2 = forms.CharField()
+    password1 = forms.CharField(widget=forms.PasswordInput)
+    password2 = forms.CharField(widget=forms.PasswordInput)
+    locations = forms.ModelMultipleChoiceField(queryset=cm.Location.objects.all(), required=False, widget=forms.SelectMultiple(attrs={'class':'chosen-select'}))
     # rest of the fields
 
     def clean(self):
@@ -215,9 +216,9 @@ class JSONUploadForm(forms.Form):
     json = forms.CharField(widget=forms.Textarea)
 
 class SavedFilterForm(BootstrapForm):
-    indicator = forms.ModelChoiceField(queryset=cm.Indicator.objects.all(), required=True)
-    locations = forms.ModelMultipleChoiceField(queryset=cm.Location.objects.all(), required=False)
+    indicator = forms.ModelChoiceField(queryset=cm.Indicator.objects.all(), required=True, widget=forms.SelectMultiple(attrs={'class':'chosen-select'}))
+    locations = forms.ModelMultipleChoiceField(queryset=cm.Location.objects.all(), required=False, widget=forms.SelectMultiple(attrs={'class':'chosen-select'}))
     start_date = forms.DateField(required=False, widget=forms.DateInput(attrs={'class':'datepicker'}))
     end_date = forms.DateField(required=False, widget=forms.DateInput(attrs={'class':'datepicker'}))
-    input_user = forms.ModelMultipleChoiceField(queryset=cm.User.objects.all(), required=False)
+    input_user = forms.ModelMultipleChoiceField(queryset=cm.User.objects.all(), required=False, widget=forms.SelectMultiple(attrs={'class':'chosen-select'}))
     export = forms.BooleanField(required=False, help_text="Export this data as an excel spreadsheet.")

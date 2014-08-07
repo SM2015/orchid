@@ -108,6 +108,10 @@ class UserCreateView(SiteRootView, FormView):
         user.last_name = form.cleaned_data['last_name']
         user.save()
         self.object = user
+        locations = form.cleaned_data['locations']
+        for l in locations:
+            l.members.add(user)
+            l.save()
         return super(UserCreateView, self).form_valid(form)
 
     def get_success_url(self):
@@ -115,7 +119,14 @@ class UserCreateView(SiteRootView, FormView):
         return reverse(viewname='make_new_user', current_app='core')
 
     def get_success_message(self, cleaned_data):
-        return "Your new user was created.  Make another new user or return to the indicator."
+        first_name = cleaned_data['first_name']
+        last_name = cleaned_data['last_name']
+        locations = list(cleaned_data['locations'])
+        location_names = ""
+        for l in locations[:-1]:
+            location_names+=l.title+", "
+        location_names+=" and "+locations[-1].title+"."
+        return first_name+" "+last_name+" now has an account. They are assigned to "+location_names+" Make another new user or return to the indicator."
 
 class UserLoginView(SiteRootView, FormView):
     template_name = 'base/form.html'
