@@ -36,7 +36,7 @@ function initMarkers()
     }
     map.fitBounds(bound);
     console.log(map.getZoom());
-    map.setZoom(15);
+    //map.setZoom(15);
 });
 
 }

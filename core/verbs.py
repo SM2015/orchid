@@ -98,9 +98,9 @@ class LocationDetailVerb(CoreVerb):
     display_name = "View Location"
     view_name='location_detail'
 
-class LocationFilterVerb(CoreVerb):
-    display_name = "Filter Data"
-    view_name='location_entries_filter'
+class EntriesFilterVerb(CoreVerb):
+    display_name = "Filter and Export Data"
+    view_name='entries_filter'
 
 class LocationListVerb(AuthenticatedOnlyVerb):
     display_name = "View All Locations"
@@ -114,7 +114,7 @@ class SiteRoot(Noun):
     '''
     A hack that lets pages that have no actual noun have verbs and verb-based permissions. 
     '''
-    verb_classes = [SiteLoginVerb, LocationListVerb, ScoreListVerb, IndicatorListVerb, LocationCreateVerb, IndicatorCreateVerb, SiteUserCreateVerb]
+    verb_classes = [SiteLoginVerb, LocationListVerb, ScoreListVerb, IndicatorListVerb, EntriesFilterVerb, LocationCreateVerb, IndicatorCreateVerb, SiteUserCreateVerb]
 
     class Meta:
         abstract = True

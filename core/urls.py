@@ -22,7 +22,7 @@ urlpatterns = patterns('',
     url(r'location/(?P<location_pk>\d+)/indicator/(?P<pk>\d+)/record/upload/$', cv.IndicatorRecordUploadView.as_view(), name='indicator_record_upload'),
     url(r'location/(?P<pk>\d+)/image/create/$', cv.LocationImageCreateView.as_view(), name='location_image_create'),
     url(r'location/(?P<pk>\d+)/indicator/list/$', cv.LocationIndicatorListlView.as_view(), name='location_indicator_list'),
-    url(r'location/(?P<pk>\d+)/entries/filter/$', cv.LocationEntriesFilterView.as_view(), name='location_entries_filter'),
+    url(r'entries/filter/$', cv.EntriesFilterView.as_view(), name='entries_filter'),
 
     url(r'indicator/(?P<pk>\d+)/detail/$', cv.IndicatorDetailView.as_view(), name='indicator_detail'),
     url(r'indicator/(?P<pk>\d+)/update/$', cv.IndicatorUpdateView.as_view(), name='indicator_update'),

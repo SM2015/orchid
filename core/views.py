@@ -270,7 +270,7 @@ except ImportError:
     XLWT_INSTALLED = False
 from io import BytesIO, StringIO
 from forms_builder.forms.utils import now, slugify
-class LocationEntriesFilterView(LocationView, FormView):
+class EntriesFilterView(SiteRootView, FormView):
     model = cm.Location    
     template_name = 'base/form.html'
     form_class = cf.SavedFilterForm
