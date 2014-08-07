@@ -342,7 +342,7 @@ class ScoresDetailView(SiteRootView, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(ScoresDetailView, self).get_context_data(**kwargs)
-        NO_DATA_STRING = "N/A"
+        NOT_ASSIGNED_STRING = "N/A"
         try:
             month = int(self.kwargs['month'])
             year = int(self.kwargs['year'])
@@ -356,13 +356,13 @@ class ScoresDetailView(SiteRootView, TemplateView):
         #get all scores for this month
         rows = {}
         for l in cm.Location.objects.all():
-            rows[l.id] = [l.title]+([NO_DATA_STRING]*len(columns))
+            rows[l.id] = [l.title]+([NOT_ASSIGNED_STRING]*len(columns))
         #add space to the begininbg of columns for the location names
         columns = ["Location"]+columns
         for s in cm.Score.objects.filter(month=str(month), year=year):               
             #add the score object to the table if it exists
             indicator_index = indicator_ids.index(s.indicator.id)+1
-            if rows[s.location.id][indicator_index] == NO_DATA_STRING:
+            if rows[s.location.id][indicator_index] == NOT_ASSIGNED_STRING:
                 rows[s.location.id][indicator_index] = s
             else:
                 rows[s.location.id][indicator_index].merge(s)
