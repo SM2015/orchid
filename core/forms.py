@@ -216,7 +216,7 @@ class JSONUploadForm(forms.Form):
     json = forms.CharField(widget=forms.Textarea)
 
 class SavedFilterForm(BootstrapForm):
-    indicator = forms.ModelChoiceField(queryset=cm.Indicator.objects.all(), required=True, widget=forms.SelectMultiple(attrs={'class':'chosen-select'}))
+    indicator = forms.ModelChoiceField(queryset=cm.Indicator.objects.all(), required=True)
     locations = forms.ModelMultipleChoiceField(queryset=cm.Location.objects.all(), required=False, widget=forms.SelectMultiple(attrs={'class':'chosen-select'}))
     start_date = forms.DateField(required=False, widget=forms.DateInput(attrs={'class':'datepicker'}))
     end_date = forms.DateField(required=False, widget=forms.DateInput(attrs={'class':'datepicker'}))

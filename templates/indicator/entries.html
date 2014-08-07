@@ -29,7 +29,7 @@
             {% endif %}
             {% for field in row %}
             {% if not forloop.first %}
-            <td class="{% if forloop.last %}last{% endif %} {% if 'False' in field %} danger {% elif 'True' in field%} success {% elif field == "" %} warning {% else %} active {% endif %}">{{ field }}</td>
+            <td class="{% if forloop.last %}last{% endif %} {% if field == 'False' %} danger {% elif field == 'Yes' %} success {% elif field == "N/D" %} warning {% else %} active {% endif %}">{{ field }}</td>
             {% endif %}
             {% endfor %}
         </tr>

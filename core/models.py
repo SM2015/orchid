@@ -251,7 +251,11 @@ class Indicator(Auditable, Noun):
         for field_entry in field_entries:
             #print field_entry.id
             #print "field_entry.field_id: "+str(field_entry.field_id)
-            field_value = field_entry.value or ""
+            field_value = field_entry.value or "N/D"
+            if field_value == "True":
+                field_value = "Yes"
+            elif field_value == "False":
+                field_value = "No"
             #print field_value
             if field_entry.entry_id != current_entry:
                 # New entry, write out the current row and start a new one.
@@ -266,12 +270,10 @@ class Indicator(Auditable, Noun):
             #print "field_entry.field_id: "+str(field_entry.field_id)
             if len(input_user_values) >0:
                 if field_entry.field_id == user_field_id:
-                    print field_entry.value
                     if not field_entry.value in input_user_values:
                         valid_row = False
 
             if field_entry.field_id == location_field_id:
-                print "if not "+field_entry.value+" in "+location_values.__str__()
                 if not unicode(field_entry.value) in location_values:
                     valid_row = False
 
