@@ -123,9 +123,12 @@ class UserCreateView(SiteRootView, FormView):
         last_name = cleaned_data['last_name']
         locations = list(cleaned_data['locations'])
         location_names = ""
-        for l in locations[:-1]:
-            location_names+=l.title+", "
-        location_names+=" and "+locations[-1].title+"."
+        if len(l) > 0:
+            for l in locations[:-1]:
+                location_names+=l.title+", "
+            location_names+=" and "+locations[-1].title+"."
+        else:
+            location_names = "no locations."
         return first_name+" "+last_name+" now has an account. They are assigned to "+location_names+" Make another new user or return to the indicator."
 
 class UserLoginView(SiteRootView, FormView):
