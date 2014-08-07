@@ -18,11 +18,11 @@ $(function(){
             if($t.hasClass('overflow-y')) $t.removeClass('overflow-y').parent().addClass('overflow-y');
 
             // Create new sticky table head (basic)
-            $t.after('<table class="sticky-thead" />');
+            $t.after('<table class="table table-bordered sticky-thead" />');
 
             // If <tbody> contains <th>, then we create sticky column and intersect (advanced)
             if($t.find('tbody th').length > 0) {
-                $t.after('<table class="sticky-col" /><table class="sticky-intersect" />');
+                $t.after('<table class="table table-bordered sticky-col" /><table class="table table-bordered sticky-intersect" />');
             }
 
             // Create shorthand for things
@@ -129,7 +129,7 @@ $(function(){
                     return a;
                 };
 
-            setWidths();
+            //setWidths();
 
             $t.parent('.sticky-wrap').scroll($.throttle(15, function() {
                 repositionStickyHead();
