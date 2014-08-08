@@ -43,6 +43,9 @@
               <span class="icon-bar"></span>
             </button>
             <a class="navbar-brand" href="/location/list/">Orchid</a>
+            <ul class="nav nav-pills pull-right">
+          {% if user.is_authenticated %}<li class="active"><a href="/user/logout">Log Out</a></li>{% endif %}
+        </ul>
           </div>
           <div class="collapse navbar-collapse">
             <ul class="nav navbar-nav">
