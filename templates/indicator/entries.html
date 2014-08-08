@@ -10,30 +10,30 @@
 {{ form.media }}
     {% for row in entries %}
     {% if forloop.first %}
-    <div class="overscroller">
-    <table id="entries-table" class="table table-bordered overscroller">
-        <tr>
-            {% if can_delete_entries %}
-            <th class="include-all"><input type="checkbox"></th>
-            {% endif %}
-            {% for column in columns %}
-            <th{% if forloop.last %} class="last"{% endif %}>{{ column }}</th>
-            {% endfor %}
-        </tr>
+    <div class="sticky-wrap overflow-y"><table class=" table table-bordered sticky-enabled" style="margin: 0px; width: 100%;">
+        <thead>
+            <tr>{% for column in columns %}
+                {% if forloop.first %}<th class="white"></th>{% else %}
+                    <th class="white">{{ column }}</th>
+                {% endif %}
+                {% endfor %}
+            </tr>
+        </thead>
     {% endif %}
-        <tr class="{% cycle on,off %}">
-            {% if can_delete_entries %}
-            <td class="include">
-                <input type="checkbox" name="selected" value="{{ row.0 }}">
-            </td>
-            {% endif %}
+    <tbody>
+        <tr >
             {% for field in row %}
-            {% if not forloop.first %}
+            {% if forloop.first %}
+            
+                {% elif forloop.counter == 2  %}
+                <th class="white">{{ field }}</th>
+                {% else %}
             <td class="{% if forloop.last %}last{% endif %} {% if field == 'No' %} danger {% elif field == 'Yes' %} success {% elif field == "N/D" %} warning {% else %} active {% endif %}">{{ field }}</td>
             {% endif %}
             {% endfor %}
         </tr>
     {% if forloop.last %}
+    </tbody>
     </table>
     </div>
     {% endif %}
