@@ -123,7 +123,7 @@ class UserCreateView(SiteRootView, FormView):
         last_name = cleaned_data['last_name']
         locations = list(cleaned_data['locations'])
         location_names = ""
-        if len(l) > 0:
+        if len(locations) > 0:
             for l in locations[:-1]:
                 location_names+=l.title+", "
             location_names+=" and "+locations[-1].title+"."
@@ -509,10 +509,8 @@ class FieldUpdateView(IndicatorView, UpdateView):
     model = fm.Field
     template_name = 'base/form.html'
     success_url = '/'
-
     def get_noun(self, **kwargs):
-        form = self.get_object().form
-        return cm.Indicator.objects.get(form=form)
+        return cm.Indicator.objects.get(id=self.kwargs['indicator_pk'])
 
     def get_object(self):
         output = get_object_or_404(fm.Field, id=self.kwargs["pk"])
