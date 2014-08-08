@@ -576,6 +576,10 @@ class IndicatorRecordCreateView(LocationView, TemplateView):
         return self.render_to_response(context)
 
     def post(self, request, *args, **kwargs):
+        #throw an error if this user is not authorized
+        #TODO: find a way to do this with carteblanche
+        if (self.request.user.is_staff != True) and (self.noun.members.filter(id=self.request.user.id).count() == 0):
+            raise Exception("You tried to create a record with a location you're not assigned to. You must be an Admin or a member of "+self.noun.title+" to create a new record.")
         indicator = get_object_or_404(cm.Indicator, id=kwargs["pk"])
         builder_form_object = indicator.get_builder_form_object()
         form = FormForForm(builder_form_object, RequestContext(request),
@@ -634,6 +638,10 @@ class IndicatorRecordUploadView(LocationView, FormView):
 
     def form_valid(self, form):
         try:
+            #throw an error if this user is not authorized
+            #TODO: find a way to do this with carteblanche
+            if (self.request.user.is_staff != True) and (self.noun.members.filter(id=self.request.user.id).count() == 0):
+                raise Exception("You tried to synchronize a record with a location you're not assigned to. You must be an Admin or a member of "+self.noun.title+" to upload a new record.")
             json_string = form.cleaned_data['json']
             data = json.loads(json_string, parse_float=decimal.Decimal)
             
@@ -684,6 +692,7 @@ class IndicatorRecordUploadView(LocationView, FormView):
                 "status":"failure",
                 "error":e
             }
+            messages.error(self.request, e)
         if self.request.is_ajax():
 
             data = json.dumps(context, default=decimal_default)

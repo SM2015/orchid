@@ -32,9 +32,9 @@ class StaffVerb(CoreVerb):
 
     @availability_login_required
     def is_available(self, user):
-        return user.is_staff
+        return user.is_staff       
 
-class SiteUserCreateVerb(AuthenticatedOnlyVerb):
+class SiteUserCreateVerb(StaffVerb):
     display_name = "Create User"
     view_name ='make_new_user'
 
@@ -54,11 +54,11 @@ class HistoryListVerb(CoreVerb):
     def is_available(self, user):
         return self.noun.is_visible_to(user)
 
-class LocationCreateVerb(AuthenticatedOnlyVerb):
+class LocationCreateVerb(StaffVerb):
     display_name = "Create New Location"
     view_name='location_create'
 
-class LocationUpdateVerb(AuthenticatedOnlyVerb):
+class LocationUpdateVerb(StaffVerb):
     display_name = "Update Location"
     view_name='location_update'
 
@@ -70,7 +70,7 @@ class ScoreListVerb(AuthenticatedOnlyVerb):
     display_name = "View All Location Goals"
     view_name='scores_list'
 
-class IndicatorCreateVerb(AuthenticatedOnlyVerb):
+class IndicatorCreateVerb(StaffVerb):
     display_name = "Create New Indicator"
     view_name='indicator_create'
 
@@ -78,7 +78,7 @@ class IndicatorDetailVerb(AuthenticatedOnlyVerb):
     display_name = "View Indicator"
     view_name='indicator_detail'
 
-class IndicatorUpdateVerb(AuthenticatedOnlyVerb):
+class IndicatorUpdateVerb(StaffVerb):
     display_name = "Update Indicator"
     view_name='indicator_update'
 
@@ -90,7 +90,7 @@ class IndicatorRecordCreateVerb(AuthenticatedOnlyVerb):
     display_name = "Enter Data"
     view_name='indicator_record_create'
 
-class FieldCreateVerb(AuthenticatedOnlyVerb):
+class FieldCreateVerb(StaffVerb):
     display_name = "Create New Field"
     view_name='field_create'
 
@@ -98,7 +98,7 @@ class LocationDetailVerb(CoreVerb):
     display_name = "View Location"
     view_name='location_detail'
 
-class EntriesFilterVerb(CoreVerb):
+class EntriesFilterVerb(AuthenticatedOnlyVerb):
     display_name = "Filter and Export Data"
     view_name='entries_filter'
 
