@@ -94,6 +94,14 @@ class FieldCreateVerb(StaffVerb):
     display_name = "Create New Field"
     view_name='field_create'
 
+class FieldUpdateVerb(StaffVerb):
+    display_name = "Create New Field"
+    view_name='field_update'
+    visible = False
+
+    def get_url(self):
+        return None
+
 class LocationDetailVerb(CoreVerb):
     display_name = "View Location"
     view_name='location_detail'

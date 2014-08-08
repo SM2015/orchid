@@ -136,7 +136,7 @@ class Indicator(Auditable, Noun):
     form_number = models.IntegerField(null=True, blank=True)
     passing_percentage = models.FloatField(default=85)
     maximum_monthly_records = models.IntegerField(default=20)
-    verb_classes = [IndicatorListVerb, IndicatorDetailVerb, IndicatorUpdateVerb, FieldCreateVerb]
+    verb_classes = [IndicatorListVerb, IndicatorDetailVerb, IndicatorUpdateVerb, FieldCreateVerb, FieldUpdateVerb]
 
     def __unicode__(self):
         return self.get_title()
