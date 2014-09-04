@@ -117,6 +117,9 @@ class Location(Auditable, Noun):
     def get_absolute_url(self):
         return reverse(viewname='location_detail', args=[self.id], current_app=APPNAME)
 
+    def get_indicators(self):
+        return self.indicators.all()
+
     def get_indicator_ids(self):
         return list(self.indicators.all().values_list('id', flat=True))
 
@@ -303,7 +306,7 @@ class Score(models.Model):
     passing_entry_count = models.IntegerField()
     month = models.CharField(max_length=2, choices=MONTH_CHOICES)
     year = models.IntegerField()
-    datetime = models.DateTimeField(auto_now_add=False)
+    datetime = models.DateTimeField(auto_now_add=False, required=false)
 
     def __unicode__(self):
         return str(self.score)+" : "+str(self.datetime)

@@ -29,7 +29,7 @@ $(function () {
             type: 'spline'
         },
         title: {
-            text: 'Indicator Score For This Location'
+            text: "All Indicators at "+data.noun
         },
         subtitle: {
             text: 'Irregular time data in Highcharts JS'
@@ -51,6 +51,7 @@ $(function () {
             min: 0,
             max:100
         },
+
         tooltip: {
             headerFormat: '<b>{series.name}</b><br>',
             pointFormat: '{point.x:%e. %b}: {point.y:.2f}'
@@ -69,8 +70,5 @@ $(function () {
 {% endblock %}
 {{ noun.title }}
 {% block showcase %}
-
-chart here
 <div id="container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
-ends here
 {% endblock %}

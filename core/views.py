@@ -817,3 +817,38 @@ class LocationIndicatorVisualize(LocationView, TemplateView):
             return HttpResponse(data, **out_kwargs)
 
         return supes
+
+class LocationVisualize(LocationView, TemplateView):
+
+    template_name = "location/visualize.html"
+
+    def get(self, request, *args, **kwargs):
+        supes = super(LocationVisualize, self).get(request, *args, **kwargs)
+        context = self.get_context_data(**kwargs)
+        if self.request.is_ajax():
+            t = datetime.datetime.now()
+            year_ago = t-relativedelta(months=12)
+            indicators = self.noun.get_indicators()
+            series = []
+            for i in indicators:
+                #get all scores for this location/indicator from the last year
+                scores = cm.Score.objects.filter(indicator=i,location=self.noun, datetime__gte=year_ago).order_by('datetime')
+                #iterate over scores averaging them if there are more than one per month
+                data = []
+                for s in scores:
+                    #multiplied by 1000 because apparently js doesn't understand utc
+                    blob = [time.mktime(s.datetime.timetuple())*1000, s.score]
+                    data.append(blob)
+                i_series = {
+                    "name":i.title,
+                    "data":data
+                }
+                series.append(i_series)
+            context = self.get_context_data(**kwargs)
+            context["series"] = series
+            context["noun"] = self.noun.title
+            data = json.dumps(context, default=decimal_default)
+            out_kwargs = {'content_type':'application/json'}
+            return HttpResponse(data, **out_kwargs)
+
+        return supes
