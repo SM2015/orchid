@@ -305,6 +305,9 @@ class Score(models.Model):
     year = models.IntegerField()
     datetime = models.DateTimeField(auto_now_add=False)
 
+    def __unicode__(self):
+        return str(self.score)+" : "+str(self.datetime)
+
     def get_status(self):
         raise Exception("hello")
         if passing == True:

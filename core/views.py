@@ -28,7 +28,7 @@ from forms_builder.forms.admin import FormAdmin
 import json
 from django.http import HttpResponse
 from django.views.generic.edit import CreateView
-import datetime
+import datetime, time
 
 #do weird stuff to mAake user names nou usernames show up
 def user_new_unicode(self):
@@ -790,16 +790,30 @@ class LocationIndicatorVisualize(LocationView, TemplateView):
     def get_noun(self, **kwargs):
         return cm.Location.objects.get(id=self.kwargs['location_pk'])
 
-    def get_context_data(self, **kwargs):
-        context = super(LocationIndicatorVisualize, self).get_context_data(**kwargs)
-        t = datetime.datetime.now()
-        year_ago = t-relativedelta(months=12)
-        indicator = get_object_or_404(cm.Indicator, id=kwargs["pk"])
-        #get all scores for this location/indicator from the last year
-        scores = cm.Score.objects.filter(indicator__id=kwargs["pk"],location__id=kwargs['location_pk'], datetime__gte=year_ago)
-        #iterate over scores averaging them if there are more than one per month
-        output = []
-        for s in scores:
-            blob = {}
-            output.append(blob)
-        return context
+
+    def get(self, request, *args, **kwargs):
+        supes = super(LocationIndicatorVisualize, self).get(request, *args, **kwargs)
+        context = self.get_context_data(**kwargs)
+        if self.request.is_ajax():
+            t = datetime.datetime.now()
+            year_ago = t-relativedelta(months=12)
+            indicator = get_object_or_404(cm.Indicator, id=kwargs["pk"])
+            #get all scores for this location/indicator from the last year
+            scores = cm.Score.objects.filter(indicator__id=kwargs["pk"],location__id=kwargs['location_pk'], datetime__gte=year_ago).order_by('datetime')
+            #iterate over scores averaging them if there are more than one per month
+            data = []
+            for s in scores:
+                #multiplied by 1000 because apparently js doesn't understand utc
+                blob = [time.mktime(s.datetime.timetuple())*1000, s.score]
+                data.append(blob)
+            output = {
+                "name":self.noun.title,
+                "data":data
+            }
+            context = self.get_context_data(**kwargs)
+            context["series"] = [output]
+            data = json.dumps(context, default=decimal_default)
+            out_kwargs = {'content_type':'application/json'}
+            return HttpResponse(data, **out_kwargs)
+
+        return supes
