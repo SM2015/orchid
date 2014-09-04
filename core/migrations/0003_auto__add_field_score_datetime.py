@@ -6,25 +6,17 @@ from django.db import models
 
 
 class Migration(SchemaMigration):
+
     def forwards(self, orm):
-        # Adding model 'Score'
-        db.create_table(u'core_score', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('user', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['auth.User'])),
-            ('indicator', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['core.Indicator'])),
-            ('location', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['core.Location'])),
-            ('score', self.gf('django.db.models.fields.FloatField')(default=85)),
-            ('passing', self.gf('django.db.models.fields.BooleanField')()),
-            ('entry_count', self.gf('django.db.models.fields.IntegerField')()),
-            ('passing_entry_count', self.gf('django.db.models.fields.IntegerField')()),
-            ('month', self.gf('django.db.models.fields.CharField')(max_length=2)),
-            ('year', self.gf('django.db.models.fields.IntegerField')()),
-        ))
-        db.send_create_signal(u'core', ['Score'])
+        # Adding field 'Score.datetime'
+        db.add_column(u'core_score', 'datetime',
+                      self.gf('django.db.models.fields.DateTimeField')(default=datetime.datetime(2014, 9, 3, 0, 0)),
+                      keep_default=False)
+
 
     def backwards(self, orm):
-        # Deleting model 'Score'
-        db.delete_table(u'core_score')
+        # Deleting field 'Score.datetime'
+        db.delete_column(u'core_score', 'datetime')
 
 
     models = {
@@ -99,6 +91,7 @@ class Migration(SchemaMigration):
         },
         u'core.score': {
             'Meta': {'object_name': 'Score'},
+            'datetime': ('django.db.models.fields.DateTimeField', [], {}),
             'entry_count': ('django.db.models.fields.IntegerField', [], {}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'indicator': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['core.Indicator']"}),

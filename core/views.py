@@ -748,7 +748,8 @@ class LocationScoreUploadView(LocationView, FormView):
                 indicator_id = s.get("indicator_id")
                 indicator = cm.Indicator.objects.get(id=indicator_id)
                 #create but don't save untill all are created
-                new_score = cm.Score(indicator=indicator, passing=s.get("passing"), entry_count=s.get("total_record_count"), passing_entry_count=s.get("passing_record_count"), month=str(s.get("month")), year=s.get("year"),score=s.get("percentage"),location=self.noun, user=self.request.user)
+                t = datetime.datetime(year=s.get("year"), month=s.get("month"), day=1)
+                new_score = cm.Score(indicator=indicator, passing=s.get("passing"), entry_count=s.get("total_record_count"), passing_entry_count=s.get("passing_record_count"), month=str(s.get("month")), year=s.get("year"),score=s.get("percentage"),location=self.noun, user=self.request.user, datetime=t)
                 new_scores.append(new_score)
             #if nothing blew up, lets save these
             for s in new_scores:
@@ -780,3 +781,25 @@ class LocationScoreUploadView(LocationView, FormView):
             return HttpResponse(data, **out_kwargs)
 
         return supes
+
+
+class LocationIndicatorVisualize(LocationView, TemplateView):
+
+    template_name = "location/visualize.html"
+
+    def get_noun(self, **kwargs):
+        return cm.Location.objects.get(id=self.kwargs['location_pk'])
+
+    def get_context_data(self, **kwargs):
+        context = super(LocationIndicatorVisualize, self).get_context_data(**kwargs)
+        t = datetime.datetime.now()
+        year_ago = t-relativedelta(months=12)
+        indicator = get_object_or_404(cm.Indicator, id=kwargs["pk"])
+        #get all scores for this location/indicator from the last year
+        scores = cm.Score.objects.filter(indicator__id=kwargs["pk"],location__id=kwargs['location_pk'], datetime__gte=year_ago)
+        #iterate over scores averaging them if there are more than one per month
+        output = []
+        for s in scores:
+            blob = {}
+            output.append(blob)
+        return context
