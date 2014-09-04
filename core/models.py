@@ -306,7 +306,7 @@ class Score(models.Model):
     passing_entry_count = models.IntegerField()
     month = models.CharField(max_length=2, choices=MONTH_CHOICES)
     year = models.IntegerField()
-    datetime = models.DateTimeField(auto_now_add=False, required=false)
+    datetime = models.DateTimeField(auto_now_add=False, null=True, blank=True)
 
     def __unicode__(self):
         return str(self.score)+" : "+str(self.datetime)
