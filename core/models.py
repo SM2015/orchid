@@ -16,6 +16,9 @@ from geoposition.fields import GeopositionField
 from core.verbs import *
 import forms_builder.forms.models as fm
 import forms_builder.forms.fields as ff
+from django.core.cache import cache
+import datetime, time
+from dateutil.relativedelta import relativedelta
 
 ILLEGAL_FIELD_LABELS = ['User','Location','Score']
 
@@ -128,6 +131,35 @@ class Location(Auditable, Noun):
             return self.images.all().order_by('-created_at')[:1][0]
         except Exception as e:
             return None
+
+    def get_series_key(self, indicator):
+        return "series"+str(self.id)+"_"+str(indicator.id)
+
+    def get_series(self, indicator):
+        key = self.get_series_key(indicator)
+        value = cache.get(key)
+        if value != None:
+            print "Returning from cache"
+            return value
+        else:
+            t = datetime.datetime.now()
+            year_ago = t-relativedelta(months=12)
+            #get all scores for this location/indicator from the last year
+            scores = Score.objects.filter(indicator=indicator,location=self, datetime__gte=year_ago).order_by('datetime')
+            #iterate over scores averaging them if there are more than one per month
+            data = []
+            for s in scores:
+                #multiplied by 1000 because apparently js doesn't understand utc
+                blob = [time.mktime(s.datetime.timetuple())*1000, s.score]
+                data.append(blob)
+            i_series = {
+                "name":indicator.title,
+                "data":data
+            }
+            #print "Saving to cache"
+            #cache.set(key, i_series, None)
+
+        return i_series
 
 from forms_builder.forms.forms import FormForForm
 from django.template.context import Context
