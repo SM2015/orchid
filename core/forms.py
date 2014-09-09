@@ -163,8 +163,8 @@ class LoginForm(ModelBootstrapForm):
      fields = ['email','password']
 
 class LocationForm(ModelBootstrapForm):
-    members = forms.ModelMultipleChoiceField(queryset=cm.User.objects.all(), required=False, widget=forms.SelectMultiple(attrs={'class':'chosen-select'}))
-    indicators = forms.ModelMultipleChoiceField(queryset=cm.Indicator.objects.all(), required=False, widget=forms.SelectMultiple(attrs={'class':'chosen-select'}))
+    members = forms.ModelMultipleChoiceField(queryset=cm.User.objects.all().order_by('first_name'), required=False, widget=forms.SelectMultiple(attrs={'class':'chosen-select'}))
+    indicators = forms.ModelMultipleChoiceField(queryset=cm.Indicator.objects.all().order_by('form_number','title'), required=False, widget=forms.SelectMultiple(attrs={'class':'chosen-select'}))
     class Meta:
         model = cm.Location
         exclude = ['changed_by','images']

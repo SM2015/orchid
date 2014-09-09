@@ -32,7 +32,7 @@ $(function () {
             text: "All Indicators at "+data.noun
         },
         subtitle: {
-            text: 'Irregular time data in Highcharts JS'
+            text: 'Click legend to select lines.'
         },
         xAxis: {
             type: 'datetime',
@@ -70,9 +70,9 @@ $(function () {
 {% endblock %}
 {{ noun.title }}
 {% block showcase %}
-<div id="container" style="min-width: 310px; height: 400px; margin: 0 auto">
+<div id="container" style="min-width: 310px; height: 600px; margin: 0 auto">
     <div hidden class="alert alert-danger" role="alert" id="error_message">
-        <strong>Oh snap!</strong> Change a few things up and try submitting again.
+        <strong>Oh snap!</strong> There was a problem generating your graph.
     </div>
     <div class="text-center" id="loading_message">
         <h3>Generating Graph</h3>

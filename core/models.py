@@ -136,8 +136,13 @@ class Location(Auditable, Noun):
         return "series"+str(self.id)+"_"+str(indicator.id)
 
     def get_series(self, indicator):
+
+        def convert_time_to_js(dt):
+            return time.mktime(dt.timetuple())*1000
+
         key = self.get_series_key(indicator)
         value = cache.get(key)
+        passing_percent = {}
         if value != None:
             print "Returning from cache"
             return value
@@ -150,7 +155,7 @@ class Location(Auditable, Noun):
             data = []
             for s in scores:
                 #multiplied by 1000 because apparently js doesn't understand utc
-                blob = [time.mktime(s.datetime.timetuple())*1000, s.score]
+                blob = [convert_time_to_js(s.datetime), s.score]
                 data.append(blob)
             i_series = {
                 "name":indicator.title,

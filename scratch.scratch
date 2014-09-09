@@ -2,3 +2,12 @@ from forms_builder.forms.forms import FormForForm
 from django.template.context import Context
 c = Context()
 z = FormForForm(f, c)
+
+
+for y in l.get_indicators():
+    for i in range(1,12):
+            s.id=None
+            s.datetime= datetime.datetime(year=2014, month=i, day=1)
+            s.score = random.randint(60,85)
+            s.indicator = y
+            s.save()

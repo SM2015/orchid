@@ -205,7 +205,7 @@ class LocationListView(SiteRootView, TemplateView):
         context = super(LocationListView, self).get_context_data(**kwargs)
         output = []
         if self.request.user.is_staff:
-            locations = cm.Location.objects.all()
+            locations = cm.Location.objects.all().order_by('title')
         else:
             locations = self.request.user.location_set.all()
         for l in locations:
@@ -264,7 +264,7 @@ class LocationIndicatorListlView(LocationView, TemplateView):
     def get_context_data(self, **kwargs):
         context = super(LocationIndicatorListlView, self).get_context_data(**kwargs)
         context['stream'] = self.noun.get_action_stream()[:40]
-        context['indicators'] = self.noun.indicators.all().order_by('form_number')
+        context['indicators'] = self.noun.indicators.all().order_by('form_number','title')
         context['ILLEGAL_FIELD_LABELS'] = cm.ILLEGAL_FIELD_LABELS
         return context
 
