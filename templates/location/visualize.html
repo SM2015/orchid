@@ -18,13 +18,9 @@ $(function () {
     $.getJSON('.', function(data) {
         console.log(data.series);
 
-        var derp = [{name: 'Winter 2007-2008',data: [[Date.UTC(1970,  9, 27), 0   ],[Date.UTC(1970, 10, 10), 0.6 ],[Date.UTC(1970, 10, 18), 0.7 ]]}]
-        console.log(derp);
+        function apply_chart(dom_object, series_data_blob) {
 
-
-     
-        // draw chart
-        $('#container').highcharts({
+            dom_object.highcharts({
         chart: {
             type: 'spline'
         },
@@ -54,10 +50,24 @@ $(function () {
 
         tooltip: {
             headerFormat: '<b>{series.name}</b><br>',
-            pointFormat: '{point.x:%e. %b}: {point.y:.2f}%'
+            pointFormat: '{point.x: %b }: {point.y:.2f}%'
         },
-        series: data.series
-    }); 
+        series: series_data_blob
+    });
+        
+        }
+
+        // draw chart
+        apply_chart($('#container'), data.series);
+
+    //draw individual charts for each line
+    for (var s in data.series) {
+        console.log(data.series[s]);
+        var new_chart_div = $('<div>', {style: 'min-width: 310px; height: 600px; margin: 0 auto'})
+        apply_chart(new_chart_div, [data.series[s]]);
+        $("#other_charts").append(new_chart_div);
+    }
+
     }).error(function() { $("#error_message").show(); $("#loading_message").hide(); });
 });
 
@@ -83,5 +93,7 @@ $(function () {
           </div>
         </div>
     </div>
+</div>
+<div id="other_charts">
 </div>
 {% endblock %}
