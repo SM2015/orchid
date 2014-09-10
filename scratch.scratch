@@ -3,11 +3,18 @@ from django.template.context import Context
 c = Context()
 z = FormForForm(f, c)
 
-
+import datetime
+import random
 for y in l.get_indicators():
     for i in range(1,12):
             s.id=None
             s.datetime= datetime.datetime(year=2014, month=i, day=1)
             s.score = random.randint(60,85)
+            if s.score >= y.passing_percentage:
+                s.passing = True
+            else:
+                s.passing = False
             s.indicator = y
+            s.location = l
             s.save()
+            print s
