@@ -860,7 +860,8 @@ class LocationVisualize(LocationView, TemplateView):
             goals_met_series = {
                 "name":"PERCENT OF GOALS MET",
                 "data":goals_met_data,
-                "lineWidth":6
+                "lineWidth":6,
+                "dashStyle": 'longdash'
             }
             series.append(goals_met_series)
             #store these results in a new series
