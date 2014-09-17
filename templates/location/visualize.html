@@ -33,7 +33,7 @@ $(function () {
 
         function apply_chart(dom_object, series_data_blob, chart_title, legend_enabled) {
 
-            dom_object.highcharts({
+        return    dom_object.highcharts({
         chart: {
             type: 'spline'
         },
@@ -79,23 +79,14 @@ $(function () {
     for (var s in data.series) {
         console.log(data.series[s]);
         
-        var most_recent_datapoint = data.series[s].data[data.series[s].data.length-1];
-        var score_alert = $('<div>', {role: 'alert', class:"alert"})
-        .append(
-            $('<h1>').append(most_recent_datapoint[1]+"%")
-            );
-        if (most_recent_datapoint[2] == false){
-            score_alert.addClass("alert-danger");
-        }else{
-            score_alert.addClass("alert-success");
-        }
         var new_chart_div = $('<div>', {style: 'height: 400px; margin: 0 auto', class:"col-xs-12 col-md-8"});
-        var new_metadata_div = $('<div>', {class:"col-xs-6 col-md-4 text-center"})
-        .append($("<tspan>").append(month[new Date(most_recent_datapoint[0]).getUTCDate()]))
-        .append(score_alert);
-        var new_row_div = $('<div>', {class:"row"}).append(new_chart_div).append(new_metadata_div);
+        var new_row_div = $('<div>', {class:"row"}).append(new_chart_div);
         $("#other_charts").append(new_row_div);
-        apply_chart(new_chart_div, [data.series[s]], data.series[s]["name"], false);
+        new_chart = apply_chart(new_chart_div, [data.series[s]], data.series[s]["name"], false);
+        
+        var chart = new_chart_div.highcharts();
+        chart.series[0].data[chart.series[0].data.length-1].setState('hover');
+        chart.tooltip.refresh(chart.series[0].data[chart.series[0].data.length-1]);
     }
 
     }).error(function() { $("#error_message").show(); $("#loading_message").hide(); });
