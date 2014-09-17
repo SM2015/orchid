@@ -30,7 +30,6 @@ from django.http import HttpResponse
 from django.views.generic.edit import CreateView
 import datetime, time
 from dateutil.relativedelta import relativedelta
-from collections import OrderedDict
 
 #do weird stuff to mAake user names nou usernames show up
 def user_new_unicode(self):
@@ -828,46 +827,11 @@ class LocationVisualize(LocationView, TemplateView):
         supes = super(LocationVisualize, self).get(request, *args, **kwargs)
         context = self.get_context_data(**kwargs)
         if self.request.is_ajax():
-            def percentage(part, whole):
-                return 100 * float(part)/float(whole)
-            t = datetime.datetime.now()
-            year_ago = t-relativedelta(months=12)
-            indicators = self.noun.get_indicators()
-            series = []
-            for i in indicators:
-                series.append(self.noun.get_series(i))
-            counts = OrderedDict()
-            for s in series:
-                #iterate over each blob
-                for d in s["data"]:
-                #if counts doesn't contain the timestamp key, add it
-                    if not counts.has_key(d[0]):
-                        #store 1 there if the score is passing
-                        if d[2] == True:
-                            counts[d[0]] = 1
-                        #store 0 if it's failing
-                        elif d[2] == False:
-                            counts[d[0]] = 0
-                    #otherwise update
-                    else:
-                        #add 1 if passing
-                        if d[2] == True:
-                            counts[d[0]]+=1
-                    #do nothing if failing
-            #iterate over counts, calculating counts[n]/indicators.count
-            #raise Exception(counts)
-            goals_met_data = [[k, percentage(v,indicators.count())] for k, v in counts.iteritems()]
-            goals_met_series = {
-                "name":"PERCENT OF GOALS MET",
-                "data":goals_met_data,
-                "lineWidth":6,
-                "dashStyle": 'longdash'
-            }
-            series.append(goals_met_series)
+
             #store these results in a new series
             #add the series to 
             context = self.get_context_data(**kwargs)
-            context["series"] = series
+            context["series"] = self.noun.get_all_series()
             context["noun"] = self.noun.title
             data = json.dumps(context, default=decimal_default)
             out_kwargs = {'content_type':'application/json'}
