@@ -26,6 +26,8 @@ ILLEGAL_FIELD_LABELS = ['User','Location','Score']
 ALLOWED_FIELD_TYPES = [ff.TEXT, ff.TEXTAREA, ff.CHECKBOX]
 FIELD_TYPE_NAMES = ["TEXT", "TEXTAREA", "CHECKBOX"]
 
+DEFAULT_PASSING = 85.00
+
 MONTH_CHOICES = (
     ('1', 'Jan'),
     ('2', 'Feb'),
@@ -168,7 +170,7 @@ class Location(Auditable, Noun):
         return i_series
 
     def get_all_series(self):
-        def percentage(part, whole):
+        def percentage(part, whole, decimals=2):
             return 100 * float(part)/float(whole)
         t = datetime.datetime.now()
         year_ago = t-relativedelta(months=12)
@@ -198,7 +200,8 @@ class Location(Auditable, Noun):
                     #do nothing if failing
             #iterate over counts, calculating counts[n]/indicators.count
             #raise Exception(counts)
-        goals_met_data = [[k, percentage(v,indicators.count())] for k, v in counts.iteritems()]
+        indicators_count = indicators.count()
+        goals_met_data = [[k, percentage(v,indicators_count), percentage(v,indicators_count)>=DEFAULT_PASSING, DEFAULT_PASSING] for k, v in counts.iteritems()]
         goals_met_series = {
             "name":"PERCENT OF GOALS MET",
             "data":goals_met_data,

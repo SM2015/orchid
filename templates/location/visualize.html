@@ -82,7 +82,7 @@ $(function () {
         var most_recent_datapoint = data.series[s].data[data.series[s].data.length-1];
         var score_alert = $('<div>', {role: 'alert', class:"alert"})
         .append(
-            $('<h1>').append(most_recent_datapoint[1]+"%")
+            $('<h1>').append((Math.round(most_recent_datapoint[1] * 100) / 100)+"%")
             );
         if (most_recent_datapoint[2] == false){
             score_alert.addClass("alert-danger");
@@ -108,28 +108,26 @@ $(function () {
     }).error(function() { $("#error_message").show(); $("#loading_message").hide(); });
 });
 
-
-
 </script>
 {% endblock %}
 {% block jumbotron %}
 {% endblock %}
 {{ noun.title }}
 {% block showcase %}
-<div id="container" style="min-width: 310px; height: 600px; margin: 0 auto">
-    <div hidden class="alert alert-danger" role="alert" id="error_message">
-        <strong>Oh snap!</strong> There was a problem generating your graph.
-    </div>
-    <div class="text-center" id="loading_message">
-        <h3>Generating Graph</h3>
-        <p>One moment please...</p>
-        <div class="progress">
-          <div class="progress-bar progress-bar-striped active"  role="progressbar" aria-valuenow="45" aria-valuemin="0" aria-valuemax="100" style="width: 50%">
-            <span class="sr-only">50% Complete</span>
-          </div>
+    <div id="container" class="panel row panel-default" style="min-width: 310px; height: 600px;">
+        <div hidden class="alert alert-danger" role="alert" id="error_message">
+            <strong>Oh snap!</strong> There was a problem generating your graph.
+        </div>
+        <div class="text-center" id="loading_message">
+            <h3>Generating Graph</h3>
+            <p>One moment please...</p>
+            <div class="progress">
+              <div class="progress-bar progress-bar-striped active"  role="progressbar" aria-valuenow="45" aria-valuemin="0" aria-valuemax="100" style="width: 50%">
+                <span class="sr-only">50% Complete</span>
+              </div>
+            </div>
         </div>
     </div>
-</div>
 <div id="other_charts">
 </div>
 {% endblock %}
