@@ -20,6 +20,7 @@ from django.core.cache import cache
 import datetime, time
 from dateutil.relativedelta import relativedelta
 from collections import OrderedDict
+from django.utils import timezone
 
 ILLEGAL_FIELD_LABELS = ['User','Location','Score']
 
@@ -136,21 +137,28 @@ class Location(Auditable, Noun):
             return None
 
     def get_series_key(self, indicator):
-        return "series"+str(self.id)+"_"+str(indicator.id)
+        series_key = "location_"+str(self.id)+"_indicator_"+str(indicator.id)
+        print series_key
+        return series_key
+
+    def get_all_series_key(self):
+        series_key = "location_"+str(self.id)+"_all_indicators"
+        print series_key
+        return series_key
 
     def get_series(self, indicator):
-
         def convert_time_to_js(dt):
             return time.mktime(dt.timetuple())*1000
 
+        passing_percent = {}
         key = self.get_series_key(indicator)
         value = cache.get(key)
-        passing_percent = {}
         if value != None:
-            print "Returning from cache"
+            print "Found, Returning from cache"
             return value
         else:
-            t = datetime.datetime.now()
+            print "Missing, Querying Fresh"
+            t = timezone.now()
             year_ago = t-relativedelta(months=12)
             #get all scores for this location/indicator from the last year
             scores = Score.objects.filter(indicator=indicator,location=self, datetime__gte=year_ago).order_by('datetime')
@@ -164,51 +172,67 @@ class Location(Auditable, Noun):
                 "name":indicator.title+" [GOAL: "+str(indicator.passing_percentage)+"%]",
                 "data":data
             }
-            #print "Saving to cache"
-            #cache.set(key, i_series, None)
+            print "Saving "+key+"to cache"
+            cache.set(key, i_series, None)
 
         return i_series
 
+    def invalidate_cached_series(self, indicator):
+        #invalidate the cache of this indicator series
+        cache.delete(self.get_series_key(indicator))
+        #invalidate the location's all_seriese cached data
+        cache.delete(self.get_all_series_key())
+
     def get_all_series(self):
-        def percentage(part, whole, decimals=2):
-            return 100 * float(part)/float(whole)
-        t = datetime.datetime.now()
-        year_ago = t-relativedelta(months=12)
-        indicators = self.get_indicators()
-        series = []
-        for i in indicators:
-            series.append(self.get_series(i))
-            counts = OrderedDict()
-            for s in series:
-                #iterate over each blob
-                for d in s["data"]:
-                    print s
-                    print d
-                #if counts doesn't contain the timestamp key, add it
-                    if not counts.has_key(d[0]):
-                        #store 1 there if the score is passing
-                        if d[2] == True:
-                            counts[d[0]] = 1
-                        #store 0 if it's failing
-                        elif d[2] == False:
-                            counts[d[0]] = 0
-                    #otherwise update
-                    else:
-                        #add 1 if passing
-                        if d[2] == True:
-                            counts[d[0]]+=1
-                    #do nothing if failing
-            #iterate over counts, calculating counts[n]/indicators.count
-            #raise Exception(counts)
-        indicators_count = indicators.count()
-        goals_met_data = [[k, percentage(v,indicators_count), percentage(v,indicators_count)>=DEFAULT_PASSING, DEFAULT_PASSING] for k, v in counts.iteritems()]
-        goals_met_series = {
-            "name":"PERCENT OF GOALS MET",
-            "data":goals_met_data,
-            "lineWidth":6,
-            "dashStyle": 'longdash'
-        }
-        series.append(goals_met_series)
+        key = self.get_all_series_key()
+        value = cache.get(key)
+        if value != None:
+            print "Found, Returning from cache"
+            return value
+        else:
+            print "Missing, Querying Fresh"
+            def percentage(part, whole, decimals=2):
+                return 100 * float(part)/float(whole)
+            t = datetime.datetime.now()
+            year_ago = t-relativedelta(months=12)
+            indicators = self.get_indicators()
+            series = []
+            for i in indicators:
+                series.append(self.get_series(i))
+                counts = OrderedDict()
+                for s in series:
+                    #iterate over each blob
+                    for d in s["data"]:
+                        #print s
+                        #print d
+                    #if counts doesn't contain the timestamp key, add it
+                        if not counts.has_key(d[0]):
+                            #store 1 there if the score is passing
+                            if d[2] == True:
+                                counts[d[0]] = 1
+                            #store 0 if it's failing
+                            elif d[2] == False:
+                                counts[d[0]] = 0
+                        #otherwise update
+                        else:
+                            #add 1 if passing
+                            if d[2] == True:
+                                counts[d[0]]+=1
+                        #do nothing if failing
+                #iterate over counts, calculating counts[n]/indicators.count
+                #raise Exception(counts)
+            indicators_count = indicators.count()
+            goals_met_data = [[k, percentage(v,indicators_count), percentage(v,indicators_count)>=DEFAULT_PASSING, DEFAULT_PASSING] for k, v in counts.iteritems()]
+            goals_met_series = {
+                "name":"PERCENT OF GOALS MET",
+                "data":goals_met_data,
+                "lineWidth":6,
+                "dashStyle": 'longdash'
+            }
+            series.append(goals_met_series)
+
+        print "Saving "+key+"to cache"
+        cache.set(key, series, None)
         return series
 
 from forms_builder.forms.forms import FormForForm

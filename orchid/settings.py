@@ -41,6 +41,7 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'djcelery',
     'south',
+    'debug_toolbar',
     'djangobower',
     'core',
     'carteblanche',
@@ -143,3 +144,11 @@ ELASTIC_TRANSCODER_PIPELINE_NAME = 'orchid_test'
 SITE_ID = 1
 
 LABEL_MAX_LENGTH = 2000
+
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+        'LOCATION': 'my_cache_table',
+    }
+}
