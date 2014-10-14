@@ -235,6 +235,11 @@ class LocationView(NounView):
     def get_noun(self, **kwargs):
         return cm.Location.objects.get(id=self.kwargs['pk'])
 
+    def get_context_data(self, **kwargs):
+        context = super(LocationView, self).get_context_data(**kwargs)
+        context["background_image_url"] = self.get_noun().get_background_image_url()
+        return context
+
 class LocationUpdateView(LocationView, UpdateView):
     model = cm.Location
     template_name = 'base/form.html'
@@ -833,7 +838,7 @@ class LocationVisualize(LocationView, TemplateView):
             #add the series to 
             context = self.get_context_data(**kwargs)
             context["series"] = self.noun.get_all_series()
-            context["noun"] = self.noun.title
+            context["noun_title"] = self.noun.title
             data = json.dumps(context, default=decimal_default)
             out_kwargs = {'content_type':'application/json'}
             return HttpResponse(data, **out_kwargs)

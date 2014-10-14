@@ -6,4 +6,9 @@
 <div class="alert alert-warning">
 {% endif %}
     <a href="/users/{{ activity.actor.id}}/">{{ activity.actor.first_name }} {{ activity.actor.last_name }}</a> {{ activity.verb }} <a href="{{ activity.action_object.get_absolute_url }}">{{ activity.action_object }}</a>{% if activity.target %} to <a href="{{ activity.target.get_absolute_url }}">{{ activity.target }}</a>{% endif %} {{ activity.timesince }} ago.
+{% with m=activity.action_object %}
+    {% if m.get_class_name == "Image" %}
+    <a href="{{ m.get_absolute_url }}"><img class="img-thumbnail" src='{{m.get_file_url }}'></img></a>
+    {% endif %}
+{% endwith %}
 </div>

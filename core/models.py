@@ -81,6 +81,9 @@ class Auditable(models.Model):
     def get_class_name(self):
         return self.__class__.__name__
 
+#    def get_background_image_url(self):
+#        return None
+
     class Meta:
         abstract = True
 
@@ -116,7 +119,7 @@ class Location(Auditable, Noun):
     members = models.ManyToManyField(User, null=True, blank=True)
     images = models.ManyToManyField(Image, null=True, blank=True)
     indicators = models.ManyToManyField('Indicator', null=True, blank=True)
-    verb_classes = [LocationDetailVerb, LocationUpdateVerb, LocationIndicatorListVerb, LocationImageCreateVerb]
+    verb_classes = [LocationDetailVerb, LocationVisualizeVerb, LocationUpdateVerb, LocationIndicatorListVerb, LocationImageCreateVerb]
 
     def __unicode__(self):
         return self.title
@@ -134,6 +137,12 @@ class Location(Auditable, Noun):
         try:
             return self.images.all().order_by('-created_at')[:1][0]
         except Exception as e:
+            return None
+
+    def get_background_image_url(self):
+        try:
+            return self.get_most_recent_image().original_file.url
+        except AttributeError as e:
             return None
 
     def get_series_key(self, indicator):
