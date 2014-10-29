@@ -106,7 +106,7 @@ class Image(Auditable, Noun):
 
     def get_file_url(self):
         if self.original_file != None:
-            return self.original_file.url
+            return self.original_file.url.replace("https", "http")
         else:
             return "pandas"
 
@@ -141,7 +141,7 @@ class Location(Auditable, Noun):
 
     def get_background_image_url(self):
         try:
-            return self.get_most_recent_image().original_file.url
+            return self.get_most_recent_image().get_file_url()
         except AttributeError as e:
             return None
 
