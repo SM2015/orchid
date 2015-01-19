@@ -136,6 +136,11 @@ class Location(Auditable, Noun):
         except Exception as e:
             return None
 
+    def get_month_score_key(self, month, year):
+        series_key = "location_scores_"+str(self.id)+"_"+str(month)+"_"+str(year)
+        print series_key
+        return series_key
+
     def get_series_key(self, indicator):
         series_key = "location_"+str(self.id)+"_indicator_"+str(indicator.id)
         print series_key
@@ -418,16 +423,21 @@ class Score(models.Model):
         return str(self.score)+" : "+str(self.datetime)
 
     def get_status(self):
-        raise Exception("hello")
         if passing == True:
-            raise Exception("hello")
             return "passing"
         else:
             return "failing"
 
+    def is_passing(self):
+        if self.score >= self.indicator.passing_percentage:
+            return True
+        else:
+            return False
+
     def calculate_score(self):
         try:
             self.score = float(self.passing_entry_count)/self.entry_count*100
+            self.passing = self.is_passing()
         except ZeroDivisionError as e:
             pass
 
