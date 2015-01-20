@@ -66,6 +66,11 @@ class LocationImageCreateVerb(AuthenticatedOnlyVerb):
     display_name = "Add Image To This Location"
     view_name='location_image_create'
 
+class LocationVisualizeVerb(AuthenticatedOnlyVerb):
+    display_name = "Visualize This Location"
+    view_name='location_visualize'
+
+
 class ScoreListVerb(AuthenticatedOnlyVerb):
     display_name = "View All Location Goals"
     view_name='scores_list'

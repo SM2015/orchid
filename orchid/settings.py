@@ -41,7 +41,6 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'djcelery',
     'south',
-    'debug_toolbar',
     'djangobower',
     'core',
     'carteblanche',
@@ -115,6 +114,8 @@ ACTSTREAM_SETTINGS = {
 }
 
 DEFAULT_FILE_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
+AWS_S3_FORCE_HTTP_URL = True
+AWS_QUERYSTRING_AUTH = False
 from local_settings import *
 
 TEMPLATE_CONTEXT_PROCESSORS = (

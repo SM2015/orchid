@@ -81,6 +81,9 @@ class Auditable(models.Model):
     def get_class_name(self):
         return self.__class__.__name__
 
+#    def get_background_image_url(self):
+#        return None
+
     class Meta:
         abstract = True
 
@@ -103,7 +106,7 @@ class Image(Auditable, Noun):
 
     def get_file_url(self):
         if self.original_file != None:
-            return self.original_file.url
+            return self.original_file.url.replace("https", "http")
         else:
             return "pandas"
 
@@ -116,7 +119,7 @@ class Location(Auditable, Noun):
     members = models.ManyToManyField(User, null=True, blank=True)
     images = models.ManyToManyField(Image, null=True, blank=True)
     indicators = models.ManyToManyField('Indicator', null=True, blank=True)
-    verb_classes = [LocationDetailVerb, LocationUpdateVerb, LocationIndicatorListVerb, LocationImageCreateVerb]
+    verb_classes = [LocationDetailVerb, LocationVisualizeVerb, LocationUpdateVerb, LocationIndicatorListVerb, LocationImageCreateVerb]
 
     def __unicode__(self):
         return self.title
@@ -136,10 +139,18 @@ class Location(Auditable, Noun):
         except Exception as e:
             return None
 
+
     def get_month_score_key(self, month, year):
         series_key = "location_scores_"+str(self.id)+"_"+str(month)+"_"+str(year)
         print series_key
         return series_key
+
+    def get_background_image_url(self):
+        try:
+            return self.get_most_recent_image().get_file_url()
+        except AttributeError as e:
+            return None
+
 
     def get_series_key(self, indicator):
         series_key = "location_"+str(self.id)+"_indicator_"+str(indicator.id)
