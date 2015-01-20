@@ -29,7 +29,24 @@ $(function () {
     month[10] = "November";
     month[11] = "December";
     $.getJSON('.', function(data) {
+        console.log("data.series");
         console.log(data.series);
+        newSeries = [];
+        for (s in data.series) {
+            this_series = data.series[s];
+            console.log(this_series);
+            newData = [];
+
+            for (d in this_series.data) {
+                this_data = this_series.data[d];
+                newData.push( [ new Date(this_data[0]).getTime(), parseInt(this_data[1]), parseInt(this_data[2]),this_data[3] ] );
+                console.log(newData);
+            }
+            this_series.data = newData;
+            newSeries.push(this_series);
+        }
+        console.log("newSeries");
+        console.log(newSeries);
 
         function apply_chart(dom_object, series_data_blob, chart_title, legend_enabled) {
 
@@ -73,7 +90,7 @@ $(function () {
         }
 
         // draw chart
-        apply_chart($('#container'), data.series, "All Indicators at "+data.noun, true);
+        apply_chart($('#container'), newSeries, "All Indicators at "+data.noun, true);
 
     //draw individual charts for each line
     for (var s in data.series) {
