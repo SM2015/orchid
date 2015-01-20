@@ -1,6 +1,7 @@
 from django.conf.urls import patterns, include, url
 from django.views.generic.base import RedirectView
 import core.views as cv
+from django.views.decorators.cache import cache_page
 
 urlpatterns = patterns('',
     url(r'^$', cv.LandingView.as_view(), name="landing"),
@@ -10,8 +11,8 @@ urlpatterns = patterns('',
     url(r'user/login/$', cv.UserLoginView.as_view(), name='user_login'),
     url(r'user/logout/$', cv.UserLogoutView.as_view(), name='user_logout'),
 
-    url(r'scores/list/$', cv.ScoresDetailView.as_view(), name='scores_list'),
-    url(r'scores/month/(?P<month>\d+)/year/(?P<year>\d+)/list/$', cv.ScoresDetailView.as_view(), name='scores_date_list'),
+    url(r'scores/list/$', cache_page(60 * 15)(cv.ScoresDetailView.as_view()), name='scores_list'),
+    url(r'scores/month/(?P<month>\d+)/year/(?P<year>\d+)/list/$', cache_page(60 * 15)(cv.ScoresDetailView.as_view()), name='scores_date_list'),
 
     url(r'location/create/$', cv.LocationCreateView.as_view(), name='location_create'),
     url(r'location/(?P<pk>\d+)/detail/$', cv.LocationDetailView.as_view(), name='location_detail'),
