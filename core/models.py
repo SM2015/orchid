@@ -139,7 +139,6 @@ class Location(Auditable, Noun):
         except Exception as e:
             return None
 
-
     def get_month_score_key(self, month, year):
         series_key = "location_scores_"+str(self.id)+"_"+str(month)+"_"+str(year)
         print series_key
@@ -150,7 +149,6 @@ class Location(Auditable, Noun):
             return self.get_most_recent_image().get_file_url()
         except AttributeError as e:
             return None
-
 
     def get_series_key(self, indicator):
         series_key = "location_"+str(self.id)+"_indicator_"+str(indicator.id)
@@ -169,6 +167,7 @@ class Location(Auditable, Noun):
         passing_percent = {}
         key = self.get_series_key(indicator)
         value = cache.get(key)
+        value = None
         if value != None:
             print "Found, Returning from cache"
             return value
@@ -179,6 +178,14 @@ class Location(Auditable, Noun):
             #get all scores for this location/indicator from the last year
             scores = Score.objects.filter(indicator=indicator,location=self, datetime__gte=year_ago).order_by('datetime')
             #iterate over scores averaging them if there are more than one per month
+            merged_scores = OrderedDict()
+            for s in scores:
+                #s.datetime.day = 1
+                if merged_scores.has_key(s.get_month_year_key()):
+                    merged_scores[s.get_month_year_key()].merge(s)
+                else:
+                    merged_scores[s.get_month_year_key()] = s
+            scores = merged_scores.values()            
             data = []
             for s in scores:
                 #multiplied by 1000 because apparently js doesn't understand utc
@@ -202,6 +209,7 @@ class Location(Auditable, Noun):
     def get_all_series(self):
         key = self.get_all_series_key()
         value = cache.get(key)
+        value = None
         if value != None:
             print "Found, Returning from cache"
             return value
@@ -438,6 +446,9 @@ class Score(models.Model):
             return "passing"
         else:
             return "failing"
+
+    def get_month_year_key(self):
+        return str(self.datetime.month)+"_"+str(self.datetime.year)
 
     def is_passing(self):
         if self.score >= self.indicator.passing_percentage:

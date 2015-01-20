@@ -808,6 +808,7 @@ class LocationIndicatorVisualize(LocationView, TemplateView):
             #get all scores for this location/indicator from the last year
             scores = cm.Score.objects.filter(indicator__id=kwargs["pk"],location__id=kwargs['location_pk'], datetime__gte=year_ago).order_by('datetime')
             #iterate over scores averaging them if there are more than one per month
+
             data = []
             for s in scores:
                 #multiplied by 1000 because apparently js doesn't understand utc
