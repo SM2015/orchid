@@ -189,7 +189,7 @@ class Location(Auditable, Noun):
             for s in scores:
                 #multiplied by 1000 because apparently js doesn't understand utc
                 blob = [convert_time_to_js(s.datetime), s.score, s.passing, s.datetime.strftime("%B")]
-                blob = [s.datetime.strftime("%Y-%m-%d %H:%M:%S"), s.score, s.passing, s.datetime.strftime("%B")]
+                blob = [s.datetime.strftime("%Y-%m-1 %H:%M:%S"), s.score, s.passing, s.datetime.strftime("%B")]
                 data.append(blob)
             i_series = {
                 "name":indicator.title+" [GOAL: "+str(indicator.passing_percentage)+"%]",

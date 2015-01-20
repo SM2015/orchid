@@ -39,7 +39,7 @@ $(function () {
 
             for (d in this_series.data) {
                 this_data = this_series.data[d];
-                newData.push( [ new Date(this_data[0]).getTime(), parseInt(this_data[1]), parseInt(this_data[2]),this_data[3] ] );
+                newData.push( [ new Date(this_data[0]).getTime(), parseInt(this_data[1]), this_data[2],this_data[3] ] );
                 console.log(newData);
             }
             this_series.data = newData;
@@ -62,6 +62,7 @@ $(function () {
         },
         xAxis: {
             type: 'datetime',
+            tickInterval: 30 * 24 * 3600 * 1000,
             dateTimeLabelFormats: { // don't display the dummy year
                 month: '%e. %b',
                 year: '%b'
@@ -93,10 +94,10 @@ $(function () {
         apply_chart($('#container'), newSeries, "All Indicators at "+data.noun, true);
 
     //draw individual charts for each line
-    for (var s in data.series) {
-        console.log(data.series[s]);
+    for (var s in newSeries) {
+        console.log(newSeries[s]);
         
-        var most_recent_datapoint = data.series[s].data[data.series[s].data.length-1];
+        var most_recent_datapoint = newSeries[s].data[newSeries[s].data.length-1];
         var score_alert = $('<div>', {role: 'alert', class:"alert"})
         .append(
             $('<h1>').append((Math.round(most_recent_datapoint[1] * 100) / 100)+"%")
@@ -119,7 +120,7 @@ $(function () {
             new_row_div.addClass("panel-success");
         }
         $("#other_charts").append(new_row_div);
-        apply_chart(new_chart_div, [data.series[s]], data.series[s]["name"], false);
+        apply_chart(new_chart_div, [newSeries[s]], newSeries[s]["name"], false);
     }
 
     }).error(function() { $("#error_message").show(); $("#loading_message").hide(); });
