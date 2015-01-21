@@ -163,7 +163,6 @@ class Location(Auditable, Noun):
     def get_series(self, indicator):
         def convert_time_to_js(dt):
             return time.mktime(dt.timetuple())*1000
-        value = None
         passing_percent = {}
         key = self.get_series_key(indicator)
         value = cache.get(key)
@@ -209,7 +208,6 @@ class Location(Auditable, Noun):
     def get_all_series(self):
         key = self.get_all_series_key()
         value = cache.get(key)
-        value = None
         if value != None:
             print "Found, Returning from cache"
             return value
@@ -258,6 +256,21 @@ class Location(Auditable, Noun):
         print "Saving "+key+"to cache"
         cache.set(key, series, None)
         return series
+
+def update_cached(self, year_month):
+    #get all scores for this location created since last update
+    last_update = t-relativedelta(days=1)
+    scores = cm.Score.objects.filter(location=self, created_at__gte=year_ago).order_by('datetime')
+    invalidated_keys = []
+    #invalidate all_series data
+    for s in scores:
+        score_location = s.location
+        score_indicator = s.indicator
+        score_location.invalidate_cached_series(s.indicator)
+        #getting the series data automatically caches it if there is no cached data already
+        score_location.get_series(score_indicator)
+    #set this location's last_cached datetime to now
+    self.last_cached = datetime.datetime.now()
 
 from forms_builder.forms.forms import FormForForm
 from django.template.context import Context
@@ -471,9 +484,3 @@ class Score(models.Model):
         self.entry_count += incoming_score.entry_count
         self.passing_entry_count += incoming_score.passing_entry_count
         self.calculate_score()
-    
-
-
-
-
-
