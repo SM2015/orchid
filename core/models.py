@@ -163,7 +163,7 @@ class Location(Auditable, Noun):
     def get_series(self, indicator):
         def convert_time_to_js(dt):
             return time.mktime(dt.timetuple())*1000
-
+        value = None
         passing_percent = {}
         key = self.get_series_key(indicator)
         value = cache.get(key)
@@ -189,7 +189,7 @@ class Location(Auditable, Noun):
             for s in scores:
                 #multiplied by 1000 because apparently js doesn't understand utc
                 blob = [convert_time_to_js(s.datetime), s.score, s.passing, s.datetime.strftime("%B")]
-                blob = [s.datetime.strftime("%Y-%m-1 %H:%M:%S"), s.score, s.passing, s.datetime.strftime("%B")]
+                blob = [s.datetime.strftime("%Y-%m-1 00:00:00"), s.score, s.passing, s.datetime.strftime("%B")]
                 data.append(blob)
             i_series = {
                 "name":indicator.title+" [GOAL: "+str(indicator.passing_percentage)+"%]",
@@ -209,6 +209,7 @@ class Location(Auditable, Noun):
     def get_all_series(self):
         key = self.get_all_series_key()
         value = cache.get(key)
+        value = None
         if value != None:
             print "Found, Returning from cache"
             return value
@@ -252,7 +253,7 @@ class Location(Auditable, Noun):
                 "lineWidth":6,
                 "dashStyle": 'longdash'
             }
-            #series.append(goals_met_series)
+            series.append(goals_met_series)
 
         print "Saving "+key+"to cache"
         cache.set(key, series, None)
