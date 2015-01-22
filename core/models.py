@@ -439,7 +439,7 @@ class Indicator(Auditable, Noun):
                 current_row.insert(0, current_entry)
             yield current_row
 
-class Score(models.Model):
+class Score(Auditable):
     user = models.ForeignKey(User)
     indicator = models.ForeignKey(Indicator)
     location = models.ForeignKey(Location)
