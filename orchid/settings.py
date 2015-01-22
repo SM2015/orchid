@@ -20,10 +20,6 @@ BASE_DIR = os.path.abspath(os.path.join(os.path.dirname( __file__ ), '..'))
 SECRET_KEY = 'u#3nd=(+sya#!nnrawhrvn!9e0lh(@y3&4^hci=0+sqf%kbtwh'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
-TEMPLATE_DEBUG = True
-
 ALLOWED_HOSTS = []
 
 ANONYMOUS_USER_ID = 0
@@ -39,6 +35,7 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.sites',
+    'kombu.transport.django',
     'djcelery',
     'south',
     'djangobower',
@@ -135,12 +132,16 @@ TEMPLATE_CONTEXT_PROCESSORS = (
 LOGIN_REDIRECT_URL = '/'
 
 #celery / redis
-BROKER_URL = 'redis://localhost:6379/0'
-BROKER_TRANSPORT_OPTIONS = {'visibility_timeout': 3600}  # 1 hour.
-CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
-CELERYCONF = {'CELERY_ALWAYS_EAGER': True}
-ELASTIC_TRANSCODER_PIPELINE_ID = '1395113752900-hi4huc'
-ELASTIC_TRANSCODER_PIPELINE_NAME = 'orchid_test'
+
+CELERYCONF = {'CELERY_ALWAYS_EAGER': True,
+
+'BROKER_URL':'amqp://guest:guest@localhost:5672//'
+}
+'''
+CELERY_ALWAYS_EAGER = True
+CELERY_RESULT_BACKEND = 'djcelery.backends.database:DatabaseBackend'
+CELERY_BROKER_URL = 'amqp://guest:guest@localhost:5672//'
+'''
 
 SITE_ID = 1
 

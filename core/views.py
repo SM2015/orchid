@@ -433,6 +433,7 @@ class IndicatorUpdateView(IndicatorView, UpdateView):
     form_class = cf.IndicatorForm
 
     def get_success_url(self):
+        self.get_noun().updated_at = datetime.datetime.now()
         action.send(self.request.user, verb='updated indicator', action_object=self.get_noun())
         return reverse(viewname='indicator_detail', args=(self.noun.id,), current_app='core')
 
