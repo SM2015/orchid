@@ -8,15 +8,31 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        # Adding field 'Score.datetime'
-        db.add_column(u'core_score', 'datetime',
-                      self.gf('django.db.models.fields.DateTimeField')(default=datetime.datetime(2014, 9, 3, 0, 0)),
+        # Adding field 'Score.created_at'
+        db.add_column(u'core_score', 'created_at',
+                      self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, default=datetime.datetime(2015, 1, 22, 0, 0), blank=True),
+                      keep_default=False)
+
+        # Adding field 'Score.updated_at'
+        db.add_column(u'core_score', 'updated_at',
+                      self.gf('django.db.models.fields.DateTimeField')(auto_now=True, default=datetime.datetime(2015, 1, 22, 0, 0), blank=True),
+                      keep_default=False)
+
+        # Adding field 'Score.changed_by'
+        db.add_column(u'core_score', 'changed_by',
+                      self.gf('django.db.models.fields.related.ForeignKey')(blank=True, related_name=u'core_score_related', null=True, to=orm['auth.User']),
                       keep_default=False)
 
 
     def backwards(self, orm):
-        # Deleting field 'Score.datetime'
-        db.delete_column(u'core_score', 'datetime')
+        # Deleting field 'Score.created_at'
+        db.delete_column(u'core_score', 'created_at')
+
+        # Deleting field 'Score.updated_at'
+        db.delete_column(u'core_score', 'updated_at')
+
+        # Deleting field 'Score.changed_by'
+        db.delete_column(u'core_score', 'changed_by_id')
 
 
     models = {
@@ -91,7 +107,9 @@ class Migration(SchemaMigration):
         },
         u'core.score': {
             'Meta': {'object_name': 'Score'},
-            'datetime': ('django.db.models.fields.DateTimeField', [], {}),
+            'changed_by': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "u'core_score_related'", 'null': 'True', 'to': u"orm['auth.User']"}),
+            'created_at': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
+            'datetime': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
             'entry_count': ('django.db.models.fields.IntegerField', [], {}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'indicator': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['core.Indicator']"}),
@@ -100,6 +118,7 @@ class Migration(SchemaMigration):
             'passing': ('django.db.models.fields.BooleanField', [], {}),
             'passing_entry_count': ('django.db.models.fields.IntegerField', [], {}),
             'score': ('django.db.models.fields.FloatField', [], {'default': '85'}),
+            'updated_at': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'}),
             'user': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['auth.User']"}),
             'year': ('django.db.models.fields.IntegerField', [], {})
         },
