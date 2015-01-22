@@ -821,6 +821,7 @@ class LocationIndicatorVisualize(LocationView, TemplateView):
             }
             context = self.get_context_data(**kwargs)
             context["series"] = [output]
+            context["noun"]={"title":self.noun.title}
             data = json.dumps(context, default=decimal_default)
             out_kwargs = {'content_type':'application/json'}
             return HttpResponse(data, **out_kwargs)
@@ -842,6 +843,7 @@ class LocationVisualize(LocationView, TemplateView):
             context["series"] = self.noun.get_all_series()
             context["noun_title"] = self.noun.title
             context["location_id"] = self.noun.id
+            context["noun"]={"title":self.noun.title}
             data = json.dumps(context, default=decimal_default)
             out_kwargs = {'content_type':'application/json'}
             return HttpResponse(data, **out_kwargs)
