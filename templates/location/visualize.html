@@ -105,9 +105,12 @@ $(function () {
         if (most_recent_datapoint[2] == false){
             score_alert.addClass("alert-danger");
             score_alert.append("<p>Failing</p>");
-        }else{
+        }else if(most_recent_datapoint[2] == true){
             score_alert.addClass("alert-success");
             score_alert.append("<p>Passing</p>");
+        }else{
+            score_alert.addClass("alert-warning");
+            score_alert.append("<p>No Data</p>");
         }
         var new_chart_div = $('<div>', {style: 'height: 400px; margin: 0 auto', class:"col-xs-12 col-md-8"});
         var new_metadata_div = $('<div>', {class:"col-xs-6 col-md-4 text-center"})

@@ -161,13 +161,11 @@ class Location(Auditable, Noun):
         return series_key
 
     def get_series(self, indicator):
-        def convert_time_to_js(dt):
-            return time.mktime(dt.timetuple())*1000
         passing_percent = {}
         key = self.get_series_key(indicator)
         value = cache.get(key)
         if value != None:
-            print "Found, Returning from cache"
+            print key+" Found, Returning from cache"
             return value
         else:
             print "Missing, Querying Fresh"
@@ -181,13 +179,13 @@ class Location(Auditable, Noun):
                 #s.datetime.day = 1
                 if merged_scores.has_key(s.get_month_year_key()):
                     merged_scores[s.get_month_year_key()].merge(s)
+
                 else:
                     merged_scores[s.get_month_year_key()] = s
             scores = merged_scores.values()            
             data = []
             for s in scores:
                 #multiplied by 1000 because apparently js doesn't understand utc
-                blob = [convert_time_to_js(s.datetime), s.score, s.passing, s.datetime.strftime("%B")]
                 blob = [s.datetime.strftime("%Y-%m-1 00:00:00"), s.score, s.passing, s.datetime.strftime("%B")]
                 data.append(blob)
             i_series = {
@@ -257,7 +255,7 @@ class Location(Auditable, Noun):
         cache.set(key, series, None)
         return series
 
-def update_cached(self, year_month):
+def update_cached(self, force_check_all):
     #get all scores for this location created since last update
     last_update = t-relativedelta(days=1)
     scores = cm.Score.objects.filter(location=self, created_at__gte=year_ago).order_by('datetime')
@@ -473,6 +471,8 @@ class Score(Auditable):
         try:
             self.score = float(self.passing_entry_count)/self.entry_count*100
             self.passing = self.is_passing()
+            if (self.score==100) and (self.is_passing()==False):
+                raise Exception("uh oh")
         except ZeroDivisionError as e:
             pass
 
