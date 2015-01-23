@@ -132,6 +132,17 @@ class UserCreateView(SiteRootView, FormView):
             location_names = "no locations."
         return first_name+" "+last_name+" now has an account. They are assigned to "+location_names+" Make another new user or return to the indicator."
 
+class ProgressListView(SiteRootView, TemplateView):
+    template_name = 'base/progress.html'
+
+    def get_context_data(self, **kwargs):
+
+        # Call the base implementation first to get a context
+        context = super(ProgressListView, self).get_context_data(**kwargs)
+        # Add in a QuerySet of all the books
+        context['locations'] = cm.Location.objects.filter(title__icontains=self.kwargs['tag']).order_by('title')
+        return context
+
 class UserLoginView(SiteRootView, FormView):
     template_name = 'base/form.html'
     form_class = cf.LoginForm

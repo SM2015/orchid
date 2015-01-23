@@ -1,0 +1,16 @@
+{% extends "base/bootstrap.html" %}
+
+{% block title %}orchid{% endblock %}
+
+{% block showcase %}
+
+    {% for location in locations %}
+        <div class="panel">
+        <h2>{{ location.title }}</h2>
+        {% for member in location.get_members %}
+            {{ member.get_full_name }}{% if not forloop.last %}, {% endif %}
+        {% endfor %}
+        </div>
+    {% endfor %}
+
+{% endblock %}

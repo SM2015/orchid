@@ -11,6 +11,8 @@ urlpatterns = patterns('',
     url(r'user/login/$', cv.UserLoginView.as_view(), name='user_login'),
     url(r'user/logout/$', cv.UserLogoutView.as_view(), name='user_logout'),
 
+    url(r'progress/(?P<tag>\w+)$', cv.ProgressListView.as_view(), name='progress_list'),
+
     url(r'scores/list/$', cv.ScoresDetailView.as_view(), name='scores_list'),
     url(r'scores/month/(?P<month>\d+)/year/(?P<year>\d+)/list/$', cv.ScoresDetailView.as_view(), name='scores_date_list'),
 

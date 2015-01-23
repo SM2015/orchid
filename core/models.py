@@ -127,6 +127,9 @@ class Location(Auditable, Noun):
     def get_absolute_url(self):
         return reverse(viewname='location_detail', args=[self.id], current_app=APPNAME)
 
+    def get_members(self):
+        return self.members.all()
+
     def get_indicators(self):
         return self.indicators.all()
 
@@ -220,25 +223,25 @@ class Location(Auditable, Noun):
             for i in indicators:
                 series.append(self.get_series(i))
                 counts = OrderedDict()
-                for s in series:
-                    #iterate over each blob
-                    for d in s["data"]:
-                        #print s
-                        #print d
-                    #if counts doesn't contain the timestamp key, add it
-                        if not counts.has_key(d[0]):
-                            #store 1 there if the score is passing
-                            if d[2] == True:
-                                counts[d[0]] = 1
-                            #store 0 if it's failing
-                            elif d[2] == False:
-                                counts[d[0]] = 0
-                        #otherwise update
-                        else:
-                            #add 1 if passing
-                            if d[2] == True:
-                                counts[d[0]]+=1
-                        #do nothing if failing
+            for s in series:
+                #iterate over each blob
+                for d in s["data"]:
+                    #print s
+                    #print d
+                #if counts doesn't contain the timestamp key, add it
+                    if not counts.has_key(d[0]):
+                        #store 1 there if the score is passing
+                        if d[2] == True:
+                            counts[d[0]] = 1
+                        #store 0 if it's failing
+                        elif d[2] == False:
+                            counts[d[0]] = 0
+                    #otherwise update
+                    else:
+                        #add 1 if passing
+                        if d[2] == True:
+                            counts[d[0]]+=1
+                    #do nothing if failing
                 #iterate over counts, calculating counts[n]/indicators.count
                 #raise Exception(counts)
             indicators_count = indicators.count()
@@ -484,3 +487,4 @@ class Score(Auditable):
         self.entry_count += incoming_score.entry_count
         self.passing_entry_count += incoming_score.passing_entry_count
         self.calculate_score()
+
