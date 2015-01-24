@@ -98,14 +98,24 @@ $(function () {
         console.log(newSeries[s]);
         
         var most_recent_datapoint = newSeries[s].data[newSeries[s].data.length-1];
+        if(most_recent_datapoint==null){
+            console.log("most_recent_datapoint==null");
+            var most_recent_passing = "N/D";
+            var most_recent_date = "N/D";
+            var most_recent_score = "N/D";
+        }else{
+            var most_recent_passing = most_recent_datapoint[2];
+            var most_recent_date = month[new Date(most_recent_datapoint[0]).getUTCMonth()];
+            var most_recent_score = (Math.round(most_recent_datapoint[1] * 100) / 100);
+        }
         var score_alert = $('<div>', {role: 'alert', class:"alert"})
         .append(
-            $('<h1>').append((Math.round(most_recent_datapoint[1] * 100) / 100)+"%")
+            $('<h1>').append(most_recent_score+"%")
             );
-        if (most_recent_datapoint[2] == false){
+        if (most_recent_passing == false){
             score_alert.addClass("alert-danger");
             score_alert.append("<p>Failing</p>");
-        }else if(most_recent_datapoint[2] == true){
+        }else if(most_recent_passing == true){
             score_alert.addClass("alert-success");
             score_alert.append("<p>Passing</p>");
         }else{
@@ -114,13 +124,15 @@ $(function () {
         }
         var new_chart_div = $('<div>', {style: 'height: 400px; margin: 0 auto', class:"col-xs-12 col-md-8"});
         var new_metadata_div = $('<div>', {class:"col-xs-6 col-md-4 text-center"})
-        .append($("<tspan>").append(month[new Date(most_recent_datapoint[0]).getUTCMonth()]))
+        .append($("<tspan>").append(most_recent_date))
         .append(score_alert);
         var new_row_div = $('<div>', {class:"panel row"}).append(new_chart_div).append(new_metadata_div);
-        if (most_recent_datapoint[2] == false){
+        if (most_recent_passing == false){
             new_row_div.addClass("panel-danger");
-        }else{
+        }else if (most_recent_passing == false){
             new_row_div.addClass("panel-success");
+        }else {
+            new_row_div.addClass("panel-warning");
         }
         $("#other_charts").append(new_row_div);
         apply_chart(new_chart_div, [newSeries[s]], newSeries[s]["name"], false);
