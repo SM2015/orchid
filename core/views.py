@@ -242,6 +242,7 @@ class LocationListView(SiteRootView, TemplateView):
 
         return supes
 
+
 class LocationView(NounView):
     def get_noun(self, **kwargs):
         return cm.Location.objects.get(id=self.kwargs['pk'])
@@ -769,7 +770,8 @@ class LocationScoreUploadView(LocationView, FormView):
                 t = datetime.datetime(year=s.get("year"), month=s.get("month"), day=1)
                 new_score = cm.Score(indicator=indicator, passing=s.get("passing"), entry_count=s.get("total_record_count"), passing_entry_count=s.get("passing_record_count"), month=str(s.get("month")), year=s.get("year"),score=s.get("percentage"),location=self.noun, user=self.request.user, datetime=t)
                 new_scores.append(new_score)
-                self.noun.invalidate_cached_series(indicator)
+                if settings.CACHING:
+                    self.noun.invalidate_cached_series(indicator)
             #if nothing blew up, lets save these and invalidate the cached series data
             for s in new_scores:
                 s.save()

@@ -21,6 +21,7 @@ import datetime, time
 from dateutil.relativedelta import relativedelta
 from collections import OrderedDict
 from django.utils import timezone
+from django.conf import settings
 
 ILLEGAL_FIELD_LABELS = ['User','Location','Score']
 
@@ -172,8 +173,11 @@ class Location(Auditable, Noun):
 
     def get_series(self, indicator):
         passing_percent = {}
-        key = self.get_series_key(indicator)
-        value = cache.get(key)
+        if settings.CACHING:
+            key = self.get_series_key(indicator)
+            value = cache.get(key)
+        else:
+            value = None
         if value != None:
             #print key+" Found, Returning from cache"
             return value
@@ -203,7 +207,8 @@ class Location(Auditable, Noun):
                 "data":data
             }
             #print "Saving "+key+"to cache"
-            cache.set(key, i_series, None)
+            if settings.CACHING:
+                cache.set(key, i_series, None)
 
         return i_series
 
@@ -214,8 +219,11 @@ class Location(Auditable, Noun):
         cache.delete(self.get_all_series_key())
 
     def get_all_series(self):
-        key = self.get_all_series_key()
-        value = cache.get(key)
+        if settings.CACHING:
+            key = self.get_all_series_key()
+            value = cache.get(key)
+        else:
+            value = None
         if value != None:
             #print "Found, Returning from cache"
             return value
@@ -261,8 +269,8 @@ class Location(Auditable, Noun):
             }
             series.append(goals_met_series)
 
-        print "Saving "+key+"to cache"
-        cache.set(key, series, None)
+        if settings.CACHING:
+            cache.set(key, series, None)
         return series
 
 def update_cached(self, force_check_all):

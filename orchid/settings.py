@@ -154,3 +154,4 @@ CACHES = {
         'LOCATION': 'unique-snowflake'
     }
 }
+CACHING = False
