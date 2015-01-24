@@ -30,6 +30,7 @@ from django.http import HttpResponse
 from django.views.generic.edit import CreateView
 import datetime, time
 from dateutil.relativedelta import relativedelta
+from django.utils import timezone
 
 #do weird stuff to mAake user names nou usernames show up
 def user_new_unicode(self):
@@ -661,6 +662,12 @@ class IndicatorRecordUploadView(LocationView, FormView):
                 raise Exception("You tried to synchronize a record with a location you're not assigned to. You must be an Admin or a member of "+self.noun.title+" to upload a new record.")
             json_string = form.cleaned_data['json']
             data = json.loads(json_string, parse_float=decimal.Decimal)
+            day = 1
+            try:
+                day = int(data.get("day"))
+            except Exception as e:
+                pass
+            new_entry_time = timezone.datetime(year=int(data.get("year")), month=int(data.get("month")), day=day)
             
             #create field entries for incoming data.  Don't save them until we're done
             fieldEntries = []
@@ -676,7 +683,7 @@ class IndicatorRecordUploadView(LocationView, FormView):
             if fieldEntries.__len__() > 0:
                 #if there are entries, create a new record
                 form_id = fm.Field.objects.get(id=field_id).form_id
-                new_record = fm.FormEntry(entry_time=now(), form_id=form_id)
+                new_record = fm.FormEntry(entry_time=new_entry_time, form_id=form_id)
                 new_record.save()
                 for f in fieldEntries:
                     #connect the entries to the record
