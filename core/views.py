@@ -759,7 +759,7 @@ class LocationScoreUploadView(LocationView, FormView):
             data = json.loads(json_string, parse_float=decimal.Decimal)
             new_scores = []
             for s in data.get("scores"):
-                print type(s)
+                #print type(s)
                 #check to make sure the location matches
                 if int(s.get("location_id")) != self.noun.id:
                     raise Exception("wrong score for this location")

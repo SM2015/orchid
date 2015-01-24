@@ -144,7 +144,7 @@ class Location(Auditable, Noun):
 
     def get_month_score_key(self, month, year):
         series_key = "location_scores_"+str(self.id)+"_"+str(month)+"_"+str(year)
-        print series_key
+        #print series_key
         return series_key
 
     def get_background_image_url(self):
@@ -153,14 +153,21 @@ class Location(Auditable, Noun):
         except AttributeError as e:
             return None
 
+    def get_scores(self):
+        return cm.Score.objects.filter(location=self)
+
+    def get_month_scores(self, month, year):
+        return self.get_scores().filter(month=str(month), year=year)
+
+
     def get_series_key(self, indicator):
         series_key = "location_"+str(self.id)+"_indicator_"+str(indicator.id)
-        print series_key
+        #print series_key
         return series_key
 
     def get_all_series_key(self):
         series_key = "location_"+str(self.id)+"_all_indicators"
-        print series_key
+        #print series_key
         return series_key
 
     def get_series(self, indicator):
@@ -168,10 +175,10 @@ class Location(Auditable, Noun):
         key = self.get_series_key(indicator)
         value = cache.get(key)
         if value != None:
-            print key+" Found, Returning from cache"
+            #print key+" Found, Returning from cache"
             return value
         else:
-            print "Missing, Querying Fresh"
+            #print "Missing, Querying Fresh"
             t = timezone.now()
             year_ago = t-relativedelta(months=12)
             #get all scores for this location/indicator from the last year
@@ -195,7 +202,7 @@ class Location(Auditable, Noun):
                 "name":indicator.title+" [GOAL: "+str(indicator.passing_percentage)+"%]",
                 "data":data
             }
-            print "Saving "+key+"to cache"
+            #print "Saving "+key+"to cache"
             cache.set(key, i_series, None)
 
         return i_series
@@ -210,10 +217,10 @@ class Location(Auditable, Noun):
         key = self.get_all_series_key()
         value = cache.get(key)
         if value != None:
-            print "Found, Returning from cache"
+            #print "Found, Returning from cache"
             return value
         else:
-            print "Missing, Querying Fresh"
+            #print "Missing, Querying Fresh"
             def percentage(part, whole, decimals=2):
                 return 100 * float(part)/float(whole)
             t = datetime.datetime.now()
@@ -357,16 +364,16 @@ class Indicator(Auditable, Noun):
         # fields with a type of FileField or Date-like for special handling of
         # their values.
         user_field_id = self.form.fields.get(label="User").id
-        print "user_field_id: "+str(user_field_id)
+        #print "user_field_id: "+str(user_field_id)
         input_user_values = []
         for u in savedFilter['input_user']:
             input_user_values.append(u.get_full_name())
-        print "input_user_values: "+str(input_user_values)
+        #print "input_user_values: "+str(input_user_values)
 
         location_field_id = self.form.fields.get(label="Location").id
-        print "location_field_id: "+str(location_field_id)
+        #print "location_field_id: "+str(location_field_id)
         location_values = list(savedFilter['locations'].values_list('title', flat=True))
-        print "location_values: "+str(location_values)
+        #print "location_values: "+str(location_values)
 
         field_indexes = {}
         for field in self.form.fields.all().order_by("order"):
@@ -396,14 +403,14 @@ class Indicator(Auditable, Noun):
         '''
 
         for field_entry in field_entries:
-            #print field_entry.id
-            #print "field_entry.field_id: "+str(field_entry.field_id)
+            ##print field_entry.id
+            ##print "field_entry.field_id: "+str(field_entry.field_id)
             field_value = field_entry.value or "N/D"
             if field_value == "True":
                 field_value = "Yes"
             elif field_value == "False":
                 field_value = "No"
-            #print field_value
+            ##print field_value
             if field_entry.entry_id != current_entry:
                 # New entry, write out the current row and start a new one.
                 if valid_row and current_row is not None:
@@ -431,7 +438,7 @@ class Indicator(Auditable, Noun):
                 current_row[field_indexes[field_entry.field_id]+1] = field_value
                 #print current_row
             except KeyError:
-                print "KeyError current_row["+str(field_indexes)+"["+str(field_entry.id)+"]]"+fm.Field.objects.get(id=field_entry.field_id).label
+                #print "KeyError current_row["+str(field_indexes)+"["+str(field_entry.id)+"]]"+fm.Field.objects.get(id=field_entry.field_id).label
                 pass
 
         # Output the final row.
@@ -450,7 +457,7 @@ class Score(Auditable):
     passing_entry_count = models.IntegerField()
     month = models.CharField(max_length=2, choices=MONTH_CHOICES)
     year = models.IntegerField()
-    datetime = models.DateTimeField(auto_now_add=True)
+    datetime = models.DateTimeField()
 
     def __unicode__(self):
         return str(self.score)+" : "+str(self.datetime)
