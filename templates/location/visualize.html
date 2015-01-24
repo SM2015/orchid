@@ -106,11 +106,11 @@ $(function () {
         }else{
             var most_recent_passing = most_recent_datapoint[2];
             var most_recent_date = month[new Date(most_recent_datapoint[0]).getUTCMonth()];
-            var most_recent_score = (Math.round(most_recent_datapoint[1] * 100) / 100);
+            var most_recent_score = (Math.round(most_recent_datapoint[1] * 100) / 100)+"%";
         }
         var score_alert = $('<div>', {role: 'alert', class:"alert"})
         .append(
-            $('<h1>').append(most_recent_score+"%")
+            $('<h1>').append(most_recent_score)
             );
         if (most_recent_passing == false){
             score_alert.addClass("alert-danger");

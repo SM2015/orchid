@@ -186,7 +186,7 @@ class Location(Auditable, Noun):
             t = timezone.now()
             year_ago = t-relativedelta(months=12)
             #get all scores for this location/indicator from the last year
-            scores = Score.objects.filter(indicator=indicator,location=self, datetime__gte=year_ago).order_by('datetime')
+            scores = Score.objects.filter(indicator=indicator,location=self, datetime__gte=year_ago, entry_count__gt=0).order_by('datetime')
             #iterate over scores averaging them if there are more than one per month
             merged_scores = OrderedDict()
             for s in scores:
