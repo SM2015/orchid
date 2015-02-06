@@ -10,6 +10,8 @@ urlpatterns = patterns('',
     url(r'user/create/$', cv.UserCreateView.as_view(), name='make_new_user'),
     url(r'user/login/$', cv.UserLoginView.as_view(), name='user_login'),
     url(r'user/logout/$', cv.UserLogoutView.as_view(), name='user_logout'),
+    url(r'user/list/$', cv.UserListView.as_view(), name='user_list'),
+    url(r'user/password_reset/(?P<pk>\d+)/$', cv.UserPasswordResetView.as_view(), name='user_password_reset'),
 
     url(r'progress/(?P<tag>\w+)$', cv.ProgressListView.as_view(), name='progress_list'),
 
@@ -20,6 +22,8 @@ urlpatterns = patterns('',
     url(r'location/(?P<pk>\d+)/detail/$', cv.LocationDetailView.as_view(), name='location_detail'),
     url(r'location/(?P<pk>\d+)/update/$', cv.LocationUpdateView.as_view(), name='location_update'),
     url(r'location/list/$', cv.LocationListView.as_view(), name='location_list'),
+    url(r'location/visualize/$', cv.LocationListVisualizeView.as_view(), name='location_list_visualize'),
+
     url(r'location/(?P<location_pk>\d+)/score/upload/$', cv.LocationScoreUploadView.as_view(), name='location_score_upload'),
     url(r'location/(?P<pk>\d+)/visualize/$', cv.LocationVisualize.as_view(), name='location_visualize'),
     url(r'location/(?P<location_pk>\d+)/indicator/(?P<pk>\d+)/record/create/$', cv.IndicatorRecordCreateView.as_view(), name='indicator_record_create'),

@@ -94,6 +94,26 @@ class RegistrationForm(ModelBootstrapForm):
         model = User
         fields = ['email','first_name','last_name','password1','password1']
 
+class PasswordResetForm(BootstrapForm):
+    password1 = forms.CharField(widget=forms.PasswordInput)
+    password2 = forms.CharField(widget=forms.PasswordInput)
+    # rest of the fields
+
+    def clean(self):
+        cleaned_data = super(PasswordResetForm, self).clean()
+
+        password1 = cleaned_data.get("password1").lower()
+        password2 = cleaned_data.get("password2").lower()
+
+        if password1 != password2:
+            self._errors['password2'] = self.error_class(["Didn't match first password."])
+            del cleaned_data['password2']
+
+        return cleaned_data
+
+    def save(self):
+        return super(PasswordResetForm, self).save()
+
 from django.contrib.auth import authenticate, get_user_model
 from django.utils.translation import ugettext as _
 from django.core.exceptions import ObjectDoesNotExist

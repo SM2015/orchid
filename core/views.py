@@ -133,6 +133,26 @@ class UserCreateView(SiteRootView, FormView):
             location_names = "no locations."
         return first_name+" "+last_name+" now has an account. They are assigned to "+location_names+" Make another new user or return to the indicator."
 
+
+class UserPasswordResetView(SiteRootView, FormView):
+    model = User
+    template_name = 'base/form.html'
+    form_class = cf.PasswordResetForm
+
+    def form_valid(self, form):
+        user = User.objects.get(id=self.kwargs['pk'])
+        password = form.cleaned_data['password1']
+        user.set_password(password)
+        user.save()
+        return super(UserPasswordResetView, self).form_valid(form)
+
+    def get_success_url(self):
+        return reverse(viewname='user_list', current_app='core')
+
+    def get_success_message(self, cleaned_data):
+        return "Password reset."
+
+
 class ProgressListView(SiteRootView, TemplateView):
     template_name = 'base/progress.html'
 
@@ -187,6 +207,15 @@ class UserLogoutView(SiteRootView, TemplateView):
         #if the user has no payment methods, redirect to the view where one can be created
         logout(self.request)
         return HttpResponseRedirect(reverse(viewname='location_list', current_app='core'))
+
+class UserListView(SiteRootView, TemplateView):  
+    template_name = 'user/list.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(UserListView, self).get_context_data(**kwargs)
+        context['users'] = User.objects.all()
+        return context
+
 
 
 class LocationCreateView(SiteRootView, CreateView):
@@ -298,7 +327,7 @@ class LocationIndicatorListlView(LocationView, TemplateView):
 try:
     import xlwt
     XLWT_INSTALLED = True
-    XLWT_DATETIME_STYLE = xlwt.easyxf(num_format_str='MM/DD/YYYY HH:MM:SS')
+    XLWT_DATETIME_STYLE = xlwt.easyxf(num_format_str='MM/YYYY')
 except ImportError:
     XLWT_INSTALLED = False
 from io import BytesIO, StringIO
@@ -701,7 +730,7 @@ class IndicatorRecordUploadView(LocationView, FormView):
 
                 #take the score from the json and create an action
                 indicator = cm.Indicator.objects.get(form__id=form_id)
-                if score >= indicator.passing_percentage:
+                if score == 100:
                     messages.success(self.request,'Passing score of '+str(score))
                     action.send(self.request.user, verb='PASS '+str(score), action_object=indicator, target=self.noun)
                 else:
@@ -855,6 +884,39 @@ class LocationVisualize(LocationView, TemplateView):
     def get(self, request, *args, **kwargs):
         supes = super(LocationVisualize, self).get(request, *args, **kwargs)
         context = self.get_context_data(**kwargs)
+        if self.request.is_ajax():
+
+            #store these results in a new series
+            #add the series to 
+            context = self.get_context_data(**kwargs)
+            context["series"] = self.noun.get_all_series()
+            context["noun_title"] = self.noun.title
+            context["location_id"] = self.noun.id
+            context["noun"]={"title":self.noun.title}
+            data = json.dumps(context, default=decimal_default)
+            out_kwargs = {'content_type':'application/json'}
+            return HttpResponse(data, **out_kwargs)
+
+        return supes
+
+
+
+class LocationListVisualizeView(SiteRootView, TemplateView):
+
+    template_name = "overview/visualize.html"
+
+    def get_context_data(self, **kwargs):
+
+        # Call the base implementation first to get a context
+        context = super(LocationListVisualizeView, self).get_context_data(**kwargs)
+        # Add in a QuerySet of all the books
+        context['indicators'] = cm.Indicator.objects.all()
+        return context
+
+    def get(self, request, *args, **kwargs):
+        supes = super(LocationListVisualizeView, self).get(request, *args, **kwargs)
+        context = self.get_context_data(**kwargs)
+        
         if self.request.is_ajax():
 
             #store these results in a new series

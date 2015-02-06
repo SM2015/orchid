@@ -123,14 +123,26 @@ class LocationIndicatorListVerb(CoreVerb):
     display_name = "View This Location's Indicators"
     view_name='location_indicator_list'
 
+class LocationListVisualizeVerb(AuthenticatedOnlyVerb):
+    display_name = "Visualize All Locations"
+    view_name='location_list_visualize'
+
+class UserListVerb(StaffVerb):
+    display_name = "List All Users"
+    view_name='user_list'
+
 class SiteRoot(Noun):
     '''
     A hack that lets pages that have no actual noun have verbs and verb-based permissions. 
     '''
-    verb_classes = [SiteLoginVerb, LocationListVerb, ScoreListVerb, IndicatorListVerb, EntriesFilterVerb, LocationCreateVerb, IndicatorCreateVerb, SiteUserCreateVerb]
+    verb_classes = [SiteLoginVerb, LocationListVerb, LocationListVisualizeVerb, ScoreListVerb, IndicatorListVerb, EntriesFilterVerb, LocationCreateVerb, IndicatorCreateVerb, SiteUserCreateVerb, UserListVerb]
 
     class Meta:
         abstract = True
 
     def __unicode__(self):
         return ''
+
+class ResetPasswordVerb(StaffVerb):
+    display_name = "Reset Password"
+    view_name='user_password_reset'
