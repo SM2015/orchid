@@ -111,6 +111,10 @@ class LocationDetailVerb(AuthenticatedOnlyVerb):
     display_name = "View Location"
     view_name='location_detail'
 
+class LocationPhotoListVerb(AuthenticatedOnlyVerb):
+    display_name = "View Photos"
+    view_name='location_photo_list'
+
 class EntriesFilterVerb(AuthenticatedOnlyVerb):
     display_name = "Filter and Export Data"
     view_name='entries_filter'

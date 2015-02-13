@@ -2,6 +2,7 @@ from __future__ import unicode_literals
 from future.builtins import bytes, open
 from django.views.generic.base import TemplateView
 from django.views.generic.edit import CreateView, UpdateView, FormView
+from django.views.generic.list import ListView
 from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import render_to_response
 from django.views.generic import DetailView
@@ -372,6 +373,14 @@ class LocationDetailView(LocationView, TemplateView):
         #context["stream"] = self.noun.get_action_stream()[:40]
         context['stream'] = []
         return context
+
+class LocationPhotoListView(LocationView, ListView):
+    template_name = 'location/photos.html'
+    model = cm.Image
+    paginate_by = 5
+
+    def get_queryset(self):
+        return self.get_noun().images.all()
 
 class LocationIndicatorListlView(LocationView, TemplateView):
     model = cm.Location    
