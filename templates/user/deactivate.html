@@ -1,0 +1,12 @@
+{% extends "base/bootstrap.html" %}
+{% block title %}orchid{% endblock %}
+{% block jumbotron %}<h1>Deactivate User</h1>{% endblock %}
+{% block showcase %}
+<form action="" method="post">{% csrf_token %}
+    <p>Are you sure you want to deactivate "{{ object }}"?</p>
+    <p>Doing so will not remove any data they have synced.</p>
+    <p>Only your system administrators can undo this deletion later.</p>
+    <input type="submit" class="btn btn-success" role="button" value="Submit">
+</form>
+
+{% endblock %}
