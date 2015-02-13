@@ -27,10 +27,11 @@ import forms_builder.forms.models as fm
 from forms_builder.forms.admin import FormAdmin
 import json
 from django.http import HttpResponse
-from django.views.generic.edit import CreateView
+from django.views.generic.edit import CreateView, UpdateView
 import datetime, time
 from dateutil.relativedelta import relativedelta
 from django.utils import timezone
+import xlwt 
 
 #do weird stuff to mAake user names nou usernames show up
 def user_new_unicode(self):
@@ -63,6 +64,16 @@ class MessageView(SiteRootView, TemplateView):
 
 class LandingView(SiteRootView, TemplateView):
     template_name = 'base/bootstrap.html'
+
+    def get(self, request, **kwargs):
+        #if the user has no payment methods, redirect to the view where one can be created
+        if request.user.is_authenticated():
+            return HttpResponseRedirect(reverse(viewname='location_list', current_app='core'))
+        else:
+            return super(LandingView, self).get(request, **kwargs)
+
+        logout(self.request)
+        
 
 
 class BootstrapView(TemplateView):
@@ -134,25 +145,6 @@ class UserCreateView(SiteRootView, FormView):
         return first_name+" "+last_name+" now has an account. They are assigned to "+location_names+" Make another new user or return to the indicator."
 
 
-class UserPasswordResetView(SiteRootView, FormView):
-    model = User
-    template_name = 'base/form.html'
-    form_class = cf.PasswordResetForm
-
-    def form_valid(self, form):
-        user = User.objects.get(id=self.kwargs['pk'])
-        password = form.cleaned_data['password1']
-        user.set_password(password)
-        user.save()
-        return super(UserPasswordResetView, self).form_valid(form)
-
-    def get_success_url(self):
-        return reverse(viewname='user_list', current_app='core')
-
-    def get_success_message(self, cleaned_data):
-        return "Password reset."
-
-
 class ProgressListView(SiteRootView, TemplateView):
     template_name = 'base/progress.html'
 
@@ -198,7 +190,38 @@ class UserLoginView(SiteRootView, FormView):
         return HttpResponse(data, **response_kwargs)
 
 
+class UserView(NounView):
+    def get_noun(self, **kwargs):
+        user =  User.objects.get(id=self.kwargs['pk'])
+        coreuser = cm.CoreUser(user)
+        user.required_verbs = coreuser.verb_classes
+        user.get_verbs = coreuser.get_verbs
+        user.get_available_verbs = coreuser.get_available_verbs
+        user.conditions = coreuser.conditions
+        return user
 
+class UserDetailView(UserView, TemplateView):
+    model = User    
+    template_name = 'base/bootstrap.html'
+
+
+class UserPasswordResetView(UserView, FormView):
+    model = User
+    template_name = 'base/form.html'
+    form_class = cf.PasswordResetForm
+
+    def form_valid(self, form):
+        user = User.objects.get(id=self.kwargs['pk'])
+        password = form.cleaned_data['password1']
+        user.set_password(password)
+        user.save()
+        return super(UserPasswordResetView, self).form_valid(form)
+
+    def get_success_url(self):
+        return reverse(viewname='user_list', current_app='core')
+
+    def get_success_message(self, cleaned_data):
+        return "Password reset."
 
 class UserLogoutView(SiteRootView, TemplateView):
     template_name = 'bootstrap.html'
@@ -213,8 +236,52 @@ class UserListView(SiteRootView, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(UserListView, self).get_context_data(**kwargs)
-        context['users'] = User.objects.all()
+        users = User.objects.filter(is_active=True)
+        context['users'] = users
+        locationusers = []
+        for u in users:
+            u.locations_volatile = u.location_set.all()
+            locationusers.append(u)
+        context['locationusers'] = locationusers
         return context
+
+
+from django.views.generic.edit import DeleteView
+from django.core.urlresolvers import reverse_lazy
+
+class UserDeactivateView(UserView, DeleteView):
+    model = User
+    template_name = 'user/deactivate.html'
+    success_url = reverse_lazy('user_list')
+
+    def delete(self, request, *args, **kwargs):
+        """
+        Replaces the delete() method, deactivates the user instead
+        """
+        self.object = self.get_object()
+        success_url = self.get_success_url()
+        self.object.is_active = False
+        self.object.save()
+        return HttpResponseRedirect(success_url)
+
+class UserUpdateView(UserView, UpdateView):
+    model = User
+    template_name = 'base/form.html'
+
+    def get_form_class(self):
+        return cf.get_user_form_class(self.get_noun())
+
+    def form_valid(self, form):
+        user = self.get_noun()
+        new_locations = form.cleaned_data['locations']
+        current_locations = user.location_set.all()
+        for l in current_locations:
+            if l not in new_locations:
+                l.members.remove(user)
+        for l in new_locations:
+            if l not in current_locations:
+                l.members.add(user)
+        return super(UserUpdateView, self).form_valid(form)
 
 
 
@@ -259,7 +326,8 @@ class LocationListView(SiteRootView, TemplateView):
             }
             output.append(blob)
         context['locations'] = output
-        context['stream'] = am.Action.objects.all()[:40]
+        context['stream'] = []
+        #context['stream'] = am.Action.objects.all()[:40]
         return context
 
     def get(self, request, *args, **kwargs):
@@ -301,7 +369,8 @@ class LocationDetailView(LocationView, TemplateView):
         most_recent_image =self.noun.get_most_recent_image()
         if most_recent_image != None:
             context["most_recent_image_url"] = most_recent_image.get_file_url()
-        context["stream"] = self.noun.get_action_stream()[:40]
+        #context["stream"] = self.noun.get_action_stream()[:40]
+        context['stream'] = []
         return context
 
 class LocationIndicatorListlView(LocationView, TemplateView):
@@ -310,7 +379,8 @@ class LocationIndicatorListlView(LocationView, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(LocationIndicatorListlView, self).get_context_data(**kwargs)
-        context['stream'] = self.noun.get_action_stream()[:40]
+        #context['stream'] = self.noun.get_action_stream()[:40]
+        context['stream'] = []
         context['indicators'] = self.noun.indicators.all().order_by('form_number','title')
         context['ILLEGAL_FIELD_LABELS'] = cm.ILLEGAL_FIELD_LABELS
         return context
@@ -486,7 +556,8 @@ class IndicatorDetailView(IndicatorView, TemplateView):
     def get_context_data(self, **kwargs):
         context = super(IndicatorDetailView, self).get_context_data(**kwargs)
         context['ILLEGAL_FIELD_LABELS'] = cm.ILLEGAL_FIELD_LABELS
-        context['stream'] = self.noun.get_action_stream()[:40]
+        #context['stream'] = self.noun.get_action_stream()[:40]
+        context['stream'] = []
         context['ILLEGAL_FIELD_LABELS'] = cm.ILLEGAL_FIELD_LABELS
         return context
 

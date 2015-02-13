@@ -1,5 +1,5 @@
 from carteblanche.mixins import DjangoVerb, availability_login_required
-from carteblanche.base import Verb, Noun
+from carteblanche.base import Verb, Noun, Conditions
 from django.core.urlresolvers import reverse
 
 APPNAME = 'core'
@@ -107,7 +107,7 @@ class FieldUpdateVerb(StaffVerb):
     def get_url(self):
         return None
 
-class LocationDetailVerb(CoreVerb):
+class LocationDetailVerb(AuthenticatedOnlyVerb):
     display_name = "View Location"
     view_name='location_detail'
 
@@ -119,7 +119,7 @@ class LocationListVerb(AuthenticatedOnlyVerb):
     display_name = "View All Locations"
     view_name='location_list'
 
-class LocationIndicatorListVerb(CoreVerb):
+class LocationIndicatorListVerb(AuthenticatedOnlyVerb):
     display_name = "View This Location's Indicators"
     view_name='location_indicator_list'
 
@@ -128,8 +128,10 @@ class LocationListVisualizeVerb(AuthenticatedOnlyVerb):
     view_name='location_list_visualize'
 
 class UserListVerb(StaffVerb):
-    display_name = "List All Users"
+    display_name = "View All Users"
     view_name='user_list'
+
+
 
 class SiteRoot(Noun):
     '''
@@ -143,6 +145,35 @@ class SiteRoot(Noun):
     def __unicode__(self):
         return ''
 
+class UserDetailVerb(AuthenticatedOnlyVerb):
+    display_name = "View User"
+    view_name='user_detail'
+
+class UserUpdateVerb(StaffVerb):
+    display_name = "Update User"
+    view_name='user_update'
+
+class UserDeactivateVerb(StaffVerb):
+    display_name = "Deactivate User"
+    view_name='user_deactivate'
+
 class ResetPasswordVerb(StaffVerb):
     display_name = "Reset Password"
     view_name='user_password_reset'
+
+class CoreUser(Noun):
+    '''
+    A hack that lets pages that use the  have verbs and verb-based permissions. 
+    '''
+    verb_classes = [UserListVerb, UserDetailVerb, UserUpdateVerb, ResetPasswordVerb, UserDeactivateVerb]
+    id = -1
+
+    def __init__(self, user):
+        self.id = user.id
+        self.conditions = Conditions(self)
+
+    class Meta:
+        abstract = True
+
+    def __unicode__(self):
+        return ''

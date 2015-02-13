@@ -45,6 +45,7 @@ INSTALLED_APPS = (
     'actstream',
     'forms_builder.forms',
     'geoposition',
+    'bootstrap_pagination',
 )
 
 MIDDLEWARE_CLASSES = (

@@ -7,11 +7,15 @@ urlpatterns = patterns('',
     url(r'^$', cv.LandingView.as_view(), name="landing"),
     ('^activity/', include('actstream.urls')),
 
+
     url(r'user/create/$', cv.UserCreateView.as_view(), name='make_new_user'),
     url(r'user/login/$', cv.UserLoginView.as_view(), name='user_login'),
     url(r'user/logout/$', cv.UserLogoutView.as_view(), name='user_logout'),
     url(r'user/list/$', cv.UserListView.as_view(), name='user_list'),
+    url(r'user/detail/(?P<pk>\d+)/$', cv.UserDetailView.as_view(), name='user_detail'),
+    url(r'user/update/(?P<pk>\d+)/$', cv.UserUpdateView.as_view(), name='user_update'),
     url(r'user/password_reset/(?P<pk>\d+)/$', cv.UserPasswordResetView.as_view(), name='user_password_reset'),
+    url(r'user/deactivate/(?P<pk>\d+)/$', cv.UserDeactivateView.as_view(), name='user_deactivate'),
 
     url(r'progress/(?P<tag>\w+)$', cv.ProgressListView.as_view(), name='progress_list'),
 

@@ -2,12 +2,29 @@
 {% block title %}orchid{% endblock %}
 {% block jumbotron %}<h1>All Users</h1>{% endblock %}
 {% block showcase %}
-{% for u in users %}
-    <div class="row">
-      <div class="panel well">
-      {{ u.get_full_name }} <a class="pull-right" href="user/password_reset/{{ u.id }}">Reset Password</a>
+{% for u in locationusers %}
+<div class="">
+    <div class="panel panel-default">
+      
+
+<div class="pull-right btn-group" role="group" aria-label="Default button group">
+            <a href="{% url 'user_detail' u.id %}" type="button" class="btn btn-default" >View</a>
+            <a href="{% url 'user_update' u.id %}" type="button" class="btn btn-default" >Update</a>
+            <a href="{% url 'user_deactivate' u.id %}" type="button" class="btn btn-default" >Deactivate</a>
+            <a href="{% url 'user_password_reset' u.id %}" type="button" class="btn btn-default">Reset Password</a>
+        </div>
+        <div class="panel-heading"><h2>{{ u.get_full_name }} </h2>
       </div>
+      <div class="panel-body">
+<div>
+        {% for location in u.locations_volatile %}<a href="{% url 'location_detail' location.id %}">{{ location.title }}</a>{% if not forloop.last %},{% endif %}{% endfor %}
     </div>
+    </div>
+</div>
+
+
+
+</div>
 {% endfor %}
 
 {% endblock %}

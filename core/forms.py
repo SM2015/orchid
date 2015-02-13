@@ -183,7 +183,7 @@ class LoginForm(ModelBootstrapForm):
      fields = ['email','password']
 
 class LocationForm(ModelBootstrapForm):
-    members = forms.ModelMultipleChoiceField(queryset=cm.User.objects.all().order_by('first_name'), required=False, widget=forms.SelectMultiple(attrs={'class':'chosen-select'}))
+    members = forms.ModelMultipleChoiceField(queryset=cm.User.objects.filter(is_active=True).order_by('first_name'), required=False, widget=forms.SelectMultiple(attrs={'class':'chosen-select'}))
     indicators = forms.ModelMultipleChoiceField(queryset=cm.Indicator.objects.all().order_by('form_number','title'), required=False, widget=forms.SelectMultiple(attrs={'class':'chosen-select'}))
     class Meta:
         model = cm.Location
@@ -240,5 +240,24 @@ class SavedFilterForm(BootstrapForm):
     locations = forms.ModelMultipleChoiceField(queryset=cm.Location.objects.all(), required=False, widget=forms.SelectMultiple(attrs={'class':'chosen-select'}))
     start_date = forms.DateField(required=False, widget=forms.DateInput(attrs={'class':'datepicker'}))
     end_date = forms.DateField(required=False, widget=forms.DateInput(attrs={'class':'datepicker'}))
-    input_user = forms.ModelMultipleChoiceField(queryset=cm.User.objects.all(), required=False, widget=forms.SelectMultiple(attrs={'class':'chosen-select'}))
+    input_user = forms.ModelMultipleChoiceField(queryset=cm.User.objects.filter(is_active=True), required=False, widget=forms.SelectMultiple(attrs={'class':'chosen-select'}))
     export = forms.BooleanField(required=False, help_text="Export this data as an excel spreadsheet.")
+
+def get_user_form_class(user):
+    class UserForm(ModelBootstrapForm):
+        locations = forms.ModelMultipleChoiceField(queryset=cm.Location.objects.all(), required=False, widget=forms.SelectMultiple(attrs={'class':'chosen-select'}))
+
+        def __init__(self, *args, **kwargs):
+
+            initial = kwargs.get('initial', {})
+            initial.update({'locations': user.location_set.all()})
+            kwargs['initial'] = initial
+
+            super(UserForm, self).__init__(*args, **kwargs)
+
+
+        class Meta:
+            model = User
+            fields = ['first_name','last_name','email']
+
+    return UserForm
