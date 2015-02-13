@@ -261,3 +261,6 @@ def get_user_form_class(user):
             fields = ['first_name','last_name','email']
 
     return UserForm
+
+class DateForm(BootstrapForm):
+    date = forms.DateField(label="Select a Month To View", required=True, widget=forms.DateInput(attrs={'class':'datepicker'}))

@@ -458,8 +458,14 @@ class EntriesFilterView(SiteRootView, FormView):
 
 
 
-class ScoresDetailView(SiteRootView, TemplateView):   
+class ScoresDetailView(SiteRootView, FormView):   
     template_name = 'overview/scores.html'
+    form_class = cf.DateForm
+
+    def form_valid(self, form):
+        the_date = form.cleaned_data['date']
+
+        return HttpResponseRedirect(reverse(viewname='scores_date_list', kwargs={'month':the_date.month, 'year':the_date.year}, current_app='core'))
 
     def get_context_data(self, **kwargs):
         context = super(ScoresDetailView, self).get_context_data(**kwargs)

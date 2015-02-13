@@ -1,51 +1,90 @@
 {% extends "base/bootstrap.html" %}
 {% block title %}orchid{% endblock %}
 {% block jumbotron %}
-    <h1>All Location Goals</h1>
-    <p>{{ this_month|date:"F o" }}</p>
+<h1>All Location Goals</h1>
+<p>{{ this_month|date:"F o" }}</p>
 {% endblock %}
 
 {% block showcase %}
 
 {{ form.media }}
 <div class="row">
-<div><a class="pull-left" href="/scores/month/{{ last_month.month }}/year/{{ last_month.year}}/list">Previous Month </a></div><div class="pull-right"><a href="/scores/month/{{ next_month.month }}/year/{{ next_month.year}}/list">Next Month </a></div></div>
+    <div class="col-md-4">
+        <div class="pull-left">
+            <a  class="btn btn-default" role="button" href="/scores/month/{{ last_month.month }}/year/{{ last_month.year}}/list">
+                <i class="fa fa-angle-double-left"></i> Previous Month
+            </a>
+        </div>
+    </div>
+    {% if form %}
+    <div class="col-md-4">
+       <form action="" method="post" enctype="multipart/form-data">{% csrf_token %}{{ form.media }}
+        {% for field in form %}
+        <div class="form-group warning">
+         <label for="exampleInputFile">{{ field.label }}</label>
+         {{ field }}
+
+         {% if field.help_text %}<p class="help-block">{{ field.help_text }}</p>{% endif %}
+     </div>
+     {% if field.errors %}
+     {% for error in field.errors %}
+     <div class="alert alert-danger" id="error_{{ field.name }}">{{ error|escape }}</div>
+     {% endfor %}
+     {% endif %}
+
+     {% endfor %}
+     <input type="submit" class="btn btn-success" role="button" value="{{ verb|default:"Jump To Month" }}" />
+ </form>
+</div>
+{% endif %}
+<div class="col-md-4">
+    <div class="pull-right">
+        <a class="btn btn-default" role="button" href="/scores/month/{{ next_month.month }}/year/{{ next_month.year}}/list">Next Month <i class="fa fa-angle-double-right"></i>
+        </a>
+    </div>
+</div>
+</div>
+
+
+
+<div class="row">
+
     {% for row in entries %}
     {% if forloop.first %}
-<div class="sticky-wrap overflow-y"><table class=" table table-bordered sticky-enabled" style="margin: 0px; width: 100%;">
-            <thead>
-                <tr>
-                    {% for column in columns %}
-                        {% if forloop.first %}<th></th>{% else %}
-                            <th class="white">{{ column }}</th>
-                        {% endif %}
-                    {% endfor %}
-                </tr>
-            </thead>
-    {% endif %}
-    <tbody>
-        <tr>
-            {% for field in row %}
+    <div class="sticky-wrap overflow-y"><table class=" table table-bordered sticky-enabled" style="margin: 0px; width: 100%;">
+        <thead>
+            <tr>
+                {% for column in columns %}
+                {% if forloop.first %}<th></th>{% else %}
+                <th class="white">{{ column }}</th>
+                {% endif %}
+                {% endfor %}
+            </tr>
+        </thead>
+        {% endif %}
+        <tbody>
+            <tr>
+                {% for field in row %}
                 {% if forloop.first %}
                 <th class="white">{{ field }}</th>
                 {% else %}
-                    <td class="{% if field.month %}
-                        {% if field.entry_count == 0 %} warning {% elif field.passing %} success {% else %} danger {% endif%}
-                    {% else %} active {% endif %}">
-                    {% if field.month %}
-                        {% if field.entry_count == 0 %}N/D{% else %}{{ field.score }}%{% endif %}
-                    {% else %}
-                        {{ field }}
-                    {% endif %}</td>
+                <td class="{% if field.month %}
+                {% if field.entry_count == 0 %} warning {% elif field.passing %} success {% else %} danger {% endif%}
+                {% else %} active {% endif %}">
+                {% if field.month %}
+                {% if field.entry_count == 0 %}N/D{% else %}{{ field.score }}%{% endif %}
+                {% else %}
+                {{ field }}
+                {% endif %}</td>
                 {% endif %}
-            {% endfor %}
-        </tr>
-    {% if forloop.last %}
-    </tbody>
+                {% endfor %}
+            </tr>
+            {% if forloop.last %}
+        </tbody>
     </table>
-    </div>
+</div>
 
-    {% endif %}
+{% endif %}
 {% endfor %}
 
 
