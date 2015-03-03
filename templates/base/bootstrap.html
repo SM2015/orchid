@@ -1,4 +1,4 @@
-
+{% load bootstrap_pagination %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -13,6 +13,7 @@
 
   <!-- Bootstrap core CSS -->
   <link href="{{ STATIC_URL }}/css/bootstrap.min.css" rel="stylesheet">
+  <link href="{{ STATIC_URL }}/css/bootstrap-theme.min.css" rel="stylesheet">
 
   <!-- Custom styles for this template -->
   <link href="{{ STATIC_URL }}/css/offcanvas.css" rel="stylesheet">
@@ -85,6 +86,11 @@
                 {% endfor %}
                 {% endif %}
                 {% endblock %}
+                <div class="text-center">
+                {% if page_obj %}
+                  {% bootstrap_paginate page_obj range=10 show_prev_next="false" show_first_last="true" %}
+                {% endif %}
+                </div>
               </div>
             </div><!--/row-->
 
@@ -95,7 +101,7 @@
       <hr>
 
       <footer>
-                    <div class="row">
+                    <div class="">
               <div id="api-accordion" class="panel-group" >
                 <div class="panel panel-default">
                   <div class="panel-heading">

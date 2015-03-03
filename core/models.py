@@ -120,7 +120,7 @@ class Location(Auditable, Noun):
     members = models.ManyToManyField(User, null=True, blank=True)
     images = models.ManyToManyField(Image, null=True, blank=True)
     indicators = models.ManyToManyField('Indicator', null=True, blank=True)
-    verb_classes = [LocationDetailVerb, LocationVisualizeVerb, LocationUpdateVerb, LocationPhotoListVerb, LocationIndicatorListVerb, LocationImageCreateVerb]
+    verb_classes = [LocationDetailVerb, LocationDetailStreamVerb, LocationVisualizeVerb, LocationUpdateVerb, LocationPhotoListVerb, LocationIndicatorListVerb, LocationImageCreateVerb]
 
     def __unicode__(self):
         return self.title

@@ -24,10 +24,11 @@ urlpatterns = patterns('',
 
     url(r'location/create/$', cv.LocationCreateView.as_view(), name='location_create'),
     url(r'location/(?P<pk>\d+)/detail/$', cv.LocationDetailView.as_view(), name='location_detail'),
+    url(r'location/(?P<pk>\d+)/stream/$', cv.LocationDetailStreamView.as_view(), name='location_stream_detail'),
     url(r'location/(?P<pk>\d+)/photos/$', cv.LocationPhotoListView.as_view(), name='location_photo_list'),
     url(r'location/(?P<pk>\d+)/update/$', cv.LocationUpdateView.as_view(), name='location_update'),
     url(r'location/list/$', cv.LocationListView.as_view(), name='location_list'),
-    url(r'location/stream/$', cv.LocationStreamListView.as_view(), name='location_stream_list'),
+    url(r'location/stream/$', cv.LocationListStreamView.as_view(), name='location_stream_list'),
     url(r'location/visualize/$', cv.LocationListVisualizeView.as_view(), name='location_list_visualize'),
 
     url(r'location/(?P<location_pk>\d+)/score/upload/$', cv.LocationScoreUploadView.as_view(), name='location_score_upload'),

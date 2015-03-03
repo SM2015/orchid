@@ -341,11 +341,13 @@ class LocationListView(SiteRootView, TemplateView):
 
         return supes
 
-class LocationStreamListView(SiteRootView, ListView):
+class LocationListStreamView(SiteRootView, ListView):
     model = am.Action    
     template_name = 'overview/map.html'
     paginate_by = 10
     context_object_name = 'stream'
+    queryset = am.Action.objects.all().select_related('actor','action_object','target')
+
 
 class LocationView(NounView):
     def get_noun(self, **kwargs):
@@ -378,6 +380,16 @@ class LocationDetailView(LocationView, TemplateView):
         #context["stream"] = self.noun.get_action_stream()[:40]
         context['stream'] = []
         return context
+
+class LocationDetailStreamView(LocationView, ListView):
+    model = am.Action    
+    template_name = 'location/detail.html'
+    paginate_by = 10
+    context_object_name = 'stream'
+
+    def get_queryset(self,**kwargs):
+        return self.noun.get_action_stream().select_related('actor','action_object','target')
+
 
 class LocationPhotoListView(LocationView, ListView):
     template_name = 'location/photos.html'
