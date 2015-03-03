@@ -27,6 +27,7 @@ urlpatterns = patterns('',
     url(r'location/(?P<pk>\d+)/photos/$', cv.LocationPhotoListView.as_view(), name='location_photo_list'),
     url(r'location/(?P<pk>\d+)/update/$', cv.LocationUpdateView.as_view(), name='location_update'),
     url(r'location/list/$', cv.LocationListView.as_view(), name='location_list'),
+    url(r'location/stream/$', cv.LocationStreamListView.as_view(), name='location_stream_list'),
     url(r'location/visualize/$', cv.LocationListVisualizeView.as_view(), name='location_list_visualize'),
 
     url(r'location/(?P<location_pk>\d+)/score/upload/$', cv.LocationScoreUploadView.as_view(), name='location_score_upload'),

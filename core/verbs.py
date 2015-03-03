@@ -127,6 +127,10 @@ class LocationIndicatorListVerb(AuthenticatedOnlyVerb):
     display_name = "View This Location's Indicators"
     view_name='location_indicator_list'
 
+class LocationListStreamVerb(AuthenticatedOnlyVerb):
+    display_name = "All Locations History"
+    view_name='location_stream_list'
+
 class LocationListVisualizeVerb(AuthenticatedOnlyVerb):
     display_name = "Visualize All Locations"
     view_name='location_list_visualize'
@@ -141,7 +145,7 @@ class SiteRoot(Noun):
     '''
     A hack that lets pages that have no actual noun have verbs and verb-based permissions. 
     '''
-    verb_classes = [SiteLoginVerb, LocationListVerb, LocationListVisualizeVerb, ScoreListVerb, IndicatorListVerb, EntriesFilterVerb, LocationCreateVerb, IndicatorCreateVerb, SiteUserCreateVerb, UserListVerb]
+    verb_classes = [SiteLoginVerb, LocationListStreamVerb, LocationListVerb, LocationListVisualizeVerb, ScoreListVerb, IndicatorListVerb, EntriesFilterVerb, LocationCreateVerb, IndicatorCreateVerb, SiteUserCreateVerb, UserListVerb]
 
     class Meta:
         abstract = True

@@ -341,6 +341,11 @@ class LocationListView(SiteRootView, TemplateView):
 
         return supes
 
+class LocationStreamListView(SiteRootView, ListView):
+    model = am.Action    
+    template_name = 'overview/map.html'
+    paginate_by = 10
+    context_object_name = 'stream'
 
 class LocationView(NounView):
     def get_noun(self, **kwargs):
