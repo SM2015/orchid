@@ -1,9 +1,19 @@
 {% extends "base/bootstrap.html" %}
 {% block scripts %}
 <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false"></script>
+<script src="{{ STATIC_URL }}js/gmaps.js"></script>
 <script src="{{ STATIC_URL }}js/maps.js"></script>
 {% endblock %}
-{% block jumbotron %}<div id="map-canvas"></div>{% endblock %}
+{% block jumbotron %}
+<div class="data-layer">
+    <ul>
+        {% for location in locations %}
+        <li class="location-data" data-id="{{ location.id }}"  data-latitude="{{ location.position.latitude }}" data-longitude="{{ location.position.longitude }}">{{ location.title }}</li>
+        {% endfor %}
+    </ul>
+</div>
+<div id="map" class="wide-map" id="map-canvas"></div>
+{% endblock %}
 {% block showcase %}
 {% for l in locations %}
 <p><a href="/location/{{ l.id }}/detail">{{ l.title }}</a></p>

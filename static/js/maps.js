@@ -1,52 +1,22 @@
-//set up the map
-function initMap()
-{
-  var myOptions = {
-    mapTypeId: google.maps.MapTypeId.ROADMAP
-};
-map = new google.maps.Map(document.getElementById('map-canvas'), myOptions);
-}
+ $( document ).ready(function() {
+    var map = new GMaps({
+      el: '#map',
+      lat: -12.043333,
+      lng: -77.028333
+  });
+    var locations = $(".location-data");
 
-//set up your markers
-function initMarkers()
-{
-    $.getJSON( "location/list", function( data ) {
-      var items = [];
-      $.each( data['locations'], function( key, val ) {
-        console.log("val");
-        console.log(val);
-
-        var marker = new google.maps.Marker({
-          position: new google.maps.LatLng(val.lattitude,val.longitude),
-          map: map,
-          title: val.title
-      });
-        google.maps.event.addListener(marker, 'click', function() {
-        map.setCenter(marker.getPosition());
-        window.location = 'location/'+val.id+'/detail';
-        });
-
-        markers.push(marker);
-
+    locations.each( function( key, value ) {
+      var id = $(this).data('id');
+        map.addMarker({
+          lat: $(this).data('latitude'),
+          lng: $(this).data('longitude'),
+          title: $(this).html(),
+          click: function(e) {
+            console.log(e);
+            window.open("/location/"+id+"/detail","_self");
+        }
+    });  
     });
-      //set map to show all markers
-      for(var i in markers)
-      {
-        bound.extend(markers[i].getPosition());
-    }
-    map.fitBounds(bound);
-    console.log(map.getZoom());
-    //map.setZoom(15);
-});
-
-}
-
-var map;
-var bound = new google.maps.LatLngBounds();
-var markers = new Array();
-
-//jQuery style entry point, change if necessary
-$(document).ready(function(){
-  initMap();
-  initMarkers();
+    map.fitZoom();
 });

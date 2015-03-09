@@ -312,21 +312,26 @@ class LocationListView(SiteRootView, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(LocationListView, self).get_context_data(**kwargs)
+        
         output = []
         if self.request.user.is_staff:
             locations = cm.Location.objects.all().order_by('title')
         else:
             locations = self.request.user.location_set.all()
-        for l in locations:
-            blob = {
-                'id':l.id,
-                'lattitude':l.position.latitude,
-                'longitude':l.position.longitude,
-                'title':l.title,
-                'indicator_ids':l.get_indicator_ids()
-            }
-            output.append(blob)
-        context['locations'] = output
+
+        if self.request.is_ajax():
+            for l in locations:
+                blob = {
+                    'id':l.id,
+                    'lattitude':l.position.latitude,
+                    'longitude':l.position.longitude,
+                    'title':l.title,
+                    'indicator_ids':l.get_indicator_ids()
+                }
+                output.append(blob)
+            context['locations'] = output
+        else:
+            context['locations'] = locations
         context['stream'] = []
         #context['stream'] = am.Action.objects.all()[:40]
         return context
