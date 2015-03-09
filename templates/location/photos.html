@@ -2,14 +2,7 @@
 {% load bootstrap_pagination %}
 {% block scripts %}
 {% endblock %}
-{% block jumbotron %}
-<h3>{{ noun.title }}</h3>
-    {% if most_recent_image_url %}
-            <a href="#" class="thumbnail">
-          <img src="{{ most_recent_image_url }}" style="height: 180px; width: 100%; display: block;">
-        </a>
-    {% endif %}
-{% endblock %}
+
 {% block showcase %}
     {% for image in object_list %}
         <a href="{{ image.get_file_url }}"><img class="img-thumbnail" src='{{ image.get_file_url }}'></img></a>

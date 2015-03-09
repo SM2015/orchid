@@ -70,7 +70,7 @@
             {% endfor %}
             <div class="jumbotron cover" {% if background_image_url %}style="background-image: url({{ background_image_url }})"{% endif %}>
               <div class="row">
-                <div class="col-xs-12 col-md-8">{% block jumbotron %}{% if noun %}<h3><span class="label label-primary">{{ noun.title }}</span></h3>{% endif %}{% endblock %}</div>
+                <div class="col-xs-12 col-md-8">{% block jumbotron %}{% if noun %}<h3><span class="label label-default">{{ noun.title }}</span></h3>{% endif %}{% endblock %}</div>
                 <div class="col-xs-12 col-md-4">          {% block menu %}
                   {% include "base/menu.html" %}
                   {% endblock %}</div>
