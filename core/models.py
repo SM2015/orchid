@@ -381,6 +381,8 @@ class Indicator(Auditable, Noun):
         location_field_id = self.form.fields.get(label="Location").id
         #print "location_field_id: "+str(location_field_id)
         location_values = list(savedFilter['locations'].values_list('title', flat=True))
+        if len(location_values) == 0:
+            location_values = Location.objects.all().values_list('title', flat=True)
         #print "location_values: "+str(location_values)
 
         field_indexes = {}
@@ -391,11 +393,23 @@ class Indicator(Auditable, Noun):
             ).order_by("-entry__id").select_related("entry")
         try:
             #if a date range is specified filter out any entries outside of the range
-            if savedFilter.start_date and savedFilter.end_date:
-                field_entries = field_entries.filter(
-                    entry__entry_time__range=(savedFilter.start_date, savedFilter.end_date))
+            if savedFilter['start_date']:
+                field_entries = field_entries.filter(entry__entry_time__gte=savedFilter['start_date'])
         except AttributeError as e:
-            pass
+            raise Exception(e)
+        try:
+            #if a date range is specified filter out any entries outside of the range
+            if savedFilter['end_date']:
+                field_entries = field_entries.filter(entry__entry_time__lte=savedFilter['end_date'])
+        except AttributeError as e:
+            raise Exception(e)
+        try:
+            #if a date range is specified filter out any entries outside of the range
+            if savedFilter['start_date'] and savedFilter['end_date']:
+                field_entries = field_entries.filter(
+                    entry__entry_time__range=(savedFilter['start_date'], savedFilter['end_date']))
+        except AttributeError as e:
+            raise Exception(e)
         # Loop through each field value ordered by entry, building up each
         # entry as a row. Use the ``valid_row`` flag for marking a row as
         # invalid if it fails one of the filtering criteria specified.

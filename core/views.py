@@ -435,19 +435,6 @@ class EntriesFilterView(SiteRootView, FormView):
 
     def form_valid(self, form):
         indicator = form.cleaned_data['indicator']
-        entries = indicator.get_filtered_entries(form.cleaned_data)
-        context = {
-            "columns":indicator.get_column_headers(),
-            "entries":entries,
-            "available_verbs": self.noun.get_available_verbs(self.request.user),
-            "filter":form.cleaned_data
-            }
-        return render_to_response('indicator/entries.html',
-                          context,
-                          context_instance=RequestContext(self.request))
-
-    def form_valid(self, form):
-        indicator = form.cleaned_data['indicator']
         columns = indicator.get_column_headers()
         if form.cleaned_data['export']==True:
             response = HttpResponse(mimetype="application/vnd.ms-excel")
