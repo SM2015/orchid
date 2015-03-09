@@ -428,14 +428,47 @@ except ImportError:
     XLWT_INSTALLED = False
 from io import BytesIO, StringIO
 from forms_builder.forms.utils import now, slugify
+
+import re
+
+
 class EntriesFilterView(SiteRootView, FormView):
     model = cm.Location    
     template_name = 'base/form.html'
     form_class = cf.SavedFilterForm
+    worksheet_names = {}
+
+    def sanitize_worksheet_name(self, incoming):
+        stripped_name = re.sub(r'[\W_]+', ' ', incoming[:31])
+        if stripped_name in self.worksheet_names:
+            self.worksheet_names[stripped_name] +=1;
+            return stripped_name[:25] +" "+str(self.worksheet_names[stripped_name])
+        else:
+            self.worksheet_names[stripped_name] = 1
+            return stripped_name
+
+
+    def add_indicator_to_workbook(self, indicator, workbook, columns, saved_filter):
+        sheet = workbook.add_sheet(self.sanitize_worksheet_name(indicator.get_title()))
+        for c, col in enumerate(columns):
+            sheet.write(0, c, col)
+        for r, row in enumerate(indicator.get_filtered_entries(saved_filter,csv=True)):
+            for c, item in enumerate(row):
+                if isinstance(item, datetime.datetime):
+                    item = item.replace(tzinfo=None)
+                    sheet.write(r + 2, c, item, XLWT_DATETIME_STYLE)
+                else:
+                    sheet.write(r + 2, c, item)
+
+        return workbook
 
     def form_valid(self, form):
-        indicator = form.cleaned_data['indicator']
-        columns = indicator.get_column_headers()
+        try:
+            indicator = form.cleaned_data['indicator']
+            columns = indicator.get_column_headers()
+        except Exception as e:
+            indicator = None
+
         if form.cleaned_data['export']==True:
             response = HttpResponse(mimetype="application/vnd.ms-excel")
             fname = "%s-%s.xls" % ("QI Data Export", slugify(now().ctime()))
@@ -443,16 +476,12 @@ class EntriesFilterView(SiteRootView, FormView):
             response["Content-Disposition"] = attachment
             queue = BytesIO()
             workbook = xlwt.Workbook(encoding='utf8')
-            sheet = workbook.add_sheet(indicator.title[:31])
-            for c, col in enumerate(columns):
-                sheet.write(0, c, col)
-            for r, row in enumerate(indicator.get_filtered_entries(form.cleaned_data,csv=True)):
-                for c, item in enumerate(row):
-                    if isinstance(item, datetime.datetime):
-                        item = item.replace(tzinfo=None)
-                        sheet.write(r + 2, c, item, XLWT_DATETIME_STYLE)
-                    else:
-                        sheet.write(r + 2, c, item)
+            if indicator == None:
+                for i in cm.Indicator.objects.all().order_by("form_number"):
+                    columns = i.get_column_headers()
+                    workbook = self.add_indicator_to_workbook(i, workbook, columns, form.cleaned_data)
+            else:
+                workbook = self.add_indicator_to_workbook(indicator, workbook, columns, form.cleaned_data)
             workbook.save(queue)
             data = queue.getvalue()
             response.write(data)

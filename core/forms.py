@@ -236,12 +236,27 @@ class JSONUploadForm(forms.Form):
     json = forms.CharField(widget=forms.Textarea)
 
 class SavedFilterForm(BootstrapForm):
-    indicator = forms.ModelChoiceField(queryset=cm.Indicator.objects.all(), required=True)
+    indicator = forms.ModelChoiceField(queryset=cm.Indicator.objects.all(), required=False)
     locations = forms.ModelMultipleChoiceField(queryset=cm.Location.objects.all(), required=False, widget=forms.SelectMultiple(attrs={'class':'chosen-select'}))
     start_date = forms.DateField(required=False, widget=forms.DateInput(attrs={'class':'datepicker'}))
     end_date = forms.DateField(required=False, widget=forms.DateInput(attrs={'class':'datepicker'}))
     input_user = forms.ModelMultipleChoiceField(queryset=cm.User.objects.filter(is_active=True), required=False, widget=forms.SelectMultiple(attrs={'class':'chosen-select'}))
     export = forms.BooleanField(required=False, help_text="Export this data as an excel spreadsheet.")
+
+    def clean(self):
+        cleaned_data = super(SavedFilterForm, self).clean()
+        indicator = cleaned_data.get("indicator")
+        export = cleaned_data.get("export")
+
+        if (indicator==None) and (export==False):
+            self._errors["indicator"] = self.error_class(["You must select an indicator unless you are exporting."])
+            # These fields are no longer valid. Remove them from the
+            # cleaned data.
+
+
+        # Always return the cleaned data, whether you have changed it or
+        # not.
+        return cleaned_data
 
 def get_user_form_class(user):
     class UserForm(ModelBootstrapForm):
