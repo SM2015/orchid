@@ -69,8 +69,8 @@
                 <th class="white">{{ field }}</th>
                 {% else %}
                 <td class="{% if field.month %}
-                {% if field.entry_count == 0 %} warning {% elif field.passing %} success {% else %} danger {% endif%}
-                {% else %} active {% endif %}">
+                {% if field.entry_count == 0 %} active {% elif field.passing %} success {% else %} danger {% endif%}
+                {% else %} warning {% endif %}">
                 {% if field.month %}
                 {% if field.entry_count == 0 %}N/D{% else %}{{ field.score }}%{% endif %}
                 {% else %}
