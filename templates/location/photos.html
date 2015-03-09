@@ -12,6 +12,6 @@
 {% endblock %}
 {% block showcase %}
     {% for image in object_list %}
-        <a href="{{ image.get_absolute_url }}"><img class="img-thumbnail" src='{{ image.get_file_url }}'></img></a>
+        <a href="{{ image.get_file_url }}"><img class="img-thumbnail" src='{{ image.get_file_url }}'></img></a>
     {% endfor %}
 {% endblock %}
