@@ -517,6 +517,7 @@ class ScoresDetailView(SiteRootView, FormView):
     def get_context_data(self, **kwargs):
         context = super(ScoresDetailView, self).get_context_data(**kwargs)
         NOT_ASSIGNED_STRING = "N/A"
+        NO_DATA_STRING = "N/D"
         try:
             month = int(self.kwargs['month'])
             year = int(self.kwargs['year'])
@@ -529,14 +530,24 @@ class ScoresDetailView(SiteRootView, FormView):
         indicator_ids = list(queryset.values_list('id', flat=True))
         #get all scores for this month
         rows = {}
-        for l in cm.Location.objects.all():
-            rows[l.id] = [l.title]+([NOT_ASSIGNED_STRING]*len(columns))
+        for l in cm.Location.objects.select_related('indicators').all():
+            l_assignments = l.get_indicator_ids()
+            #rows[l.id] = [l.title]+([NOT_ASSIGNED_STRING]*len(columns))
+            l_cols = []
+            for lc in indicator_ids:
+                #if the column is assigned to this l, fill it with N/D
+                if lc in l_assignments:
+                    l_cols.append(NO_DATA_STRING)
+                else:
+                    #else fill it with N/A
+                    l_cols.append(NOT_ASSIGNED_STRING)
+            rows[l.id] = [l.title]+(l_cols)
         #add space to the begininbg of columns for the location names
         columns = ["Location"]+columns
         for s in cm.Score.objects.filter(month=str(month), year=year):               
             #add the score object to the table if it exists
             indicator_index = indicator_ids.index(s.indicator.id)+1
-            if rows[s.location.id][indicator_index] == NOT_ASSIGNED_STRING:
+            if type(rows[s.location.id][indicator_index]) == unicode:
                 rows[s.location.id][indicator_index] = s
             else:
                 rows[s.location.id][indicator_index].merge(s)
