@@ -346,6 +346,45 @@ class LocationListView(SiteRootView, TemplateView):
 
         return supes
 
+class PlainLocationListView(SiteRootView, TemplateView):
+    model = cm.Location    
+    template_name = 'overview/map.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(PlainLocationListView, self).get_context_data(**kwargs)
+        
+        output = []
+        if self.request.user.is_staff:
+            locations = cm.Location.objects.all().order_by('title')
+        else:
+            locations = self.request.user.location_set.all()
+
+        if self.request.is_ajax():
+            for l in locations:
+                blob = {
+                    'id':l.id,
+                    'lattitude':l.position.latitude,
+                    'longitude':l.position.longitude,
+                    'title':l.title,
+                }
+                output.append(blob)
+            context['locations'] = output
+        else:
+            context['locations'] = locations
+        context['stream'] = []
+        #context['stream'] = am.Action.objects.all()[:40]
+        return context
+
+    def get(self, request, *args, **kwargs):
+        supes = super(PlainLocationListView, self).get(request, *args, **kwargs)
+        context = self.get_context_data(**kwargs)
+        if self.request.is_ajax():
+            data = json.dumps(context, default=decimal_default)
+            out_kwargs = {'content_type':'application/json'}
+            return HttpResponse(data, **out_kwargs)
+
+        return supes
+
 class LocationListStreamView(SiteRootView, ListView):
     model = am.Action    
     template_name = 'overview/map.html'
@@ -1001,6 +1040,7 @@ class LocationIndicatorVisualize(LocationView, TemplateView):
                 data.append(blob)
             output = {
                 "name":self.noun.title,
+                "id":self.noun.id,
                 "data":data
             }
             context = self.get_context_data(**kwargs)
@@ -1051,16 +1091,22 @@ class LocationListVisualizeView(SiteRootView, TemplateView):
     def get(self, request, *args, **kwargs):
         supes = super(LocationListVisualizeView, self).get(request, *args, **kwargs)
         context = self.get_context_data(**kwargs)
+
+        all_series = []
+        #for every location, get all_series 
+        for l in cm.Location.objects.filter(id=21).prefetch_related('indicators'):
+            all_series.append(l.get_all_series())
+        
         
         if self.request.is_ajax():
 
             #store these results in a new series
             #add the series to 
             context = self.get_context_data(**kwargs)
-            context["series"] = self.noun.get_all_series()
-            context["noun_title"] = self.noun.title
-            context["location_id"] = self.noun.id
-            context["noun"]={"title":self.noun.title}
+            context["series"] = all_series
+            context["noun_title"] = "Overview"
+            context["location_id"] = "-2"
+            context["noun"]={"title":"Overview"}
             data = json.dumps(context, default=decimal_default)
             out_kwargs = {'content_type':'application/json'}
             return HttpResponse(data, **out_kwargs)

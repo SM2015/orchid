@@ -16,12 +16,15 @@ from geoposition.fields import GeopositionField
 from core.verbs import *
 import forms_builder.forms.models as fm
 import forms_builder.forms.fields as ff
-from django.core.cache import cache
+from django.core.cache import get_cache
 import datetime, time
 from dateutil.relativedelta import relativedelta
 from collections import OrderedDict
 from django.utils import timezone
 from django.conf import settings
+
+loc_cache = get_cache('default')
+loc_cache.set("panda","bear")
 
 ILLEGAL_FIELD_LABELS = ['User','Location','Score']
 
@@ -173,9 +176,10 @@ class Location(Auditable, Noun):
 
     def get_series(self, indicator):
         passing_percent = {}
+        value = loc_cache.set("rambo","junior")
         if settings.CACHING:
             key = self.get_series_key(indicator)
-            value = cache.get(key)
+            value = loc_cache.get(key)
         else:
             value = None
         if value != None:
@@ -186,7 +190,9 @@ class Location(Auditable, Noun):
             t = timezone.now()
             year_ago = t-relativedelta(months=12)
             #get all scores for this location/indicator from the last year
-            scores = Score.objects.filter(indicator=indicator,location=self, datetime__gte=year_ago, entry_count__gt=0).order_by('datetime')
+            #scores = Score.objects.filter(indicator=indicator,location=self, datetime__gte=year_ago, entry_count__gt=0).order_by('datetime')
+            scores = self.score_set.filter(indicator=indicator,datetime__gte=year_ago, entry_count__gt=0).order_by('datetime')
+            #scores = self.score_set.all()
             #iterate over scores averaging them if there are more than one per month
             merged_scores = OrderedDict()
             for s in scores:
@@ -204,24 +210,26 @@ class Location(Auditable, Noun):
                 data.append(blob)
             i_series = {
                 "name":indicator.title+" [GOAL: "+str(indicator.passing_percentage)+"%]",
+                "id":indicator.id,
                 "data":data
             }
             #print "Saving "+key+"to cache"
             if settings.CACHING:
-                cache.set(key, i_series, None)
+                loc_cache.set(key, i_series, None)
 
         return i_series
 
     def invalidate_cached_series(self, indicator):
         #invalidate the cache of this indicator series
-        cache.delete(self.get_series_key(indicator))
+        loc_cache.delete(self.get_series_key(indicator))
         #invalidate the location's all_seriese cached data
-        cache.delete(self.get_all_series_key())
+        loc_cache.delete(self.get_all_series_key())
 
     def get_all_series(self):
         if settings.CACHING:
+            loc_cache = get_cache('default')
             key = self.get_all_series_key()
-            value = cache.get(key)
+            value = loc_cache.get(key)
         else:
             value = None
         if value != None:
@@ -234,6 +242,8 @@ class Location(Auditable, Noun):
             t = datetime.datetime.now()
             year_ago = t-relativedelta(months=12)
             indicators = self.get_indicators()
+            if indicators.count() == 0:
+                return []
             series = []
             for i in indicators:
                 series.append(self.get_series(i))
@@ -265,12 +275,13 @@ class Location(Auditable, Noun):
                 "name":"PERCENT OF GOALS MET",
                 "data":goals_met_data,
                 "lineWidth":6,
-                "dashStyle": 'longdash'
+                "dashStyle": 'longdash',
+                "id":"p"
             }
             series.append(goals_met_series)
 
         if settings.CACHING:
-            cache.set(key, series, None)
+            loc_cache.set(key, series, None)
         return series
 
 def update_cached(self, force_check_all):

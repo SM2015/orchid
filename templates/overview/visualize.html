@@ -10,142 +10,12 @@
 <!-- Additional files for the Highslide popup effect -->
 <script type="text/javascript" src="http://www.highcharts.com/media/com_demo/highslide-full.min.js"></script>
 <script type="text/javascript" src="http://www.highcharts.com/media/com_demo/highslide.config.js" charset="utf-8"></script>
-<script type="text/javascript">
-
-$(function () {
-
-    var processed_json = new Array(); 
-    var month = new Array();
-    month[0] = "January";
-    month[1] = "February";
-    month[2] = "March";
-    month[3] = "April";
-    month[4] = "May";
-    month[5] = "June";
-    month[6] = "July";
-    month[7] = "August";
-    month[8] = "September";
-    month[9] = "October";
-    month[10] = "November";
-    month[11] = "December";
-    $.getJSON('.', function(data) {
-        console.log("data.series");
-        console.log(data.series);
-        newSeries = [];
-        for (s in data.series) {
-            this_series = data.series[s];
-            console.log(this_series);
-            newData = [];
-
-            for (d in this_series.data) {
-                this_data = this_series.data[d];
-                newData.push( [ new Date(this_data[0]).getTime(), parseInt(this_data[1]), this_data[2],this_data[3] ] );
-                console.log(newData);
-            }
-            this_series.data = newData;
-            newSeries.push(this_series);
-        }
-        console.log("newSeries");
-        console.log(newSeries);
-
-        function apply_chart(dom_object, series_data_blob, chart_title, legend_enabled) {
-
-        return    dom_object.highcharts({
-        chart: {
-            type: 'spline'
-        },
-        title: {
-            text: chart_title
-        },
-        subtitle: {
-            text: 'Click legend to select lines.'
-        },
-        xAxis: {
-            type: 'datetime',
-            tickInterval: 30 * 24 * 3600 * 1000,
-            dateTimeLabelFormats: { // don't display the dummy year
-                month: '%e. %b',
-                year: '%b'
-            },
-            title: {
-                text: 'Date'
-            }
-        },
-        yAxis: {
-            title: {
-                text: 'Score (%)'
-            },
-            min: 0,
-            max:100
-        },
-        legend: {
-            enabled: legend_enabled
-        },
-        tooltip: {
-            headerFormat: '<b>{series.name}</b><br>',
-            pointFormat: '{point.x: %b %Y}: {point.y:.2f}%'
-        },
-        series: series_data_blob
-    });
-        
-        }
-
-        // draw chart
-        apply_chart($('#container'), newSeries, "All Indicators at "+data.noun.title, true);
-
-    //draw individual charts for each line
-    for (var s in newSeries) {
-        console.log(newSeries[s]);
-        
-        var most_recent_datapoint = newSeries[s].data[newSeries[s].data.length-1];
-        if(most_recent_datapoint==null){
-            console.log("most_recent_datapoint==null");
-            var most_recent_passing = "N/D";
-            var most_recent_date = "N/D";
-            var most_recent_score = "N/D";
-        }else{
-            var most_recent_passing = most_recent_datapoint[2];
-            var most_recent_date = month[new Date(most_recent_datapoint[0]).getUTCMonth()];
-            var most_recent_score = (Math.round(most_recent_datapoint[1] * 100) / 100)+"%";
-        }
-        var score_alert = $('<div>', {role: 'alert', class:"alert"})
-        .append(
-            $('<h1>').append(most_recent_score)
-            );
-        if (most_recent_passing == false){
-            score_alert.addClass("alert-danger");
-            score_alert.append("<p>Failing</p>");
-        }else if(most_recent_passing == true){
-            score_alert.addClass("alert-success");
-            score_alert.append("<p>Passing</p>");
-        }else{
-            score_alert.addClass("alert-warning");
-            score_alert.append("<p>No Data</p>");
-        }
-        var new_chart_div = $('<div>', {style: 'height: 400px; margin: 0 auto', class:"col-xs-12 col-md-8"});
-        var new_metadata_div = $('<div>', {class:"col-xs-6 col-md-4 text-center"})
-        .append($("<tspan>").append(most_recent_date))
-        .append(score_alert);
-        var new_row_div = $('<div>', {class:"panel row"}).append(new_chart_div).append(new_metadata_div);
-        if (most_recent_passing == false){
-            new_row_div.addClass("panel-danger");
-        }else if (most_recent_passing == false){
-            new_row_div.addClass("panel-success");
-        }else {
-            new_row_div.addClass("panel-warning");
-        }
-        $("#other_charts").append(new_row_div);
-        apply_chart(new_chart_div, [newSeries[s]], newSeries[s]["name"], false);
-    }
-
-    }).error(function() { $("#error_message").show(); $("#loading_message").hide(); });
-});
-
-</script>
+<script src="{{ STATIC_URL }}js/overview_visualize.js"></script>
 {% endblock %}
 {{ noun.title }}
 {% block showcase %}
-    <div id="container" class="panel row panel-default" style="min-width: 310px; height: 600px;">
+<h1 id="loaded_counter">0 / ??? Loaded</h1>
+    <div id="container-p" class="panel row panel-default" style="min-width: 310px; height: 600px;">
         <div hidden class="alert alert-danger" role="alert" id="error_message">
             <strong>Oh snap!</strong> There was a problem generating your graph.
         </div>
@@ -164,7 +34,7 @@ $(function () {
 </div>
 
     {% for indicator in indicators %}
-    <div id="container-{{ indicator.id }}" class="panel row panel-default" style="min-width: 310px; height: 600px;">
+    <div id="container-{{ indicator.id }}" data-indicator-title="{{ indicator.title }}" class="panel row panel-default indicator-chart" style="min-width: 310px; height: 600px;">
         <div hidden class="alert alert-danger" role="alert" id="error_message">
             <strong>Oh snap!</strong> There was a problem generating your graph.
         </div>

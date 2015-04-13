@@ -46,6 +46,7 @@ INSTALLED_APPS = (
     'forms_builder.forms',
     'geoposition',
     'bootstrap_pagination',
+    'debug_toolbar',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -152,7 +153,6 @@ LABEL_MAX_LENGTH = 2000
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-        'LOCATION': 'unique-snowflake'
     }
 }
-CACHING = False
+CACHING = True
