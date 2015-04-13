@@ -67,13 +67,19 @@ apply_chart:function(dom_object, series_data_blob, chart_title, legend_enabled) 
             console.log(s);
             if(s.id != undefined){
             var loading_chart = orchid_vis.get_chart_by_id(s.id);
+            //adjust dates in data
+            newData = [];
+            for (d in s.data) {
+                this_data = s.data[d];
+                newData.push( [ new Date(this_data[0]).getTime(), parseInt(this_data[1]), this_data[2],this_data[3] ] );
+            }
             loading_chart.addSeries({
             name: data.noun.title,
-            data: s.data
+            data: newData
             });
         }
           }
-          $('#loaded_counter').html(String(orchid_vis.location_cursor)+"/"+String(orchid_vis.locations.length)+" Loaded");
+          $('#loaded_counter').html(String(orchid_vis.location_cursor+1)+"/"+String(orchid_vis.locations.length)+" Loaded");
           orchid_vis.load_next_location();
           });
          
