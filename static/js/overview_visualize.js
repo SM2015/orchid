@@ -22,6 +22,10 @@ apply_chart:function(dom_object, series_data_blob, chart_title, legend_enabled) 
         subtitle: {
             text: 'Click legend to select lines.'
         },
+exporting:{
+        sourceWidth: 1024,
+        sourceHeight: 786,
+        },
         xAxis: {
             type: 'datetime',
             tickInterval: 30 * 24 * 3600 * 1000,
