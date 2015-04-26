@@ -270,7 +270,8 @@ class Location(Auditable, Noun):
                 #iterate over counts, calculating counts[n]/indicators.count
                 #raise Exception(counts)
             indicators_count = indicators.count()
-            goals_met_data = [[k, percentage(v,indicators_count), percentage(v,indicators_count)>=DEFAULT_PASSING, DEFAULT_PASSING] for k, v in counts.iteritems()]
+            goals_met_data = [[k, percentage(v,indicators_count), percentage(v,indicators_count)>=DEFAULT_PASSING, DEFAULT_PASSING] for k, v in counts.items()]
+            goals_met_data = sorted(goals_met_data, key=lambda k: k[0]) 
             goals_met_series = {
                 "name":"PERCENT OF GOALS MET",
                 "data":goals_met_data,
