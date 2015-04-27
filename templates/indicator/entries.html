@@ -28,7 +28,7 @@
                 {% elif forloop.counter == 2  %}
                 <th class="white">{{ field }}</th>
                 {% else %}
-            <td class="{% if forloop.last %}last{% endif %} {% if field == 'No' %} danger {% elif field == 'Yes' %} success {% elif field == "N/D" %} warning {% else %} active {% endif %}">{{ field }}</td>
+            <td class="{% if forloop.last %}last{% endif %} {% if field == 'No' %} danger {% elif field == 'Yes' %} success {% elif field == "N/D" %} warning {% else %} active {% endif %}">{% if field == '' %}N/D{% else %}{{ field }}{% endif %}</td>
             {% endif %}
             {% endfor %}
         </tr>
