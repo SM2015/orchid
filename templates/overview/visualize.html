@@ -34,7 +34,7 @@
 </div>
 
     {% for indicator in indicators %}
-    <div id="container-{{ indicator.id }}" data-indicator-title="{{ indicator.title }}" class="panel row panel-default indicator-chart" style="min-width: 310px; height: 600px;">
+    <div id="container-{{ indicator.id }}" data-indicator-title="{{ indicator.get_long_name }}" class="panel row panel-default indicator-chart" style="min-width: 310px; height: 600px;">
         <div hidden class="alert alert-danger" role="alert" id="error_message">
             <strong>Oh snap!</strong> There was a problem generating your graph.
         </div>

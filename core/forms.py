@@ -241,7 +241,7 @@ class SavedFilterForm(BootstrapForm):
     start_date = forms.DateField(required=False, widget=forms.DateInput(attrs={'class':'datepicker'}))
     end_date = forms.DateField(required=False, widget=forms.DateInput(attrs={'class':'datepicker'}))
     input_user = forms.ModelMultipleChoiceField(queryset=cm.User.objects.filter(is_active=True), required=False, widget=forms.SelectMultiple(attrs={'class':'chosen-select'}))
-    show_hidden = forms.BooleanField(required=False, help_text="Fields that have been removed from the form by an administrator will be seen anyway.")
+    show_hidden_fields = forms.BooleanField(required=False, help_text="Fields that have been removed from the form by an administrator will be seen anyway.")
     export = forms.BooleanField(required=False, help_text="Export this data as an excel spreadsheet.")
 
     def clean(self):

@@ -209,7 +209,7 @@ class Location(Auditable, Noun):
                 blob = [s.datetime.strftime("%Y-%m-1 00:00:00"), s.score, s.passing, s.datetime.strftime("%B")]
                 data.append(blob)
             i_series = {
-                "name":indicator.title+" [GOAL: "+str(indicator.passing_percentage)+"%]",
+                "name":indicator.get_long_name(),
                 "id":indicator.id,
                 "data":data
             }
@@ -314,6 +314,9 @@ class Indicator(Auditable, Noun):
 
     def __unicode__(self):
         return self.get_title()
+
+    def get_long_name(self):
+        return "#"+str(self.form_number)+" "+self.title+" [GOAL: "+str(self.passing_percentage)+"%]"
 
     def get_absolute_url(self):
         return reverse(viewname='indicator_detail', args=[self.id], current_app=APPNAME)

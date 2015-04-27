@@ -508,7 +508,7 @@ class EntriesFilterView(SiteRootView, FormView):
 
     def form_valid(self, form):
         try:
-            show_hidden = form.cleaned_data['show_hidden']
+            show_hidden_fields = form.cleaned_data['show_hidden']
         except Exception as e:
             show_hidden = False
 
@@ -1095,7 +1095,7 @@ class LocationListVisualizeView(SiteRootView, TemplateView):
         # Call the base implementation first to get a context
         context = super(LocationListVisualizeView, self).get_context_data(**kwargs)
         # Add in a QuerySet of all the books
-        context['indicators'] = cm.Indicator.objects.all()
+        context['indicators'] = cm.Indicator.objects.all().order_by('form_number')
         return context
 
     def get(self, request, *args, **kwargs):
