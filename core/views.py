@@ -508,11 +508,21 @@ class EntriesFilterView(SiteRootView, FormView):
 
     def form_valid(self, form):
         try:
+            show_hidden = form.cleaned_data['show_hidden']
+        except Exception as e:
+            show_hidden = False
+
+
+
+        indicator = form.cleaned_data['indicator']
+        columns = indicator.get_column_headers(show_hidden=show_hidden)
+        '''
+        try:
             indicator = form.cleaned_data['indicator']
-            columns = indicator.get_column_headers()
+            columns = indicator.get_column_headers(show_hidden=show_hidden)
         except Exception as e:
             indicator = None
-
+        '''
         if form.cleaned_data['export']==True:
             response = HttpResponse(mimetype="application/vnd.ms-excel")
             fname = "%s-%s.xls" % ("QI Data Export", slugify(now().ctime()))
@@ -522,7 +532,7 @@ class EntriesFilterView(SiteRootView, FormView):
             workbook = xlwt.Workbook(encoding='utf8')
             if indicator == None:
                 for i in cm.Indicator.objects.all().order_by("form_number"):
-                    columns = i.get_column_headers()
+                    columns = i.get_column_headers(show_hidden=show_hidden)
                     workbook = self.add_indicator_to_workbook(i, workbook, columns, form.cleaned_data)
             else:
                 workbook = self.add_indicator_to_workbook(indicator, workbook, columns, form.cleaned_data)
@@ -533,7 +543,7 @@ class EntriesFilterView(SiteRootView, FormView):
         else:
             context = {
             "columns":columns,
-            "entries":indicator.get_filtered_entries(form.cleaned_data,csv=False),
+            "entries":indicator.get_filtered_entries(form.cleaned_data,csv=False, show_hidden=show_hidden),
             "available_verbs": self.noun.get_available_verbs(self.request.user),
             "filter":form.cleaned_data
             }

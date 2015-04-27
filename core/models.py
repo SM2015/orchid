@@ -342,11 +342,15 @@ class Indicator(Auditable, Noun):
         remote_form_dict = remote_form.as_dict()
         return remote_form_dict
 
-    def get_serialized_fields(self, visible=None):
-        fields = []
+    def get_fields(self, show_hidden=None):
         field_queryset = self.form.fields.all().order_by("order")
-        if visible!=None:
-            field_queryset.filter(visible=visible)
+        if show_hidden != True:
+            field_queryset = field_queryset.exclude(visible=False)
+        return field_queryset
+
+    def get_serialized_fields(self, show_hidden=None):
+        fields = []
+        field_queryset = self.get_fields(show_hidden=show_hidden)
         for f in field_queryset:
             if f.field_type in ALLOWED_FIELD_TYPES:
                 blob = {
@@ -378,10 +382,10 @@ class Indicator(Auditable, Noun):
 
         return blob
 
-    def get_column_headers(self):
-        return ["Date"]+list(self.form.fields.filter(visible=True).order_by("order").values_list('label', flat=True))
+    def get_column_headers(self, show_hidden=None):
+        return ["Date"]+list(self.get_fields(show_hidden=show_hidden).order_by("order").values_list('label', flat=True))
 
-    def get_filtered_entries(self, savedFilter, csv=False):
+    def get_filtered_entries(self, savedFilter, csv=False, show_hidden=None):
         # Store the index of each field against its ID for building each
         # entry row with columns in the correct order. Also store the IDs of
         # fields with a type of FileField or Date-like for special handling of
@@ -401,7 +405,7 @@ class Indicator(Auditable, Noun):
         #print "location_values: "+str(location_values)
 
         field_indexes = {}
-        for field in self.form.fields.filter(visible=True).order_by("order"):
+        for field in self.get_fields(show_hidden=show_hidden).order_by("order"):
             field_indexes[field.id] = len(field_indexes)
         #get all field entries from the given form
         field_entries = fm.FieldEntry.objects.filter(entry__form=self.form
