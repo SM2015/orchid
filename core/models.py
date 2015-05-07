@@ -241,7 +241,7 @@ class Location(Auditable, Noun):
                 return 100 * float(part)/float(whole)
             t = datetime.datetime.now()
             year_ago = t-relativedelta(months=12)
-            indicators = self.get_indicators()
+            indicators = self.get_indicators().order_by('form_number')
             if indicators.count() == 0:
                 return []
             series = []

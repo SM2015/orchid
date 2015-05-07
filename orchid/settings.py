@@ -46,7 +46,7 @@ INSTALLED_APPS = (
     'forms_builder.forms',
     'geoposition',
     'bootstrap_pagination',
-    'debug_toolbar',
+    #'debug_toolbar',
 )
 
 MIDDLEWARE_CLASSES = (
