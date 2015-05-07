@@ -288,7 +288,7 @@ class Location(Auditable, Noun):
 def update_cached(self, force_check_all):
     #get all scores for this location created since last update
     last_update = t-relativedelta(days=1)
-    scores = cm.Score.objects.filter(location=self, created_at__gte=year_ago).order_by('datetime')
+    scores = cm.Score.objects.filter(location=self, datetime__gte=year_ago).order_by('datetime')
     invalidated_keys = []
     #invalidate all_series data
     for s in scores:

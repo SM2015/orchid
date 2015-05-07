@@ -514,15 +514,12 @@ class EntriesFilterView(SiteRootView, FormView):
 
 
 
-        indicator = form.cleaned_data['indicator']
-        columns = indicator.get_column_headers(show_hidden=show_hidden)
-        '''
         try:
             indicator = form.cleaned_data['indicator']
             columns = indicator.get_column_headers(show_hidden=show_hidden)
         except Exception as e:
             indicator = None
-        '''
+            
         if form.cleaned_data['export']==True:
             response = HttpResponse(mimetype="application/vnd.ms-excel")
             fname = "%s-%s.xls" % ("QI Data Export", slugify(now().ctime()))
@@ -1005,7 +1002,6 @@ class LocationScoreUploadView(LocationView, FormView):
                 "error":e
             }
         if self.request.is_ajax():
-
             data = json.dumps(context, default=decimal_default)
             out_kwargs = {'content_type':'application/json'}
             return HttpResponse(data, **out_kwargs)
