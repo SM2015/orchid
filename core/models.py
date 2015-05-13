@@ -315,8 +315,14 @@ class Indicator(Auditable, Noun):
     def __unicode__(self):
         return self.get_title()
 
+    def get_form_number_string(self):
+        if self.form_number != None:
+            return "#"+str(self.form_number)
+        else:
+            return ""
+
     def get_long_name(self):
-        return "#"+str(self.form_number)+" "+self.title+" [GOAL: "+str(self.passing_percentage)+"%]"
+        return self.get_form_number_string()+" "+self.title+" [GOAL: "+str(self.passing_percentage)+"%]"
 
     def get_absolute_url(self):
         return reverse(viewname='indicator_detail', args=[self.id], current_app=APPNAME)

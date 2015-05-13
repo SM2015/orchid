@@ -11,11 +11,11 @@
 <script type="text/javascript" src="http://www.highcharts.com/media/com_demo/highslide-full.min.js"></script>
 <script type="text/javascript" src="http://www.highcharts.com/media/com_demo/highslide.config.js" charset="utf-8"></script>
 <script type="text/javascript">
-
 $(function () {
 
     var processed_json = new Array(); 
     var month = new Array();
+
     month[0] = "January";
     month[1] = "February";
     month[2] = "March";
@@ -29,26 +29,30 @@ $(function () {
     month[10] = "November";
     month[11] = "December";
     $.getJSON('.', function(data) {
-        console.log("data.series");
-        console.log(data.series);
+        //console.log("data.series");
+        //console.log(data.series);
         newSeries = [];
         for (s in data.series) {
             this_series = data.series[s];
-            console.log(this_series);
+            //console.log(this_series);
             newData = [];
 
             for (d in this_series.data) {
                 this_data = this_series.data[d];
+                pointStart = new Date(this_data[0]).getTime();
+                //console.log("pointStart = Date.UTC(2010, 0, 1,5,3,7);");
                 newData.push( [ new Date(this_data[0]).getTime(), parseInt(this_data[1]), this_data[2],this_data[3] ] );
-                console.log(newData);
+                //console.log(newData);
+                //if there are more than one points, clear the mins
             }
             this_series.data = newData;
             newSeries.push(this_series);
         }
-        console.log("newSeries");
-        console.log(newSeries);
+        //console.log("newSeries");
+        //console.log(newSeries);
 
         function apply_chart(dom_object, series_data_blob, chart_title, legend_enabled) {
+
 
         return    dom_object.highcharts({
         chart: {
@@ -73,7 +77,9 @@ $(function () {
             },
             title: {
                 text: 'Date'
-            }
+            },
+            minRange:30*12*3600000,
+
         },
         yAxis: {
             title: {
@@ -82,6 +88,7 @@ $(function () {
             min: 0,
             max:100
         },
+        //pointStart : pointStart,
         legend: {
             enabled: legend_enabled
         },
@@ -99,11 +106,11 @@ $(function () {
 
     //draw individual charts for each line
     for (var s in newSeries) {
-        console.log(newSeries[s]);
+        //console.log(newSeries[s]);
         
         var most_recent_datapoint = newSeries[s].data[newSeries[s].data.length-1];
         if(most_recent_datapoint==null){
-            console.log("most_recent_datapoint==null");
+            //console.log("most_recent_datapoint==null");
             var most_recent_passing = "N/D";
             var most_recent_date = "N/D";
             var most_recent_score = "N/D";
