@@ -7,7 +7,7 @@ anyjson==0.3.3
 argparse==1.2.1
 billiard==3.3.0.16
 boto==2.22.0
--e git://github.com/neuman/python-carteblanche.git@9f75d6d53df73bee2a545f7ca23fe46a1295ea3e#egg=carteblanche-origin/development
+carteblanche==1.0.0
 celery==3.1.10
 django-activity-stream==0.4.5beta1
 django-appconf==0.6
