@@ -242,7 +242,8 @@ class Location(Auditable, Noun):
             t = datetime.datetime.now()
             year_ago = t-relativedelta(months=12)
             indicators = self.get_indicators().order_by('form_number')
-            if indicators.count() == 0:
+            indicators_count = indicators.count()
+            if indicators_count == 0:
                 return []
             series = []
             for i in indicators:
@@ -257,20 +258,22 @@ class Location(Auditable, Noun):
                     if not counts.has_key(d[0]):
                         #store 1 there if the score is passing
                         if d[2] == True:
-                            counts[d[0]] = 1
+                            counts[d[0]] = [1,1]
                         #store 0 if it's failing
                         elif d[2] == False:
-                            counts[d[0]] = 0
+                            counts[d[0]] = [0,1]
                     #otherwise update
                     else:
                         #add 1 if passing
                         if d[2] == True:
-                            counts[d[0]]+=1
+                            counts[d[0]] = [x + y for x, y in zip(counts[d[0]], [1,1])]
+                        elif (d[2] == False):
+                            counts[d[0]] = [x + y for x, y in zip(counts[d[0]], [0,1])]
                     #do nothing if failing
                 #iterate over counts, calculating counts[n]/indicators.count
-                #raise Exception(counts)
-            indicators_count = indicators.count()
-            goals_met_data = [[k, percentage(v,indicators_count), percentage(v,indicators_count)>=DEFAULT_PASSING, DEFAULT_PASSING] for k, v in counts.items()]
+            print counts
+            
+            goals_met_data = [[k, percentage(v[0],v[1]), percentage(v[0],v[1])>=DEFAULT_PASSING, DEFAULT_PASSING] for k, v in counts.items()]
             goals_met_data = sorted(goals_met_data, key=lambda k: k[0]) 
             goals_met_series = {
                 "name":"PERCENT OF GOALS MET",
