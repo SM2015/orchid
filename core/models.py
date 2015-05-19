@@ -255,6 +255,10 @@ class Location(Auditable, Noun):
                     #print s
                     #print d
                 #if counts doesn't contain the timestamp key, add it
+                    class datum(object):
+                        timestamp = None
+                        is_passing = None
+
                     d_timestamp = d[0]
                     d_passing = d[2]
                     if not counts.has_key(d_timestamp):
@@ -272,10 +276,11 @@ class Location(Auditable, Noun):
                         #add 1 if passing
                         if d_passing == True:
                             print "add 1 if passing"
-                            counts[d_timestamp] = [x + y for x, y in zip(counts[d_timestamp], [1,1])]
+                            counts[d_timestamp][0] = counts[d_timestamp][0] + 1
+                            counts[d_timestamp][1] = counts[d_timestamp][1] + 1
                         else:
                             print "add 1 to total count only if failing"
-                            counts[d_timestamp] = [x + y for x, y in zip(counts[d_timestamp], [0,1])]
+                            counts[d_timestamp][1] = counts[d_timestamp][1] + 1
                     #do nothing if failing
                 #iterate over counts, calculating counts[n]/indicators.count
                 print counts
