@@ -115,7 +115,45 @@ ACTSTREAM_SETTINGS = {
 DEFAULT_FILE_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
 AWS_S3_FORCE_HTTP_URL = True
 AWS_QUERYSTRING_AUTH = False
-from local_settings import *
+
+
+
+import os
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname( __file__ ), '..'))
+
+DEBUG = True
+
+TEMPLATE_DEBUG = True
+
+ALLOWED_HOSTS = ['*']
+
+
+AWS_SECRET_ACCESS_KEY = os.environ.get('ORCHID_AWS_SECRET_ACCESS_KEY')
+AWS_ACCESS_KEY_ID = os.environ.get('ORCHID_AWS_ACCESS_KEY_ID')
+AWS_STORAGE_BUCKET_NAME = os.environ.get('ORCHID_AWS_STORAGE_BUCKET_NAME')
+'''
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+    }
+}
+'''
+
+DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'NAME': 'os.environ.get('ORCHID_DATABASE_NAME')',
+            'USER': 'os.environ.get('ORCHID_DATABASE_USER')',
+            'PASSWORD': 'os.environ.get('ORCHID_DATABASE_PASSWORD')',
+            #prod
+            'HOST': os.environ.get('ORCHID_DATABASE_HOST'),
+            #'HOST': 'mohtestdb.cqvqhvonzmwu.us-west-2.rds.amazonaws.com',
+            'PORT': '5432',
+        }
+    }
+
+
 
 TEMPLATE_CONTEXT_PROCESSORS = (
     "django.contrib.auth.context_processors.auth",

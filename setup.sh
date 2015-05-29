@@ -1,7 +1,3 @@
-To deploy Project Orchid
-
-Installation
-------------
 #!/bin/bash
 mkdir /var/www
 groupadd www
@@ -11,11 +7,13 @@ chmod 2775 /var/www
 find /var/www -type d -exec chmod 2775 {} +
 find /var/www -type f -exec chmod 0664 {} +
 cd /var/www
-#set up env vars
-sh -c "echo 'export ORCHID_AWS_SECRET_ACCESS_KEY=********************' >> ~/.bashrc"
-sh -c "echo 'export ORCHID_AWS_ACCESS_KEY_ID=********************' >> ~/.bashrc"
-sh -c "echo 'export AWS_STORAGE_BUCKET_NAME=**********************' >> ~/.bashrc"
-sh -c "echo 'export ORCHID_DATABASE_HOST=******************' >> ~/.bashrc"
+sh -c "echo 'export ORCHID_AWS_SECRET_ACCESS_KEY=YOUR_DATA_HERE' >> ~/.bashrc"
+sh -c "echo 'export ORCHID_AWS_ACCESS_KEY_ID=YOUR_DATA_HERE' >> ~/.bashrc"
+sh -c "echo 'export AWS_STORAGE_BUCKET_NAME=YOUR_DATA_HERE' >> ~/.bashrc"
+sh -c "echo 'export ORCHID_DATABASE_HOST=YOUR_DATA_HERE' >> ~/.bashrc"
+sh -c "echo 'export ORCHID_DATABASE_NAME=YOUR_DATA_HERE' >> ~/.bashrc"
+sh -c "echo 'export ORCHID_DATABASE_USERNAME=YOUR_DATA_HERE' >> ~/.bashrc"
+sh -c "echo 'export ORCHID_DATABASE_PASSWORD=YOUR_DATA_HERE' >> ~/.bashrc"
 source ~/.bashrc
 #!/bin/bash -ex
 echo spinning up...
