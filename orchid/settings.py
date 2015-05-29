@@ -143,9 +143,9 @@ DATABASES = {
 DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql_psycopg2',
-            'NAME': 'os.environ.get('ORCHID_DATABASE_NAME')',
-            'USER': 'os.environ.get('ORCHID_DATABASE_USER')',
-            'PASSWORD': 'os.environ.get('ORCHID_DATABASE_PASSWORD')',
+            'NAME': os.environ.get('ORCHID_DATABASE_NAME'),
+            'USER': os.environ.get('ORCHID_DATABASE_USER'),
+            'PASSWORD': os.environ.get('ORCHID_DATABASE_PASSWORD'),
             #prod
             'HOST': os.environ.get('ORCHID_DATABASE_HOST'),
             #'HOST': 'mohtestdb.cqvqhvonzmwu.us-west-2.rds.amazonaws.com',
